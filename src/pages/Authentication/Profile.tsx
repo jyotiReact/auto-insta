@@ -40,7 +40,7 @@ const ProfileSelector: React.FC = () => {
   };
   useEffect(() => {
     async function sendData() {
-      fetch('https://f09c-124-253-82-41.ngrok-free.app/meta/exchange-token', {
+      fetch('https://instautomate.it-waves.com//meta/exchange-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

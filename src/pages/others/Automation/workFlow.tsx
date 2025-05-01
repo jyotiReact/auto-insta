@@ -1,305 +1,173 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactFlow, {
-  ReactFlowProvider,
   addEdge,
   useNodesState,
   useEdgesState,
   Controls,
   Background,
-  Panel,
   Node,
   Edge,
-  Connection,
-  NodeTypes,
-  ReactFlowInstance,
   MarkerType,
-  SmoothStepEdge,
+  applyNodeChanges,
+  applyEdgeChanges,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import TriggerComponent from './RightPannel';
-import Workflow from './WorkflowCanvas';
-
-interface TriggerNodeData {
-  label: string;
-  isConfigured: boolean;
-  onAddActionNode?: (triggerId: string) => void;
-}
-
-interface ActionInput {
-  label: string;
-}
-
-interface ActionNodeData {
-  label: string;
-  inputs: ActionInput[];
-}
-
-type CustomNodeData = TriggerNodeData | ActionNodeData;
-
-// Custom Node Components
-const DefaultNode: React.FC<{ data: { label: string } }> = ({ data }) => (
-  <div className="px-4 py-10 rounded-xl bg-white border-2 shadow-md w-72 transition-all border-pink-500">
-    <div>
-      <div className="flex items-center gap-2">
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-        <div className="text-sm font-semibold text-gray-800">{data.label}</div>
-      </div>
-    </div>
-  </div>
-);
-
-const TriggerNode: React.FC<{
-  id: string;
-  data: TriggerNodeData;
-  isActive?: boolean;
-}> = ({ id, data, isActive }) => (
-  <div
-    className={`relative px-4 py-3 rounded-xl bg-white border-2 shadow-md w-72 transition-all ${
-      !isActive ? 'border-pink-500' : 'border-gray-200'
-    }`}
-  >
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2 bg-pink-100 text-pink-600 rounded-full px-3 py-1 text-xs font-medium">
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
-        <span>Trigger</span>
-      </div>
-    </div>
-    <div className="mt-3">
-      <div className="flex items-center gap-2">
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-        <div className="text-sm font-semibold text-gray-800">{data.label}</div>
-      </div>
-      <div className="mt-2 border-t border-gray-200 pt-2">
-        <span className="text-xs text-gray-500">
-          {data.isConfigured ? 'Configured' : 'Not setup yet.'}
-        </span>
-      </div>
-    </div>
-    <button
-      className="mt-3 w-full py-2 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors duration-200"
-      onClick={() => data.onAddActionNode?.(id)}
-    >
-      Add Next Node
-    </button>
-  </div>
-);
-
-const ActionNode: React.FC<{ data: ActionNodeData }> = ({ data }) => (
-  <div className="relative px-4 py-3 rounded-xl bg-white border-2 shadow-md w-72 transition-all border-pink-500">
-    <div className="mt-3">
-      <div className="flex items-center gap-2">
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-        <div className="text-sm font-semibold text-gray-800">{data.label}</div>
-      </div>
-    </div>
-  </div>
-);
+import { TriggerNode } from './TriggerNode';
+import { ActionNode } from './ActionNode';
+import { DefaultNode } from './DefaultNode';
 
 // Define node types
-const nodeTypes: NodeTypes = {
-  customDefault: DefaultNode,
+const nodeTypes = {
+  default: DefaultNode,
   trigger: TriggerNode,
   action: ActionNode,
 };
 
-const initialNodes: Node<CustomNodeData>[] = [
+const initialNodes: Node[] = [
   {
     id: '1',
-    type: 'customDefault',
-    position: { x: 100, y: 50 },
-    data: { label: 'Start by selecting a trigger' },
+    type: 'default',
+    position: { x: 200, y: 200 },
+    data: { label: 'Set a trigger in the sidebar', isConfigured: false },
+    style: {
+      background: '#ffffff',
+      border: '2px solid #E1306C',
+      borderRadius: '12px',
+      color: '#E1306C',
+      fontWeight: '600',
+      fontSize: '14px',
+      boxShadow: '0 4px 6px rgba(225, 48, 108, 0.2)',
+      width: '280px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100px',
+      textAlign: 'center',
+    },
   },
 ];
 
 const initialEdges: Edge[] = [];
 
 const WorkflowEditor: React.FC = () => {
-  const [nodes, setNodes, onNodesChange] =
-    useNodesState<CustomNodeData>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
-  const [selectedNode, setSelectedNode] = useState<Node<CustomNodeData> | null>(
-    null,
-  );
+  const [nodes, setNodes] = useNodesState(initialNodes);
+  const [edges, setEdges] = useEdgesState(initialEdges);
+
   const [activeTab, setActiveTab] = useState('Editor');
   const [isDraft, setIsDraft] = useState(false);
-  const lastNodeId = useRef<string | null>(null);
-  const yPos = useRef(0);
-
-  const handleAddActionNode = useCallback(() => {
-    if (!reactFlowInstance) return;
-
-    const position = reactFlowInstance.project({
-      x: (yPos.current += 200),
-      y: (yPos.current += 100),
-    });
-
-    const newNodeId = `action-${Date.now()}`;
-    const newNode: Node<CustomNodeData> = {
-      id: newNodeId,
-      type: 'action',
-      position,
-      data: {
-        label: 'New Action',
-        inputs: [{ label: 'New Input' }],
-      },
-    };
-
-    if (yPos.current) {
-      const newEdge: Edge = {
-        id: `edge-${Date.now()}`,
-        source: `trigger-${Date.now()}`,
-        target: newNodeId,
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: '#E1306C', strokeWidth: 3 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#E1306C' },
-      };
-      setEdges((eds) => addEdge(newEdge, eds));
-    }
-
-    setNodes((nds) => [...nds, newNode]);
-    lastNodeId.current = newNodeId;
-
-    setTimeout(() => {
-      reactFlowInstance.fitView({ padding: 0.5, duration: 300 });
-    }, 100);
-  }, [reactFlowInstance, setNodes, setEdges]);
-
-  const onConnect = useCallback(
-    (paramsEveryone: Edge | Connection) =>
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            type: 'smoothstep',
-            style: { stroke: '#E1306C', strokeWidth: 3 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#E1306C' },
-          },
-          eds,
-        ),
-      ),
-    [setEdges],
-  );
-
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-      if (!reactFlowInstance) return;
-
-      const type = event.dataTransfer.getData('application/reactflow');
-      if (!type) return;
-
-      const position = reactFlowInstance.project({
-        x: event.clientX - 100,
-        y: event.clientY - 50,
-      });
-
-      const newNode: Node<CustomNodeData> = {
-        id: `${Date.now()}`,
-        type: type as 'trigger' | 'action',
-        position,
-        data:
-          type === 'trigger'
-            ? {
-                label: 'New Trigger',
-                isConfigured: false,
-                onAddActionNode: handleAddActionNode,
-              }
-            : {
-                label: 'New Action',
-                inputs: [{ label: 'New Input' }],
-              },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [reactFlowInstance, handleAddActionNode, setNodes],
-  );
-
-  const onNodeClick = useCallback(
-    (_event: React.MouseEvent, node: Node<CustomNodeData>) => {
-      setSelectedNode(node);
-    },
-    [],
-  );
+  const [tempKeywords, setTempKeywords] = useState<string[]>([]);
 
   const showTriggerNode = useCallback(
     (nodeData: { label: string }) => {
-      setNodes([
-        {
-          id: `trigger-${Date.now()}`,
+      const triggerId = `trigger-${Date.now()}`;
+
+      setNodes((prevNodes) => {
+        // Step 1: Update existing trigger nodes
+        const triggerUpdatedNodes = prevNodes.map((node) => {
+          if (node.type === 'trigger') {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isFirstTrigger: false,
+              },
+            };
+          }
+          return node;
+        });
+
+        // Step 2: Filter out default nodes
+        const filteredNodes = triggerUpdatedNodes.filter(
+          (node) => node.type !== 'default',
+        );
+
+        // Step 3: Create new trigger node
+        const newTriggerNode: Node = {
+          id: triggerId,
           type: 'trigger',
           position: { x: 250, y: 50 },
           data: {
             label: nodeData.label,
             isConfigured: false,
-            onAddActionNode: handleAddActionNode,
+            isFirstTrigger: true,
+            keywords: tempKeywords, // Use the latest tempKeywords
+            onAddActionNode: () => {
+              const actionId = `action-${Date.now()}`;
+              const newActionNode: Node = {
+                id: actionId,
+                type: 'action',
+                position: { x: 250, y: 250 },
+                data: {
+                  label: 'New Action',
+                  isConfigured: false,
+                },
+              };
+
+              setNodes((prev) =>
+                prev
+                  .map((node) =>
+                    node.id === triggerId
+                      ? {
+                          ...node,
+                          data: {
+                            ...node.data,
+                            isConfigured: true,
+                            isFirstTrigger: false,
+                          },
+                        }
+                      : node,
+                  )
+                  .concat(newActionNode),
+              );
+
+              setEdges((prev) => {
+                const newEdge: Edge = {
+                  id: `e-${triggerId}-${actionId}`,
+                  source: triggerId,
+                  target: actionId,
+                  sourceHandle: 'sourceHandle',
+                  targetHandle: 'targetHandle',
+                  markerEnd: {
+                    type: MarkerType.ArrowClosed,
+                    color: '#E1306C',
+                  },
+                  type: 'smoothstep',
+                  style: { stroke: '#E1306C' },
+                  animated: true,
+                };
+                return addEdge(newEdge, prev);
+              });
+            },
           },
-        },
-      ]);
+        };
+
+        return [...filteredNodes, newTriggerNode];
+      });
     },
-    [setNodes, handleAddActionNode],
+    [setNodes, setEdges, tempKeywords], // Add tempKeywords to dependencies
   );
+
+  const onNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes],
+  );
+
+  const onEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges],
+  );
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
+
+  console.log('Temp Keywords in WorkflowEditor:', tempKeywords);
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex items-center  justify-between px-6 py-4 bg-white border-b border-pink-100 ">
-        {/* Left Tabs */}
+      <div className="flex items-center justify-between sticky right-0 top-0 p-4 left-[240px]  bg-white">
         <div className="flex space-x-6">
           <button
             onClick={() => setActiveTab('Editor')}
@@ -329,7 +197,6 @@ const WorkflowEditor: React.FC = () => {
           </button>
         </div>
 
-        {/* Right Toggle */}
         <div className="flex items-center space-x-4">
           <span
             className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 shadow-sm ${
@@ -354,8 +221,24 @@ const WorkflowEditor: React.FC = () => {
         </div>
       </div>
       <div className="flex gap-4 w-full h-full">
-        <Workflow />
-        <TriggerComponent handleClick={showTriggerNode} />
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          defaultViewport={{ zoom: 1.0, x: 0, y: 0 }}
+          minZoom={0.5}
+        >
+          <Background variant="dots" gap={16} size={1} color="pink" />
+          <Controls />
+        </ReactFlow>
+        <TriggerComponent
+          handleClick={showTriggerNode}
+          tempKeywords={tempKeywords}
+          setTempKeywords={setTempKeywords}
+        />
       </div>
     </div>
   );

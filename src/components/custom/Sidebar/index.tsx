@@ -76,13 +76,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   return (
     <aside
       ref={sidebar}
-      className={`absolute left-0 top-0 z-10 flex h-screen w-60 flex-col overflow-y-hidden bg-gradient-to-b from-white to-pink-50 duration-300 ease-linear lg:static lg:translate-x-0  ${
+      className={`fixed left-0 top-0  flex h-screen w-60 flex-col overflow-y-hidden bg-white duration-300 ease-linear lg:static lg:translate-x-0  ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
+      <div className="flex items-center justify-between gap-2 ">
         <NavLink to="/">
-          <img src={Logo} alt="Logo" className="h-8" />
+          {/* <img src={Logo} alt="Logo" className="h-8" /> */}
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent px-6 py-3 inline-block drop-shadow-lg hover:scale-105 transition transform duration-300 ease-in-out">
+            Insta Automate
+          </h1>
         </NavLink>
 
         <button
@@ -175,7 +178,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                       to={subItem.path}
                                       className={({ isActive }) =>
                                         `group relative flex items-center gap-2.5 rounded-md px-4 py-2 font-medium text-gray-600 duration-300 ease-in-out hover:bg-pink-50 hover:text-pink-600 ${
-                                          isActive ? 'bg-pink-50 text-pink-600' : ''
+                                          isActive
+                                            ? 'bg-pink-50 text-pink-600'
+                                            : ''
                                         }`
                                       }
                                     >

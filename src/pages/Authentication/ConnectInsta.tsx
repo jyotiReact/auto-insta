@@ -31,19 +31,15 @@ const ConnectInstagram: React.FC = () => {
               and audience growth.
             </p>
           </div>
-
-          <button
-            // onClick={handleConnectClick}
-            className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#833AB4] via-[#C13584] to-[#E1306C] hover:from-[#7229a0] hover:via-[#a82b71] hover:to-[#c2275b] text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg w-full max-w-xs"
-          >
-            <FaInstagram size={20} />
-            <a
-              href="https://www.instagram.com/consent/?flow=ig_biz_login_oauth&params_json=%7B%22client_id%22%3A%221701247693817298%22%2C%22redirect_uri%22%3A%22https%3A%5C%2F%5C%2Finsta-automate.netlify.app%5C%2Fauth%5C%2Fprofile%22%2C%22response_type%22%3A%22code%22%2C%22state%22%3Anull%2C%22scope%22%3A%22instagram_business_basic-instagram_business_manage_comments-instagram_business_manage_messages-instagram_business_content_publish-instagram_business_manage_insights%22%2C%22logger_id%22%3A%22d56bcce2-a35d-42cd-8ebd-c8a620f90092%22%2C%22app_id%22%3A%221701247693817298%22%2C%22platform_app_id%22%3A%221701247693817298%22%7D&source=oauth_permissions_page_www"
-              target="_blank"
+          <a href="https://www.instagram.com/consent/?flow=ig_biz_login_oauth&params_json=%7B%22client_id%22%3A%221701247693817298%22%2C%22redirect_uri%22%3A%22https%3A%5C%2F%5C%2Finsta-automate.netlify.app%5C%2Fauth%5C%2Fprofile%22%2C%22response_type%22%3A%22code%22%2C%22state%22%3Anull%2C%22scope%22%3A%22instagram_business_basic-instagram_business_manage_comments-instagram_business_manage_messages-instagram_business_content_publish-instagram_business_manage_insights%22%2C%22logger_id%22%3A%22d56bcce2-a35d-42cd-8ebd-c8a620f90092%22%2C%22app_id%22%3A%221701247693817298%22%2C%22platform_app_id%22%3A%221701247693817298%22%7D&source=oauth_permissions_page_www">
+            <button
+              // onClick={handleConnectClick}
+              className="flex items-center justify-center gap-3 bg-gradient-to-r from-[#833AB4] via-[#C13584] to-[#E1306C] hover:from-[#7229a0] hover:via-[#a82b71] hover:to-[#c2275b] text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg w-full max-w-xs"
             >
+              <FaInstagram size={20} />
               Connect Instagram Account
-            </a>
-          </button>
+            </button>
+          </a>
 
           <div className="mt-10 pt-6 border-t border-gray-100">
             <p className="text-sm text-gray-500">

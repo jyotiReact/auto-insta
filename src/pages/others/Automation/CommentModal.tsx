@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 
-const CommentRepliesModal: React.FC<{ onClose: () => void }> = ({
+const CommentRepliesModal: React.FC<{ onClose: () => void; replies: { id: string; text: string; emoji: string }[]; setReplies: (replies: { id: string; text: string; emoji: string }[]) => void }> = ({
   onClose,
   replies,
   setReplies,
@@ -11,11 +11,8 @@ const CommentRepliesModal: React.FC<{ onClose: () => void }> = ({
   const [newReply, setNewReply] = useState('');
 
   const handleAddReply = () => {
-    if (
-      newReply.trim() &&
-      !replies.some((r) => r.text === newReply.trim())
-    ) {
-        setReplies([
+    if (newReply.trim() && !replies.some((r) => r.text === newReply.trim())) {
+      setReplies([
         ...replies,
         {
           id: String(replies.length + 1),
@@ -35,11 +32,11 @@ const CommentRepliesModal: React.FC<{ onClose: () => void }> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-9999 backdrop-blur-sm">
-      <div className="bg-white p-6 rounded-xl w-[500px] shadow-lg relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-white p-6 rounded-xl w-[500px] shadow-lg relative border border-pink-200">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-indigo-600 transition-colors duration-200"
+          className="absolute top-4 right-4 text-pink-600 hover:text-pink-700 transition-all duration-200 hover:scale-110"
         >
           <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
         </button>
@@ -53,15 +50,15 @@ const CommentRepliesModal: React.FC<{ onClose: () => void }> = ({
           {replies.map((reply) => (
             <div
               key={reply.id}
-              className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="flex items-center justify-between p-3 bg-pink-50 rounded-xl hover:-translate-y-1 hover:shadow-md transition-all duration-200"
             >
               <label className="flex items-center space-x-3 flex-1">
-                <span className="text-gray-800">{reply.text}</span>
+                <span className="text-gray-800 text-sm">{reply.text}</span>
                 <span className="text-xl">{reply.emoji}</span>
               </label>
               <button
                 onClick={() => handleRemoveReply(reply.id)}
-                className="text-gray-500 hover:text-red-500 transition-colors duration-200"
+                className="text-pink-600 hover:text-pink-700 transition-all duration-200 hover:scale-110"
               >
                 <FontAwesomeIcon icon={faTimes} className="h-4 w-4" />
               </button>
@@ -75,11 +72,11 @@ const CommentRepliesModal: React.FC<{ onClose: () => void }> = ({
             value={newReply}
             onChange={(e) => setNewReply(e.target.value)}
             placeholder="Add New Reply..."
-            className="flex-1 px-3 py-2 bg-gray-100 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600 outline-none transition-colors duration-200"
+            className="flex-1 px-4 py-2 bg-pink-50 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
           />
           <button
             onClick={handleAddReply}
-            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+            className="p-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
           >
             <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
           </button>
@@ -88,7 +85,7 @@ const CommentRepliesModal: React.FC<{ onClose: () => void }> = ({
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+            className="px-4 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
           >
             Confirm
           </button>

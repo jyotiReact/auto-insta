@@ -29,7 +29,21 @@ export default function Workflow() {
       position: { x: 250, y: 250 },
       data: {},
     },
+    {
+      id: '3',
+      type: 'default',
+      position: { x: 100, y: 400 },
+      data: { label: 'Default Node' },
+      style: {
+        backgroundColor: '#f0f0f0',
+        border: '2px solid #888',
+        padding: 10,
+        borderRadius: 8,
+        color: '#333',
+      },
+    },
   ]);
+  
 
   const [edges, setEdges] = useState([
     {
@@ -38,7 +52,7 @@ export default function Workflow() {
       target: '2',
       type: 'smoothstep',
       animated: true,
-      style: { stroke: '#a855f7' },
+      style: { stroke: '#ec4899' },
     },
   ]);
 
@@ -66,7 +80,7 @@ export default function Workflow() {
         nodeTypes={nodeTypes}
         fitView
       >
-        <Background variant="dots" gap={16} size={1} color="#a855f7" />
+        <Background variant="dots" gap={16} size={1} color="pink" />
         <Controls />
         {/* <MiniMap /> */}
       </ReactFlow>

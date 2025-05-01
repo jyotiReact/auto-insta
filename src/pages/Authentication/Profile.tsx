@@ -40,7 +40,7 @@ const ProfileSelector: React.FC = () => {
   };
   useEffect(() => {
     async function sendData() {
-      fetch('https://instautomate.it-waves.com//meta/exchange-token', {
+      fetch('https://instautomate.it-waves.com/meta/exchange-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

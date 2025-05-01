@@ -4,12 +4,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ConnectInstagram: React.FC = () => {
-//   const navigate = useNavigate();
-//   const handleConnectClick = (): void => {
-//     navigate(
-//       'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&cl[…]usiness_content_publish%2Cinstagram_business_manage_insights',
-//     );
-//   };
+  //   const navigate = useNavigate();
+  //   const handleConnectClick = (): void => {
+  //     navigate(
+  //       'https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&cl[…]usiness_content_publish%2Cinstagram_business_manage_insights',
+  //     );
+  //   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -38,7 +38,7 @@ const ConnectInstagram: React.FC = () => {
           >
             <FaInstagram size={20} />
             <a
-              href="https://www.instagram.com/consent/?flow=ig_biz_login_oauth&params_json=%7B%22client_id%22%3A%224015043245481603%22%2C%22redirect_uri%22%3A%22https%3A%5C%2F%5C%2Fa46a-2409-40d1-ad-71a5-71dd-e5c-bba-f803.ngrok-free.app%5C%2Fauth%5C%2Fprofile%22%2C%22response_type%22%3A%22code%22%2C%22state%22%3Anull%2C%22scope%22%3A%22instagram_business_basic-instagram_business_manage_comments-instagram_business_manage_messages-instagram_business_content_publish-instagram_business_manage_insights%22%2C%22logger_id%22%3A%22fae34fcb-8290-42bd-a56d-4c22790856d0%22%2C%22app_id%22%3A%224015043245481603%22%2C%22platform_app_id%22%3A%224015043245481603%22%7D&source=oauth_permissions_page_www"
+              href="https://www.instagram.com/consent/?flow=ig_biz_login_oauth&params_json=%7B%22client_id%22%3A%221701247693817298%22%2C%22redirect_uri%22%3A%22https%3A%5C%2F%5C%2Finsta-automate.netlify.app%5C%2Fauth%5C%2Fprofile%22%2C%22response_type%22%3A%22code%22%2C%22state%22%3Anull%2C%22scope%22%3A%22instagram_business_basic-instagram_business_manage_comments-instagram_business_manage_messages-instagram_business_content_publish-instagram_business_manage_insights%22%2C%22logger_id%22%3A%22d56bcce2-a35d-42cd-8ebd-c8a620f90092%22%2C%22app_id%22%3A%221701247693817298%22%2C%22platform_app_id%22%3A%221701247693817298%22%7D&source=oauth_permissions_page_www"
               target="_blank"
             >
               Connect Instagram Account

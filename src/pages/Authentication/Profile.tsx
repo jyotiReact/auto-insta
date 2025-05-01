@@ -46,7 +46,7 @@ const ProfileSelector: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          code: searchParams.get('code'),
+          code: (searchParams.get('code')) ,
         }),
       }).then((res) => {
         console.log(res, 'data');

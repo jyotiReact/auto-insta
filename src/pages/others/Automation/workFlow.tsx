@@ -14,15 +14,15 @@ import ReactFlow, {
   ReactFlowInstance,
   MarkerType,
   SmoothStepEdge,
-  BezierEdge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import TriggerComponent from './TriggerNode';
+import TriggerComponent from './RightPannel';
+import Workflow from './WorkflowCanvas';
 
 interface TriggerNodeData {
   label: string;
   isConfigured: boolean;
-  onAddActionNode?: (triggerId: string) => void; // Added this
+  onAddActionNode?: (triggerId: string) => void;
 }
 
 interface ActionInput {
@@ -36,16 +36,16 @@ interface ActionNodeData {
 
 type CustomNodeData = TriggerNodeData | ActionNodeData;
 
-// Custom Node Components (moved outside the component)
+// Custom Node Components
 const DefaultNode: React.FC<{ data: { label: string } }> = ({ data }) => (
-  <div className="px-4 py-10 rounded-xl bg-white border-2 shadow-md w-72 transition-all border-purple-500">
+  <div className="px-4 py-10 rounded-xl bg-white border-2 shadow-md w-72 transition-all border-pink-500">
     <div>
       <div className="flex items-center gap-2">
         <svg
           className="w-5 h-5 text-gray-400"
           fill="none"
           stroke="currentColor"
-          viewBox="0 0 24 24"
+          viewBox="0 24 24"
         >
           <path
             strokeLinecap="round"
@@ -67,11 +67,11 @@ const TriggerNode: React.FC<{
 }> = ({ id, data, isActive }) => (
   <div
     className={`relative px-4 py-3 rounded-xl bg-white border-2 shadow-md w-72 transition-all ${
-      !isActive ? 'border-purple-500' : 'border-gray-200'
+      !isActive ? 'border-pink-500' : 'border-gray-200'
     }`}
   >
     <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2 bg-purple-100 text-purple-600 rounded-full px-3 py-1 text-xs font-medium">
+      <div className="flex items-center gap-2 bg-pink-100 text-pink-600 rounded-full px-3 py-1 text-xs font-medium">
         <svg
           className="w-4 h-4"
           fill="none"
@@ -112,7 +112,7 @@ const TriggerNode: React.FC<{
       </div>
     </div>
     <button
-      className="mt-3 w-full py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors duration-200"
+      className="mt-3 w-full py-2 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors duration-200"
       onClick={() => data.onAddActionNode?.(id)}
     >
       Add Next Node
@@ -121,9 +121,7 @@ const TriggerNode: React.FC<{
 );
 
 const ActionNode: React.FC<{ data: ActionNodeData }> = ({ data }) => (
-  <div
-    className={`relative px-4 py-3 rounded-xl bg-white border-2 shadow-md w-72 transition-all ${'border-purple-500'}`}
-  >
+  <div className="relative px-4 py-3 rounded-xl bg-white border-2 shadow-md w-72 transition-all border-pink-500">
     <div className="mt-3">
       <div className="flex items-center gap-2">
         <svg
@@ -141,16 +139,11 @@ const ActionNode: React.FC<{ data: ActionNodeData }> = ({ data }) => (
         </svg>
         <div className="text-sm font-semibold text-gray-800">{data.label}</div>
       </div>
-      {/* <div className="mt-2 border-t border-gray-200 pt-2">
-        <span className="text-xs text-gray-500">
-          {data.isConfigured ? 'Configured' : 'Not setup yet.'}
-        </span>
-      </div> */}
     </div>
   </div>
 );
 
-// Define node types outside the component
+// Define node types
 const nodeTypes: NodeTypes = {
   customDefault: DefaultNode,
   trigger: TriggerNode,
@@ -177,8 +170,11 @@ const WorkflowEditor: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node<CustomNodeData> | null>(
     null,
   );
+  const [activeTab, setActiveTab] = useState('Editor');
+  const [isDraft, setIsDraft] = useState(false);
   const lastNodeId = useRef<string | null>(null);
   const yPos = useRef(0);
+
   const handleAddActionNode = useCallback(() => {
     if (!reactFlowInstance) return;
 
@@ -197,8 +193,7 @@ const WorkflowEditor: React.FC = () => {
         inputs: [{ label: 'New Input' }],
       },
     };
-console.log(nodes)
-    // Create edge if there's a previous node
+
     if (yPos.current) {
       const newEdge: Edge = {
         id: `edge-${Date.now()}`,
@@ -206,15 +201,14 @@ console.log(nodes)
         target: newNodeId,
         type: 'smoothstep',
         animated: true,
-        style: { stroke: '#7c3aed', strokeWidth: 3 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#7c3aed' },
+        style: { stroke: '#E1306C', strokeWidth: 3 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#E1306C' },
       };
-      console.log( newEdge);
       setEdges((eds) => addEdge(newEdge, eds));
     }
 
     setNodes((nds) => [...nds, newNode]);
-    lastNodeId.current = newNodeId; // Update last node reference
+    lastNodeId.current = newNodeId;
 
     setTimeout(() => {
       reactFlowInstance.fitView({ padding: 0.5, duration: 300 });
@@ -222,13 +216,14 @@ console.log(nodes)
   }, [reactFlowInstance, setNodes, setEdges]);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) =>
+    (paramsEveryone: Edge | Connection) =>
       setEdges((eds) =>
         addEdge(
           {
             ...params,
             type: 'smoothstep',
-            style: { stroke: '#6b7280', strokeWidth: 3 },
+            style: { stroke: '#E1306C', strokeWidth: 3 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#E1306C' },
           },
           eds,
         ),
@@ -300,37 +295,68 @@ console.log(nodes)
     },
     [setNodes, handleAddActionNode],
   );
-  console.log(nodes);
+
   return (
-    <div className="flex h-screen gap-4">
-      <ReactFlowProvider>
-        <div className="w-full bg-gray-50 border-r border-gray-200">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onNodeClick={onNodeClick}
-            nodeTypes={nodeTypes}
-            edgeTypes={{
-              smoothstep: SmoothStepEdge, // Explicitly include this
-              default: BezierEdge,        // Default fallback
-            }}
-            connectionLineType="smoothstep"
+    <div className="flex flex-col h-screen">
+      <div className="flex items-center  justify-between px-6 py-4 bg-white border-b border-pink-100 ">
+        {/* Left Tabs */}
+        <div className="flex space-x-6">
+          <button
+            onClick={() => setActiveTab('Editor')}
+            className={`relative px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
+              activeTab === 'Editor'
+                ? 'text-pink-700 border-b-2 border-pink-500'
+                : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50'
+            } focus:outline-none focus:ring-2 focus:ring-pink-200`}
           >
-            <Controls />
-            <Background />
-            <Panel position="top-right">
-              <h1 className="text-xl font-bold">Automation Editor</h1>
-            </Panel>
-          </ReactFlow>
+            Editor
+            {activeTab === 'Editor' && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500"></span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('Runs')}
+            className={`relative px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
+              activeTab === 'Runs'
+                ? 'text-pink-700 border-b-2 border-pink-500'
+                : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50'
+            } focus:outline-none focus:ring-2 focus:ring-pink-200`}
+          >
+            Runs
+            {activeTab === 'Runs' && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500"></span>
+            )}
+          </button>
         </div>
+
+        {/* Right Toggle */}
+        <div className="flex items-center space-x-4">
+          <span
+            className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 shadow-sm ${
+              isDraft
+                ? 'bg-purple-100 text-purple-600'
+                : 'bg-pink-100 text-pink-600'
+            }`}
+          >
+            {isDraft ? 'Draft' : 'Published'}
+          </span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={isDraft}
+              onChange={() => setIsDraft(!isDraft)}
+              aria-label={isDraft ? 'Switch to Published' : 'Switch to Draft'}
+            />
+            <div className="w-12 h-6 bg-gray-200 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300"></div>
+            <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-6"></div>
+          </label>
+        </div>
+      </div>
+      <div className="flex gap-4 w-full h-full">
+        <Workflow />
         <TriggerComponent handleClick={showTriggerNode} />
-      </ReactFlowProvider>
+      </div>
     </div>
   );
 };

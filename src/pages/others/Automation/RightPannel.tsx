@@ -8,9 +8,10 @@ import {
   faKey,
   faTimes,
   faCheck,
+  faArrowLeft,
+  faComment,
 } from '@fortawesome/free-solid-svg-icons';
 import vdo from '../../../images/user/user-08.png';
-import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
 import CommentRepliesModal from './CommentModal';
 
 type Trigger = {
@@ -23,15 +24,11 @@ type Trigger = {
 const triggers: Trigger[] = [
   {
     label: 'Post or Reel Comments',
-    icon: (
-      <FontAwesomeIcon icon={faComments} className="text-xl text-indigo-600" />
-    ),
+    icon: <FontAwesomeIcon icon={faComments} className="text-xl text-pink-600" />,
   },
   {
     label: 'Story Replies',
-    icon: (
-      <FontAwesomeIcon icon={faEnvelope} className="text-xl text-indigo-600" />
-    ),
+    icon: <FontAwesomeIcon icon={faEnvelope} className="text-xl text-pink-600" />,
   },
   {
     label: 'Live Comments',
@@ -70,19 +67,14 @@ const TriggerComponent: React.FC<{
   handleClick: (trigger: { label: string }) => void;
 }> = ({ handleClick }) => {
   const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
-  const [modalContent, setModalContent] = useState<'post' | 'keywords' | null>(
-    null,
-  );
+  const [modalContent, setModalContent] = useState<'post' | 'keywords' | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
   const [keywordInput, setKeywordInput] = useState('');
   const [tempKeywords, setTempKeywords] = useState<KeywordType[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<KeywordType[]>([]);
   const [showCommentRepliesModal, setShowCommentRepliesModal] = useState(false);
-  const [availableReplies, setAvailableReplies] = useState([
-    // { id: '1', text: 'Message sent! 🚀', emoji: '😄' },
-    // { id: '2', text: 'Got it, check your inbox! 📬', emoji: '😊' },
-    // { id: '3', text: 'And Replyrn 🔔', emoji: '👍' },
-  ]);
+  const [availableReplies, setAvailableReplies] = useState<string[]>([]);
+
   const handleKeywordInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setKeywordInput(e.target.value);
   };
@@ -104,11 +96,7 @@ const TriggerComponent: React.FC<{
         }))
         .filter((kw) => kw.text.length > 0);
 
-      setTempKeywords((prev) => {
-        const updated = [...prev, ...newKeywords];
-        console.log('Updated tempKeywords:', updated);
-        return updated;
-      });
+      setTempKeywords((prev) => [...prev, ...newKeywords]);
       setKeywordInput('');
     }
   };
@@ -136,35 +124,39 @@ const TriggerComponent: React.FC<{
   };
 
   const handleSaveKeywords = () => {
-    // Append tempKeywords to selectedKeywords, avoiding duplicates by text
     setSelectedKeywords((prev) => {
       const existingTexts = new Set(prev.map((kw) => kw.text.toLowerCase()));
       const newKeywords = tempKeywords.filter(
         (kw) => !existingTexts.has(kw.text.toLowerCase()),
       );
-      const updated = [...prev, ...newKeywords];
-      console.log('Updated selectedKeywords:', updated);
-      return updated;
+      return [...prev, ...newKeywords];
     });
     setTempKeywords([]);
     closeModal();
   };
 
+  const handleBack = () => {
+    setSelectedTrigger(null);
+    setSelectedVideo(null);
+    setSelectedKeywords([]);
+    setAvailableReplies([]);
+  };
+
   return (
-    <div className="w-[420px] bg-white rounded-2xl shadow-xl overflow-auto font-sans z-10">
-      <div className="p-6">
+    <div className="w-[420px] bg-white h-screen top-16 z-20 ">
+      <div className="p-6 overflow-auto h-full">
         {!selectedTrigger ? (
           <>
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                 Select a Trigger
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Choose an event to initiate this automation
+              <p className="text-sm text-gray-500 mt-2">
+                Choose an event to start your automation
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {triggers.map((trigger, index) => (
                 <div
                   key={index}
@@ -172,27 +164,26 @@ const TriggerComponent: React.FC<{
                     handleTriggerClick(trigger.label, trigger.disabled);
                     handleClick({ label: trigger.label });
                   }}
-                  className={`flex items-center justify-between p-4 rounded-lg transition-all duration-300
-                    ${
-                      trigger.disabled
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-white border border-gray-200 hover:bg-indigo-50 hover:border-indigo-300 cursor-pointer shadow-sm'
-                    }`}
+                  className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
+                    trigger.disabled
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white border border-gray-200 hover:bg-pink-50 hover:border-pink-300 cursor-pointer shadow-md hover:shadow-lg transform hover:-translate-y-1'
+                  }`}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-4">
                     <div
-                      className={`p-2 rounded-md ${
-                        trigger.disabled ? 'bg-gray-200' : 'bg-indigo-100'
+                      className={`p-3 rounded-lg ${
+                        trigger.disabled ? 'bg-gray-200' : 'bg-pink-100 text-pink-600'
                       } transition-colors duration-200`}
                     >
                       {trigger.icon}
                     </div>
-                    <span className="text-sm font-medium text-gray-800">
+                    <span className="text-sm font-semibold text-gray-800">
                       {trigger.label}
                     </span>
                   </div>
                   {trigger.comingSoon && (
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 font-medium">
+                    <span className="text-xs px-3 py-1 rounded-full bg-purple-100 text-purple-700 font-medium animate-pulse">
                       Coming Soon
                     </span>
                   )}
@@ -203,47 +194,51 @@ const TriggerComponent: React.FC<{
         ) : (
           <>
             <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-medium text-gray-900">
-                  {selectedTrigger}
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Configure your trigger settings
-                </p>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={handleBack}
+                  className="p-2 w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-600 transition-colors duration-200"
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
+                </button>
+                <div>
+                  <h2 className="text-md font-bold text-gray-900">{selectedTrigger}</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Configure your trigger settings
+                  </p>
+                </div>
               </div>
-              <button
+              {/* <button
                 onClick={() => setSelectedTrigger(null)}
-                className="flex items-center text-sm text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+                className="flex items-center text-sm text-pink-600 hover:text-pink-800 transition-colors duration-200"
               >
                 <FontAwesomeIcon icon={faTimes} className="h-4 w-4 mr-1" />
                 Clear
-              </button>
+              </button> */}
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <h3 className="text-base font-semibold text-gray-800 mb-3">
-                  Inputs
-                </h3>
+                <h3 className="text-base font-semibold text-gray-800 mb-4">Inputs</h3>
                 <p className="mb-2 text-sm text-gray-600">
                   Which Post or Reel do you want to use?
                 </p>
                 <div
-                  className="border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-indigo-50 hover:border-indigo-400 transition-all duration-300 group"
+                  className="border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
                   onClick={() => setModalContent('post')}
                 >
                   {selectedVideo ? (
                     <div className="w-full rounded-xl p-4">
                       <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-md overflow-hidden">
+                        <div className="w-16 h-16 bg-gray-200 rounded-md overflow-hidden shadow-sm">
                           <img
                             src={selectedVideo.thumbnail}
                             alt={selectedVideo.title}
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-900">
+                        <div className="text-left">
+                          <h4 className="text-sm font-medium text-gray-900 line-clamp-2">
                             {selectedVideo.title}
                           </h4>
                           <p className="text-xs text-gray-500">Selected Post</p>
@@ -252,15 +247,10 @@ const TriggerComponent: React.FC<{
                     </div>
                   ) : (
                     <div className="p-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-200 transition-colors duration-200">
-                        <FontAwesomeIcon
-                          icon={faImage}
-                          className="text-xl text-indigo-600"
-                        />
+                      <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-pink-200 transition-colors duration-200">
+                        <FontAwesomeIcon icon={faImage} className="text-xl text-pink-600" />
                       </div>
-                      <span className="font-medium text-indigo-600">
-                        Select Post or Reel
-                      </span>
+                      <span className="font-medium text-pink-600">Select Post or Reel</span>
                     </div>
                   )}
                 </div>
@@ -271,7 +261,7 @@ const TriggerComponent: React.FC<{
                   What keywords will start your automation?
                 </p>
                 <div
-                  className="border-2 border-dashed border-gray-300 rounded-xl p-2 h-30 text-center cursor-pointer hover:bg-indigo-50 hover:border-indigo-400 transition-all duration-300 group"
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
                   onClick={() => setModalContent('keywords')}
                 >
                   {selectedKeywords.length > 0 ? (
@@ -279,35 +269,27 @@ const TriggerComponent: React.FC<{
                       {selectedKeywords.map((keyword) => (
                         <div
                           key={keyword.id}
-                          className="inline-flex items-center bg-indigo-100 rounded-full px-3 py-1 text-sm"
+                          className="inline-flex items-center bg-pink-100 rounded-full px-3 py-1 text-sm"
                         >
                           {keyword.text}
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent opening modal
+                              e.stopPropagation();
                               removeKeyword(keyword.id);
                             }}
                             className="ml-2 text-gray-500 hover:text-red-500"
                           >
-                            <FontAwesomeIcon
-                              icon={faTimes}
-                              className="h-3 w-3"
-                            />
+                            <FontAwesomeIcon icon={faTimes} className="h-3 w-3" />
                           </button>
                         </div>
                       ))}
                     </div>
                   ) : (
                     <>
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-200 transition-colors duration-200">
-                        <FontAwesomeIcon
-                          icon={faKey}
-                          className="text-xl text-indigo-600"
-                        />
+                      <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-pink-200 transition-colors duration-200">
+                        <FontAwesomeIcon icon={faKey} className="text-xl text-pink-600" />
                       </div>
-                      <span className="font-medium text-indigo-600">
-                        Setup Keywords
-                      </span>
+                      <span className="font-medium text-pink-600">Setup Keywords</span>
                       <p className="text-xs text-gray-500 mt-1">
                         Add trigger words or phrases
                       </p>
@@ -315,27 +297,29 @@ const TriggerComponent: React.FC<{
                   )}
                 </div>
               </div>
+
               <div>
                 <p className="mb-2 text-sm text-gray-600">
                   What do you want to reply to those comments?
                 </p>
-                <div onClick={() => setShowCommentRepliesModal(true)}>
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
+                  onClick={() => setShowCommentRepliesModal(true)}
+                >
                   {availableReplies.length > 0 ? (
-                    <div className="border-2 border-gray-300 rounded-md border-dashed p-2">
-                      {availableReplies.length===1 ? `${availableReplies.length} Reply` : `${availableReplies.length} Replies`}
+                    <div className="flex items-center justify-between">
+                      <span className="text-pink-600 font-medium">
+                        {availableReplies.length} {availableReplies.length === 1 ? 'Reply' : 'Replies'} Added
+                      </span>
+                      <FontAwesomeIcon icon={faComment} className="text-gray-400" />
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-2 h-30 text-center cursor-pointer hover:bg-indigo-50 hover:border-indigo-400 transition-all duration-300 group">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-200 transition-colors duration-200">
-                        <FontAwesomeIcon
-                          icon={faComment}
-                          className="text-xl text-indigo-600"
-                        />
+                    <>
+                      <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-pink-200 transition-colors duration-200">
+                        <FontAwesomeIcon icon={faComment} className="text-xl text-pink-600" />
                       </div>
-                      <span className="font-medium text-indigo-600">
-                        Setup Comment Replies
-                      </span>
-                    </div>
+                      <span className="font-medium text-pink-600">Setup Comment Replies</span>
+                    </>
                   )}
                 </div>
               </div>
@@ -352,19 +336,18 @@ const TriggerComponent: React.FC<{
         )}
 
         {modalContent && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-9999 backdrop-blur-sm">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
             {modalContent === 'post' && (
-              <div className="bg-white p-8 rounded-2xl w-[600px] max-h-[80vh] overflow-y-auto shadow-2xl relative animate-fade-in">
-                <button
-                  onClick={closeModal}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                >
-                  <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
-                </button>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Select Post or Reel
-                </h3>
+              <div className="bg-white p-8 rounded-2xl w-[600px] max-h-[80vh] overflow-y-auto shadow-2xl animate-fade-in">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Select Post or Reel</h3>
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-500 hover:text-pink-700 transition-colors duration-200"
+                  >
+                    <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
+                  </button>
+                </div>
                 <p className="text-sm text-gray-600 mb-6">
                   Choose a post or reel from your connected account.
                 </p>
@@ -374,10 +357,10 @@ const TriggerComponent: React.FC<{
                     <div
                       key={video.id}
                       onClick={() => handleVideoSelect(video)}
-                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      className={`p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
                         selectedVideo?.id === video.id
-                          ? 'border-indigo-500 bg-indigo-50'
-                          : 'border-gray-200 hover:bg-gray-50'
+                          ? 'border-pink-500 bg-pink-50'
+                          : 'border-gray-200 hover:bg-pink-50'
                       }`}
                     >
                       <div className="flex items-center space-x-4">
@@ -392,16 +375,11 @@ const TriggerComponent: React.FC<{
                           <h4 className="text-sm font-medium text-gray-900 line-clamp-2">
                             {video.title}
                           </h4>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Instagram Post
-                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Instagram Post</p>
                         </div>
                         {selectedVideo?.id === video.id && (
-                          <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center">
-                            <FontAwesomeIcon
-                              icon={faCheck}
-                              className="h-3 w-3"
-                            />
+                          <div className="w-5 h-5 rounded-full bg-pink-600 text-white flex items-center justify-center">
+                            <FontAwesomeIcon icon={faCheck} className="h-3 w-3" />
                           </div>
                         )}
                       </div>
@@ -419,9 +397,9 @@ const TriggerComponent: React.FC<{
                   <button
                     onClick={handleConfirm}
                     disabled={!selectedVideo}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                       selectedVideo
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        ? 'bg-pink-600 text-white hover:bg-pink-700'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >
@@ -431,20 +409,18 @@ const TriggerComponent: React.FC<{
               </div>
             )}
             {modalContent === 'keywords' && (
-              <div className="bg-white p-8 rounded-2xl w-[600px] max-h-[80vh] overflow-y-auto shadow-2xl relative animate-fade-in">
-                <button
-                  onClick={closeModal}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-                >
-                  <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
-                </button>
-
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Setup Keywords
-                </h3>
+              <div className="bg-white p-8 rounded-2xl w-[600px] max-h-[80vh] overflow-y-auto shadow-2xl animate-fade-in">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Setup Keywords</h3>
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-500 hover:text-pink-700 transition-colors duration-200"
+                  >
+                    <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
+                  </button>
+                </div>
                 <p className="text-sm text-gray-600 mb-4">
-                  Keywords are not case-sensitive. Type keywords separated by
-                  commas.
+                  Keywords are not case-sensitive. Type keywords separated by commas.
                 </p>
 
                 <div className="mb-4">
@@ -452,12 +428,12 @@ const TriggerComponent: React.FC<{
                     value={keywordInput}
                     onChange={handleKeywordInput}
                     placeholder="Type keywords separated by commas (e.g., discount, promo, sale)"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 outline-none transition-colors duration-200"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-500 outline-none transition-colors duration-200"
                     rows={3}
                   />
                   <button
                     onClick={handleAddKeyword}
-                    className="mt-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
+                    className="mt-2 px-4 py-2 bg-pink-100 text-pink-700 rounded-lg hover:bg-pink-200 transition-colors"
                   >
                     Add Keywords
                   </button>
@@ -472,25 +448,20 @@ const TriggerComponent: React.FC<{
                       {tempKeywords.map((keyword) => (
                         <div
                           key={keyword.id}
-                          className="inline-flex items-center bg-indigo-100 rounded-full px-3 py-1 text-sm"
+                          className="inline-flex items-center bg-pink-100 rounded-full px-3 py-1 text-sm"
                         >
                           {keyword.text}
                           <button
                             onClick={() => removeTempKeyword(keyword.id)}
-                            className="ml-2 text-indigo-600 hover:text-indigo-800"
+                            className="ml-2 text-pink-600 hover:text-pink-800"
                           >
-                            <FontAwesomeIcon
-                              icon={faTimes}
-                              className="h-3 w-3"
-                            />
+                            <FontAwesomeIcon icon={faTimes} className="h-3 w-3" />
                           </button>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-400 text-sm">
-                      No keywords added yet
-                    </p>
+                    <p className="text-gray-400 text-sm">No keywords added yet</p>
                   )}
                 </div>
 
@@ -504,9 +475,9 @@ const TriggerComponent: React.FC<{
                   <button
                     onClick={handleSaveKeywords}
                     disabled={tempKeywords.length === 0}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                       tempKeywords.length > 0
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        ? 'bg-pink-600 text-white hover:bg-pink-700'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                   >

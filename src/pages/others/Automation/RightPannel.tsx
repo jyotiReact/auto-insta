@@ -100,6 +100,8 @@ const TriggerComponent: React.FC<{
   const token = useSelector((state: any) => state.user.userData.token);
   const nodesData = useSelector((state: any) => state.user.userData.nodes);
   const dispatch = useDispatch();
+  console.log({ nodesData });
+
   const confirmDelete = () => {
     setNodes((prevNodes) => {
       // Debugging: Log current nodes before filtering
@@ -219,7 +221,7 @@ const TriggerComponent: React.FC<{
   };
 
   useEffect(() => {
-    console.log({token})
+    console.log({ token });
     async function fetchPosts() {
       fetch('https://instautomate.it-waves.com/service/instagram/media', {
         method: 'GET',

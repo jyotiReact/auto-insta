@@ -220,9 +220,10 @@ const WorkflowEditor: React.FC = () => {
     // }
     if (isDraft) {
       // Publish();
-      console.log(nodesData);
+      console.log({nodesData});
     }
   }, [isDraft]);
+  console.log({nodesData});
 
   return (
     <div className="flex flex-col h-screen">

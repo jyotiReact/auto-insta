@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { setAuthority, setRole, setToken } from '../../store/slices/userSlice';
 
 const options = [
@@ -23,6 +23,7 @@ const ProfileSelector: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const toggleSelection = (label: string) => {
     setSelected((prev) =>
@@ -32,15 +33,15 @@ const ProfileSelector: React.FC = () => {
     );
   };
 
-  const handleNext = () => {
-    if (selected.length === 0) return;
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert('Selected categories: ' + selected.join(', '));
-      setIsSubmitting(false);
-    }, 800);
-  };
+  // const handleNext = () => {
+  //   if (selected.length === 0) return;
+  //   setIsSubmitting(true);
+  //   // Simulate API call
+  //   setTimeout(() => {
+  //     alert('Selected categories: ' + selected.join(', '));
+  //     setIsSubmitting(false);
+  //   }, 800);
+  // };
 
   async function sendData() {
     fetch('https://instautomate.it-waves.com/meta/exchange-token', {
@@ -57,6 +58,7 @@ const ProfileSelector: React.FC = () => {
         dispatch(setAuthority(data.authority));
         dispatch(setRole(data.role));
         dispatch(setToken(data.jwttoken));
+        navigate('/dashboard');
       });
   }
 

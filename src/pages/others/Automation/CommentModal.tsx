@@ -39,25 +39,7 @@ const CommentRepliesModal: React.FC<{
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-xl w-[500px] shadow-lg relative border border-pink-200">
         <button
-          onClick={() => {
-            onClose();
-            const data = {
-              data: {
-                ...nodesData[0].data,
-                public_replies:
-                  replies.length > 0
-                    ? replies.map((r) => `${r.text}`)
-                    : [], //send replies
-              },
-              id: 'trigger',
-              position: { x: -135, y: -195 },
-              type: 'trigger',
-            };
-            console.log({data},"reply");
-            let updatedNodes = [...nodesData];
-            updatedNodes[0] = data;
-            dispatch(setAutomationData(updatedNodes));
-          }}
+          onClick={onClose}
           className="absolute top-4 right-4 text-pink-600 hover:text-pink-700 transition-all duration-200 hover:scale-110"
         >
           <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
@@ -106,7 +88,23 @@ const CommentRepliesModal: React.FC<{
 
         <div className="flex justify-end">
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              const data = {
+                data: {
+                  ...nodesData[0].data,
+                  public_replies:
+                    replies.length > 0 ? replies.map((r) => `${r.text}`) : [], //send replies
+                },
+                id: 'trigger',
+                position: { x: -135, y: -195 },
+                type: 'trigger',
+              };
+              console.log({ data }, 'reply');
+              let updatedNodes = [...nodesData];
+              updatedNodes[0] = data;
+              dispatch(setAutomationData(updatedNodes));
+            }}
             className="px-4 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
           >
             Confirm

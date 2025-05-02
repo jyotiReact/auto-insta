@@ -28,7 +28,7 @@ const AppRouter = () => {
         {/* <Route path="/auth/signin" element={<SignIn />} />
         <Route path="/auth/signup" element={<SignUp />} /> */}
         <Route path="/auth/connect-insta" element={<ConnectInstagram />} />
-        <Route path="/auth/allow-insta" element={<InstagramConsent />} />
+        {/* <Route path="/auth/allow-insta" element={<InstagramConsent />} /> */}
         <Route path="/auth/profile" element={<ProfileSelector />} />
 
         <Route path="*" element={<h1>404: Page Not Found</h1>} />

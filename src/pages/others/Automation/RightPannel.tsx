@@ -157,9 +157,10 @@ const TriggerComponent: React.FC<{
 
   const handleVideoSelect = (video: VideoItem) => {
     console.log(video);
+
     const data = {
       data: {
-        ...nodes[0].data,
+        ...nodesData[0].data,
         content_id: [video.id], //post id
         content_thumbnail: [
           video.media_type === 'VIDEO' ? video.thumbnail_url : video.media_url, //post url

@@ -1,6 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setAutomationData } from '../../../store/slices/userSlice';
 
 interface Keyword {
   id: string;
@@ -23,8 +25,10 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
   setTempKeywords,
   setSelectedKeywords,
   selectedKeywords,
+  nodesData,
 }) => {
   const [keywordInput, setKeywordInput] = useState('');
+  const dispatch = useDispatch();
 
   const handleAddKeyword = () => {
     if (keywordInput.trim()) {
@@ -38,6 +42,7 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
         .filter((kw) => kw?.text?.length > 0);
 
       setTempKeywords((prev) => [...prev, ...newKeywords]);
+
       setKeywordInput('');
     }
   };
@@ -56,6 +61,26 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
       );
       return [...prev, ...newKeywords];
     });
+    const data = {
+      data: {
+        ...nodesData[0].data,
+        any_content: tempKeywords.length > 0 ? false : true,
+        any_keyword: tempKeywords.length > 0 ? false : true, //if there is no keywords send true
+        include_keywords:
+          tempKeywords.length > 0
+            ? tempKeywords.map((kw) => kw.text.toLowerCase())
+            : [],
+
+        type: 'INSTAGRAM_POST_REEL',
+      },
+      id: 'trigger',
+      position: { x: -135, y: -195 },
+      type: 'trigger',
+    };
+    let updatedNodes = [...nodesData];
+    updatedNodes[0] = data;
+
+    dispatch(setAutomationData(updatedNodes));
     closeModal();
   };
   return (

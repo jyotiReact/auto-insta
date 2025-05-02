@@ -3,11 +3,13 @@ import { faMessage } from '@fortawesome/free-solid-svg-icons/faMessage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import SetupMessagesModal from './SetupMessageModal';
+import { useSelector } from 'react-redux';
 
 function NextStepComponent({ handleBack }) {
   const [isDraft, setIsDraft] = useState(false);
   const [openMessageModal, setOpenMessageModal] = useState(false);
   const [messageData, setMessageData] = useState(null);
+  const nodesData = useSelector((state: any) => state.user.userData.nodes);
   return (
     <div className=" pb-40">
       <div className="flex items-center justify-between mb-6 border-b pb-4 border-pink-600">
@@ -66,6 +68,7 @@ function NextStepComponent({ handleBack }) {
           onClose={() => setOpenMessageModal(false)}
           setMessageData={setMessageData}
           messageData={messageData}
+          nodesData={nodesData}
         />
       )}
     </div>

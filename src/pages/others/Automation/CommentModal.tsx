@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch } from 'react-redux';
+import { setAutomationData } from '../../../store/slices/userSlice';
 
-const CommentRepliesModal: React.FC<{ onClose: () => void; replies: { id: string; text: string; emoji: string }[]; setReplies: (replies: { id: string; text: string; emoji: string }[]) => void }> = ({
-  onClose,
-  replies,
-  setReplies,
-}) => {
+const CommentRepliesModal: React.FC<{
+  onClose: () => void;
+  replies: { id: string; text: string; emoji: string }[];
+  setReplies: (replies: { id: string; text: string; emoji: string }[]) => void;
+}> = ({ onClose, replies, setReplies, nodesData }) => {
   const [selectedReply, setSelectedReply] = useState<string | null>(null);
   const [newReply, setNewReply] = useState('');
+  const dispatch = useDispatch();
 
   const handleAddReply = () => {
     if (newReply.trim() && !replies.some((r) => r.text === newReply.trim())) {
@@ -20,8 +23,9 @@ const CommentRepliesModal: React.FC<{ onClose: () => void; replies: { id: string
           emoji: '😄',
         },
       ]);
-      setNewReply('');
+      // setNewReply('');
     }
+    console.log(replies);
   };
 
   const handleRemoveReply = (id: string) => {
@@ -30,12 +34,29 @@ const CommentRepliesModal: React.FC<{ onClose: () => void; replies: { id: string
       setSelectedReply(null);
     }
   };
-
+  console.log(replies);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-xl w-[500px] shadow-lg relative border border-pink-200">
         <button
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            const data = {
+              data: {
+                ...nodesData[0].data,
+                public_replies:
+                  replies.length > 0
+                    ? replies.map((r) => `${r.emoji} ${r.text}`)
+                    : [], //send replies
+              },
+              id: 'trigger',
+              position: { x: -135, y: -195 },
+              type: 'trigger',
+            };
+            let updatedNodes = [...nodesData];
+            updatedNodes[0] = data;
+            dispatch(setAutomationData(updatedNodes));
+          }}
           className="absolute top-4 right-4 text-pink-600 hover:text-pink-700 transition-all duration-200 hover:scale-110"
         >
           <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />

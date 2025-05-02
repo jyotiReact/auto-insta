@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -17,6 +17,7 @@ import { TriggerNode } from './TriggerNode';
 import { ActionNode } from './ActionNode';
 import { DefaultNode } from './DefaultNode';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useSelector } from 'react-redux';
 
 // Define node types
 const nodeTypes = {
@@ -59,7 +60,7 @@ const WorkflowEditor: React.FC = () => {
   const [tempKeywords, setTempKeywords] = useState<string[]>([]);
   const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
   const [nextNodeStep, setNextNodeStep] = useState(false);
-
+  const nodesData = useSelector((state: any) => state.user.userData.nodes);
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
     const newActionNode = {
@@ -198,6 +199,29 @@ const WorkflowEditor: React.FC = () => {
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
+
+  useEffect(() => {
+    let token = '';
+    async function Publish() {
+      fetch('https://instautomate.it-waves.com/user/add-automation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: {
+          automation: JSON.stringify(nodesData),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+        });
+    }
+    if (isDraft) {
+      Publish();
+    }
+  }, [isDraft]);
 
   return (
     <div className="flex flex-col h-screen">

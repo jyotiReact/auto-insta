@@ -22,7 +22,8 @@ import SetupKeywordsModal from './SetupKeywordsModal';
 import NextStepComponent from './NextStepComponent';
 import DeleteModal from '../../../components/custom/Modals/DeleteModal';
 import { useReactFlow } from 'reactflow';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAutomationData } from '../../../store/slices/userSlice';
 
 type Trigger = {
   label: string;
@@ -97,7 +98,9 @@ const TriggerComponent: React.FC<{
   const [showNextStepInputs, setShowNextStepInputs] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const token = useSelector((state: any) => state.user.userData.token);
+  const nodesData = useSelector((state: any) => state.user.userData.nodes);
   console.log(token);
+  const dispatch = useDispatch();
   const confirmDelete = () => {
     setNodes((prevNodes) => {
       // Debugging: Log current nodes before filtering
@@ -153,6 +156,24 @@ const TriggerComponent: React.FC<{
 
   const handleVideoSelect = (video: VideoItem) => {
     console.log(video);
+    const data = {
+      data: {
+        ...nodes[0].data,
+        content_id: [video.id], //post id
+        content_thumbnail: [
+          video.media_type === 'VIDEO' ? video.thumbnail_url : video.media_url, //post url
+        ],
+        permalink: [video.permalink], //post url
+      },
+      id: 'trigger',
+      position: { x: -135, y: -195 },
+      type: 'trigger',
+    };
+
+    let updatedNodes = [...nodesData];
+    updatedNodes[0] = data;
+
+    dispatch(setAutomationData(updatedNodes));
     setSelectedVideo(video);
   };
 
@@ -494,6 +515,7 @@ const TriggerComponent: React.FC<{
             onClose={() => setShowCommentRepliesModal(false)}
             replies={availableReplies}
             setReplies={setAvailableReplies}
+            nodesData={nodesData}
           />
         )}
 
@@ -620,6 +642,7 @@ const TriggerComponent: React.FC<{
                 setTempKeywords={setTempKeywords}
                 setSelectedKeywords={setSelectedKeywords}
                 selectedKeywords={selectedKeywords}
+                nodesData={nodesData}
               />
             )}
           </div>

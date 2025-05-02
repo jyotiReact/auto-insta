@@ -1,16 +1,15 @@
-import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import DefaultLayout from '../../layout/DefaultLayout';
 import { useSelector } from 'react-redux';
 
 const PrivateLayout = () => {
-  const authority = useSelector((state: any) => state.user.userData.authority);
-  return authority ? (
+  const token = useSelector((state: any) => state.user.userData.token);
+  return token ? (
     <DefaultLayout>
       <Outlet />
     </DefaultLayout>
   ) : (
-    <Navigate to="/auth/signin" />
+    <Navigate to="/auth/connect-insta" />
   );
 };
 

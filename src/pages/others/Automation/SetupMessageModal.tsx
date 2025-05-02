@@ -9,14 +9,22 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setAutomationData } from '../../../store/slices/userSlice';
 
-const SetupMessagesModal = ({ onClose, setMessageData, messageData }) => {
+const SetupMessagesModal = ({
+  onClose,
+  setMessageData,
+  messageData,
+  nodesData,
+}) => {
   const [showTextContent, setShowTextContent] = useState(false);
   const [showCardContent, setShowCardContent] = useState(false);
   const [showButtonInputs, setShowButtonInputs] = useState(false);
   const [buttonLabel, setButtonLabel] = useState('');
   const [buttonLink, setButtonLink] = useState('');
   const [messages, setMessages] = useState('');
+  const dispatch = useDispatch();
 
   const handleAddButtonClick = () => {
     setShowButtonInputs(true);
@@ -233,6 +241,25 @@ const SetupMessagesModal = ({ onClose, setMessageData, messageData }) => {
                   className="w-full  bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center  transition-all shadow-md"
                   onClick={() => {
                     setMessageData({ ...messageData, text: messages });
+                    const data = {
+                      data: {
+                        check_following: false,
+                        check_following_message: null,
+                        instagram_message: {
+                          attachment: messageData?.attachment || null,
+                          text: messages?.text || '',
+                        },
+                        opening_message: null,
+                        type: 'SEND_INSTAGRAM_DM',
+                      },
+                      id: '78b473db-3ace-4a48-a6e6-8bd46e9642d7',
+                      position: { x: 15, y: 55 },
+                      type: 'instagram_action',
+                    };
+                    let updatedNodes = [...nodesData];
+                    updatedNodes[1] = data;
+
+                    dispatch(setAutomationData(updatedNodes));
                     onClose();
                   }}
                 >
@@ -374,17 +401,7 @@ const SetupMessagesModal = ({ onClose, setMessageData, messageData }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-3">
-                <button
-                  className="w-full  bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center  transition-all shadow-md"
-                  onClick={() => {
-                    setMessageData({ ...messageData, text: messages });
-                    onClose();
-                  }}
-                >
-                  Confirm
-                </button>
-              </div>
+            
             </div>
           </div>
         )}

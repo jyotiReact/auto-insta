@@ -210,7 +210,7 @@ const WorkflowEditor: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
         body: {
-          automation: JSON.stringify(nodesData),
+          automation: { nodes: nodesData },
         },
       })
         .then((res) => res.json())
@@ -220,6 +220,7 @@ const WorkflowEditor: React.FC = () => {
     }
     if (isDraft) {
       Publish();
+      console.log(nodesData);
     }
   }, [isDraft]);
   console.log({ nodesData });

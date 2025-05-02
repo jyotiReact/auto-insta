@@ -46,13 +46,14 @@ const CommentRepliesModal: React.FC<{
                 ...nodesData[0].data,
                 public_replies:
                   replies.length > 0
-                    ? replies.map((r) => `${r.emoji} ${r.text}`)
+                    ? replies.map((r) => `${r.text}`)
                     : [], //send replies
               },
               id: 'trigger',
               position: { x: -135, y: -195 },
               type: 'trigger',
             };
+            console.log({data},"reply");
             let updatedNodes = [...nodesData];
             updatedNodes[0] = data;
             dispatch(setAutomationData(updatedNodes));

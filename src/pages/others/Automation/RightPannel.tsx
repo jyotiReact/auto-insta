@@ -99,7 +99,6 @@ const TriggerComponent: React.FC<{
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const token = useSelector((state: any) => state.user.userData.token);
   const nodesData = useSelector((state: any) => state.user.userData.nodes);
-  console.log(token);
   const dispatch = useDispatch();
   const confirmDelete = () => {
     setNodes((prevNodes) => {
@@ -220,7 +219,7 @@ const TriggerComponent: React.FC<{
   };
 
   useEffect(() => {
-    const token = '';
+    console.log({token})
     async function fetchPosts() {
       fetch('https://instautomate.it-waves.com/service/instagram/media', {
         method: 'GET',

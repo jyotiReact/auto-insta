@@ -247,7 +247,7 @@ const SetupMessagesModal = ({
                         check_following_message: null,
                         instagram_message: {
                           attachment: messageData?.attachment || null,
-                          text: messages?.text || '',
+                          text: messages || '',
                         },
                         opening_message: null,
                         type: 'SEND_INSTAGRAM_DM',

@@ -202,28 +202,27 @@ const WorkflowEditor: React.FC = () => {
   );
 
   useEffect(() => {
-    // async function Publish() {
-    //   fetch('https://instautomate.it-waves.com/user/add-automation', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //     body: {
-    //       automation: JSON.stringify(nodesData),
-    //     },
-    //   })
-    //     .then((res) => res.json())
-    //     .then((data) => {
-    //       console.log(data);
-    //     });
-    // }
+    async function Publish() {
+      fetch('https://instautomate.it-waves.com/user/add-automation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: {
+          automation: JSON.stringify(nodesData),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+        });
+    }
     if (isDraft) {
-      // Publish();
-      console.log({nodesData});
+      Publish();
     }
   }, [isDraft]);
-  console.log({nodesData});
+  console.log({ nodesData });
 
   return (
     <div className="flex flex-col h-screen">

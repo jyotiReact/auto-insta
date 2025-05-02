@@ -18,6 +18,7 @@ import { ActionNode } from './ActionNode';
 import { DefaultNode } from './DefaultNode';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
+import { json } from 'react-router-dom';
 
 // Define node types
 const nodeTypes = {
@@ -209,9 +210,9 @@ const WorkflowEditor: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: {
+        body: JSON.stringify({
           automation: { nodes: nodesData },
-        },
+        }),
       })
         .then((res) => res.json())
         .then((data) => {

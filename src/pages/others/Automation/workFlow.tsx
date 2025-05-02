@@ -54,13 +54,14 @@ const initialEdges: Edge[] = [];
 const WorkflowEditor: React.FC = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-
   const [activeTab, setActiveTab] = useState('Editor');
   const [isDraft, setIsDraft] = useState(false);
   const [tempKeywords, setTempKeywords] = useState<string[]>([]);
   const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
   const [nextNodeStep, setNextNodeStep] = useState(false);
   const nodesData = useSelector((state: any) => state.user.userData.nodes);
+  const token = useSelector((state: any) => state.user.userData.token);
+
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
     const newActionNode = {
@@ -201,25 +202,25 @@ const WorkflowEditor: React.FC = () => {
   );
 
   useEffect(() => {
-    let token = '';
-    async function Publish() {
-      fetch('https://instautomate.it-waves.com/user/add-automation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: {
-          automation: JSON.stringify(nodesData),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-        });
-    }
+    // async function Publish() {
+    //   fetch('https://instautomate.it-waves.com/user/add-automation', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //     body: {
+    //       automation: JSON.stringify(nodesData),
+    //     },
+    //   })
+    //     .then((res) => res.json())
+    //     .then((data) => {
+    //       console.log(data);
+    //     });
+    // }
     if (isDraft) {
-      Publish();
+      // Publish();
+      console.log(nodesData);
     }
   }, [isDraft]);
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { setAuthority, setRole, setToken } from '../../store/slices/userSlice';
 
 const options = [
   { label: 'Creator', emoji: '🎨' },
@@ -20,6 +22,7 @@ const ProfileSelector: React.FC = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
 
   const toggleSelection = (label: string) => {
     setSelected((prev) =>
@@ -38,22 +41,24 @@ const ProfileSelector: React.FC = () => {
       setIsSubmitting(false);
     }, 800);
   };
-  useEffect(() => {
-    async function sendData() {
-      fetch('https://instautomate.it-waves.com/meta/exchange-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: (searchParams.get('code')) ,
-        }),
-      }).then((res) => {
-        console.log(res, 'data');
+
+  async function sendData() {
+    fetch('https://instautomate.it-waves.com/meta/exchange-token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        code: searchParams.get('code'),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        dispatch(setAuthority(data.authority));
+        dispatch(setRole(data.role));
+        dispatch(setToken(data.jwttoken));
       });
-    }
-    sendData();
-  }, []);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
@@ -92,7 +97,7 @@ const ProfileSelector: React.FC = () => {
               {selected.length === 1 ? 'category' : 'categories'} selected
             </span>
             <button
-              onClick={handleNext}
+              onClick={() => sendData()}
               disabled={selected.length === 0 || isSubmitting}
               className={`px-8 py-3 rounded-lg font-medium transition-all ${
                 selected.length === 0

@@ -11,11 +11,17 @@ import {
   faArrowLeft,
   faComment,
   faPlay,
+  faCommentDots,
+  faPlus,
+  faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
 import vdo from '../../../images/user/user-08.png';
 import CommentRepliesModal from './CommentModal';
 import { FaPlus } from 'react-icons/fa';
 import SetupKeywordsModal from './SetupKeywordsModal';
+import NextStepComponent from './NextStepComponent';
+import DeleteModal from '../../../components/custom/Modals/DeleteModal';
+import { useReactFlow } from 'reactflow';
 
 type Trigger = {
   label: string;
@@ -44,44 +50,90 @@ const triggers: Trigger[] = [
     comingSoon: true,
   },
 ];
+const actions: Trigger[] = [
+  {
+    label: 'Send Instagram Message',
+    icon: (
+      <FontAwesomeIcon icon={faComments} className="text-xl text-pink-600" />
+    ),
+  },
 
+  {
+    label: 'Collect User Emails',
+    icon: <FontAwesomeIcon icon={faVideo} className="text-xl text-gray-400" />,
+    disabled: true,
+    comingSoon: true,
+  },
+];
 type KeywordType = {
   id: string;
   text: string;
   isActive: boolean;
 };
 
-type VideoItem = {
-  id: string;
-  title: string;
-  thumbnail: string;
-};
-
-const videos: VideoItem[] = [
-  {
-    id: '1',
-    title: 'Finisher. Leader. Legend. 🟡 #ThalaForAReason',
-    thumbnail: vdo,
-  },
-  {
-    id: '2',
-    title: 'Next Post or Reel',
-    thumbnail: vdo,
-  },
-];
-
 const TriggerComponent: React.FC<{
   handleClick: (trigger: { label: string }) => void;
-}> = ({ handleClick, tempKeywords, setTempKeywords }) => {
+}> = ({
+  handleClick,
+  tempKeywords,
+  setTempKeywords,
+  handleAddNode,
+  handleActionNode,
+  setNodes,
+  nextNodeStep,
+  setNextNodeStep,
+  nodes,
+}) => {
   const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<'post' | 'keywords' | null>(
     null,
   );
-  const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedKeywords, setSelectedKeywords] = useState<KeywordType[]>([]);
   const [showCommentRepliesModal, setShowCommentRepliesModal] = useState(false);
   const [availableReplies, setAvailableReplies] = useState<string[]>([]);
   const [postData, setPostData] = useState<string[]>([]);
+  const [showNextStepInputs, setShowNextStepInputs] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const confirmDelete = () => {
+    setNodes((prevNodes) => {
+      // Debugging: Log current nodes before filtering
+      console.log('Current nodes:', prevNodes);
+      
+      // Filter out action nodes
+      const filteredNodes = prevNodes.filter((node) => {
+        const shouldKeep = node.type !== 'action';
+        console.log(`Node ${node.id} type: ${node.type} - ${shouldKeep ? 'keeping' : 'removing'}`);
+        return shouldKeep;
+      });
+      
+      console.log('Nodes after filter:', filteredNodes);
+  
+      // Update trigger nodes
+      const updatedNodes = filteredNodes.map((node) => {
+        if (node.type === 'trigger') {
+          console.log(`Updating trigger node ${node.id}`);
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isFirstTrigger: true,
+            },
+          };
+        }
+        return node;
+      });
+  
+      console.log('Final nodes:', updatedNodes);
+      return updatedNodes;
+    });
+  
+    // Reset other states
+    setIsDeleteModalOpen(false);
+    setNextNodeStep(false);
+    setShowNextStepInputs(false);
+  };
 
   const handleTriggerClick = (label: string, disabled?: boolean) => {
     if (!disabled) {
@@ -94,6 +146,7 @@ const TriggerComponent: React.FC<{
   };
 
   const handleVideoSelect = (video: VideoItem) => {
+    console.log(video)
     setSelectedVideo(video);
   };
 
@@ -108,7 +161,37 @@ const TriggerComponent: React.FC<{
     setSelectedVideo(null);
     setSelectedKeywords([]);
     setAvailableReplies([]);
+    setNodes([
+      {
+        id: '1',
+        type: 'default',
+        position: { x: 200, y: 200 },
+        data: { label: 'Set a trigger in the sidebar', isConfigured: false },
+        style: {
+          background: '#ffffff',
+          border: '2px solid #E1306C',
+          borderRadius: '12px',
+          color: '#E1306C',
+          fontWeight: '600',
+          fontSize: '14px',
+          boxShadow: '0 4px 6px rgba(225, 48, 108, 0.2)',
+          width: '280px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+        },
+      },
+    ]);
   };
+
+  const handleMessageBack = () => {
+    setSelectedTrigger(null);
+    setSelectedVideo(null);
+    setSelectedKeywords([]);
+    setAvailableReplies([]);
+  };
+
   useEffect(() => {
     let token =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6OTY0NTkyNDUzMjE2MzExOCwiaWF0IjoxNzQ2MDk3NTU0LCJleHAiOjE3NDY3MDIzNTR9.FXup-L6g8P3b0L94St7F0OOZiDX5yw4sCu4FICc7Sns';
@@ -130,28 +213,50 @@ const TriggerComponent: React.FC<{
   const removeKeyword = (id: string) => {
     setSelectedKeywords(selectedKeywords.filter((kw) => kw.id !== id));
   };
-
   return (
-    <div className="w-[360px] fixed top-[70px] right-0  bg-white h-full overflow-auto ">
-      <div className="p-6 h-full">
-        {!selectedTrigger ? (
+    <div className="w-[360px] fixed top-[70px] right-0  bg-white overflow-y-auto h-screen ">
+      <div className="p-6 h-full ">
+        {!selectedTrigger || (nextNodeStep && !showNextStepInputs) ? (
           <>
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                Select a Trigger
-              </h2>
-              <p className="text-sm text-gray-500 mt-2">
-                Choose an event to start your automation
-              </p>
+            <div className="mb-8 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  {nextNodeStep ? 'Next Step' : 'Select a Trigger'}
+                </h2>
+                <p className="text-sm text-gray-500 mt-2">
+                  {nextNodeStep
+                    ? 'Set the next block in the workflow'
+                    : 'Choose an event to start your automation'}
+                </p>
+              </div>
+              {nextNodeStep && (
+                <FontAwesomeIcon
+                  icon={faTrashCan}
+                  className="text-pink-600 cursor-pointer"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                />
+              )}
             </div>
+            <DeleteModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onConfirm={confirmDelete}
+              title="Delete Node?"
+              description="Are you sure you want to delete this node?"
+            />
 
             <div className="space-y-4">
-              {triggers.map((trigger, index) => (
+              {(nextNodeStep ? actions : triggers).map((trigger, index) => (
                 <div
                   key={index}
                   onClick={() => {
                     handleTriggerClick(trigger.label, trigger.disabled);
-                    handleClick({ label: trigger.label });
+                    if (nextNodeStep) {
+                      handleActionNode({ label: trigger.label });
+                      setShowNextStepInputs(true);
+                    } else {
+                      handleClick({ label: trigger.label });
+                    }
                   }}
                   className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
                     trigger.disabled
@@ -182,7 +287,7 @@ const TriggerComponent: React.FC<{
               ))}
             </div>
           </>
-        ) : (
+        ) : !showNextStepInputs ? (
           <>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
@@ -203,7 +308,7 @@ const TriggerComponent: React.FC<{
               </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-8 pb-40 ">
               <div>
                 <h3 className="text-base font-semibold text-gray-800 mb-4">
                   Inputs
@@ -342,8 +447,41 @@ const TriggerComponent: React.FC<{
                   )}
                 </div>
               </div>
+              <div
+                className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-sm border border-pink-200"
+                onClick={() => {
+                  handleAddNode();
+                  setNextNodeStep(true);
+                }}
+              >
+                <div className="mb-4">
+                  <h2 className="text-lg font-medium text-pink-800">
+                    Next Step
+                  </h2>
+                  <p className="text-sm text-pink-600 mt-1">
+                    Add the next block in this automation
+                  </p>
+                </div>
+
+                <div className="border border-dashed border-pink-400 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-pink-700 mb-2">
+                    Post or Reel Comments
+                  </h3>
+
+                  <button className="w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400">
+                    <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                    Select Block
+                  </button>
+                </div>
+              </div>
             </div>
           </>
+        ) : (
+          <NextStepComponent
+            handleBack={handleMessageBack}
+            setNextNodeStep={setNextNodeStep}
+            setShowNextStepInputs={setShowNextStepInputs}
+          />
         )}
 
         {showCommentRepliesModal && (
@@ -392,9 +530,9 @@ const TriggerComponent: React.FC<{
                   </div>
 
                   {/* Existing Post Data Items */}
-                  {postData.map((post) => (
+                  {postData?.map((post) => (
                     <div
-                      key={post.id}
+                      key={post?.id}
                       onClick={() => handleVideoSelect(post)}
                       className={`p-3 w-40 h-40 flex flex-col rounded-xl border border-pink-200 bg-white shadow-md cursor-pointer transition-all duration-200 ${
                         selectedVideo?.id === post.id

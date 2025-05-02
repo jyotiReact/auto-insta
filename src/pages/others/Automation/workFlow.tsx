@@ -16,6 +16,7 @@ import TriggerComponent from './RightPannel';
 import { TriggerNode } from './TriggerNode';
 import { ActionNode } from './ActionNode';
 import { DefaultNode } from './DefaultNode';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 // Define node types
 const nodeTypes = {
@@ -42,7 +43,6 @@ const initialNodes: Node[] = [
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      height: '100px',
       textAlign: 'center',
     },
   },
@@ -57,11 +57,70 @@ const WorkflowEditor: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Editor');
   const [isDraft, setIsDraft] = useState(false);
   const [tempKeywords, setTempKeywords] = useState<string[]>([]);
+  const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
+  const [nextNodeStep, setNextNodeStep] = useState(false);
+
+  function handleAddNode() {
+    const actionId = `action-${Date.now()}`;
+    const newActionNode = {
+      id: actionId,
+      type: 'action',
+      position: { x: 250, y: 250 },
+      data: {
+        label: '',
+        isConfigured: false,
+        icon: faPlus,
+        style: {
+          background: 'bg-gradient-to-br from-pink-100 to-purple-100',
+          borderColor: 'border-pink-200',
+          buttonColor: 'bg-pink-500',
+          buttonHoverColor: 'hover:bg-pink-600',
+          buttonRingColor: 'focus:ring-pink-400',
+          width: '200px',
+        },
+      },
+    };
+
+    setNodes((prev) =>
+      prev
+        .map((node) =>
+          node.id === triggerId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  isConfigured: true,
+                  isFirstTrigger: false,
+                },
+              }
+            : node,
+        )
+        .concat(newActionNode),
+    );
+    setEdges((prev) => {
+      const newEdge: Edge = {
+        id: `e-${triggerId}-${actionId}`,
+        source: triggerId,
+        target: actionId,
+        sourceHandle: 'sourceHandle',
+        targetHandle: 'targetHandle',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: '#E1306C',
+        },
+        type: 'smoothstep',
+        style: { stroke: '#E1306C' },
+        animated: true,
+      };
+      return addEdge(newEdge, prev);
+    });
+
+    setNextNodeStep(true);
+  }
 
   const showTriggerNode = useCallback(
     (nodeData: { label: string }) => {
-      const triggerId = `trigger-${Date.now()}`;
-
+      setTriggerId(triggerId);
       setNodes((prevNodes) => {
         // Step 1: Update existing trigger nodes
         const triggerUpdatedNodes = prevNodes.map((node) => {
@@ -91,54 +150,8 @@ const WorkflowEditor: React.FC = () => {
             label: nodeData.label,
             isConfigured: false,
             isFirstTrigger: true,
-            keywords: tempKeywords, // Use the latest tempKeywords
-            onAddActionNode: () => {
-              const actionId = `action-${Date.now()}`;
-              const newActionNode: Node = {
-                id: actionId,
-                type: 'action',
-                position: { x: 250, y: 250 },
-                data: {
-                  label: 'New Action',
-                  isConfigured: false,
-                },
-              };
-
-              setNodes((prev) =>
-                prev
-                  .map((node) =>
-                    node.id === triggerId
-                      ? {
-                          ...node,
-                          data: {
-                            ...node.data,
-                            isConfigured: true,
-                            isFirstTrigger: false,
-                          },
-                        }
-                      : node,
-                  )
-                  .concat(newActionNode),
-              );
-
-              setEdges((prev) => {
-                const newEdge: Edge = {
-                  id: `e-${triggerId}-${actionId}`,
-                  source: triggerId,
-                  target: actionId,
-                  sourceHandle: 'sourceHandle',
-                  targetHandle: 'targetHandle',
-                  markerEnd: {
-                    type: MarkerType.ArrowClosed,
-                    color: '#E1306C',
-                  },
-                  type: 'smoothstep',
-                  style: { stroke: '#E1306C' },
-                  animated: true,
-                };
-                return addEdge(newEdge, prev);
-              });
-            },
+            keywords: tempKeywords,
+            onAddActionNode: handleAddNode,
           },
         };
 
@@ -146,6 +159,29 @@ const WorkflowEditor: React.FC = () => {
       });
     },
     [setNodes, setEdges, tempKeywords], // Add tempKeywords to dependencies
+  );
+
+  const handleActionNode = useCallback(
+    (nodeData: { label: string }) => {
+      setNodes((prevNodes) => {
+        // Create new action node
+        const actionUpdatedNodes = prevNodes.map((node) => {
+          if (node.type === 'action') {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                label: nodeData.label,
+              },
+            };
+          }
+          return node;
+        });
+
+        return [...actionUpdatedNodes];
+      });
+    },
+    [setNodes],
   );
 
   const onNodesChange = useCallback(
@@ -162,8 +198,6 @@ const WorkflowEditor: React.FC = () => {
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
-
-  console.log('Temp Keywords in WorkflowEditor:', tempKeywords);
 
   return (
     <div className="flex flex-col h-screen">
@@ -205,7 +239,7 @@ const WorkflowEditor: React.FC = () => {
                 : 'bg-pink-100 text-pink-600'
             }`}
           >
-            {isDraft ? 'Draft' : 'Published'}
+            {isDraft ? 'Published' : 'Draft'}
           </span>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -238,6 +272,12 @@ const WorkflowEditor: React.FC = () => {
           handleClick={showTriggerNode}
           tempKeywords={tempKeywords}
           setTempKeywords={setTempKeywords}
+          handleAddNode={handleAddNode}
+          handleActionNode={handleActionNode}
+          setNodes={setNodes}
+          nextNodeStep={nextNodeStep}
+          setNextNodeStep={setNextNodeStep}
+          nodes={nodes}
         />
       </div>
     </div>

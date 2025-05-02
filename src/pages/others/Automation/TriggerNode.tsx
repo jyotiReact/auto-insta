@@ -3,7 +3,7 @@ import { FaRegCommentDots, FaPlusCircle } from 'react-icons/fa';
 
 export function TriggerNode({ data }) {
   return (
-    <div className="rounded-xl border-2 border-pink-600 bg-white shadow-md p-4 w-64 relative transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:to-pink-200">
+    <div className="rounded-xl border-2 border-pink-600 bg-white shadow-md p-4 w-64 relative transition-all min-h-20 max-h-[160px] duration-300 hover:-translate-y-1 hover:shadow-lg hover:to-pink-200">
       <div className="absolute -top-3 left-2 bg-white px-2 py-0.5 rounded-full border border-pink-300 text-xs text-pink-600 font-medium">
         Trigger
       </div>

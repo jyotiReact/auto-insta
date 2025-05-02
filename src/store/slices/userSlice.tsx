@@ -5,6 +5,7 @@ interface UserType {
     role: string;
     authority: boolean;
     nodes: any[];
+    token: string;
   };
 }
 
@@ -69,6 +70,7 @@ export const userSlice = createSlice({
       state.userData.nodes = action.payload;
     },
     setToken: (state, action: PayloadAction<string>) => {
+      console.log(action.payload);
       state.userData.token = action.payload;
     },
   },

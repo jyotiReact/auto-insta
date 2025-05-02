@@ -55,6 +55,7 @@ const ProfileSelector: React.FC = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         dispatch(setAuthority(data.authority));
         dispatch(setRole(data.role));
         dispatch(setToken(data.jwttoken));

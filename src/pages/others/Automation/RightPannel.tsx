@@ -22,6 +22,7 @@ import SetupKeywordsModal from './SetupKeywordsModal';
 import NextStepComponent from './NextStepComponent';
 import DeleteModal from '../../../components/custom/Modals/DeleteModal';
 import { useReactFlow } from 'reactflow';
+import { useSelector } from 'react-redux';
 
 type Trigger = {
   label: string;
@@ -95,21 +96,26 @@ const TriggerComponent: React.FC<{
   const [postData, setPostData] = useState<string[]>([]);
   const [showNextStepInputs, setShowNextStepInputs] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  const token = useSelector((state: any) => state.user.userData.token);
+  console.log(token);
   const confirmDelete = () => {
     setNodes((prevNodes) => {
       // Debugging: Log current nodes before filtering
       console.log('Current nodes:', prevNodes);
-      
+
       // Filter out action nodes
       const filteredNodes = prevNodes.filter((node) => {
         const shouldKeep = node.type !== 'action';
-        console.log(`Node ${node.id} type: ${node.type} - ${shouldKeep ? 'keeping' : 'removing'}`);
+        console.log(
+          `Node ${node.id} type: ${node.type} - ${
+            shouldKeep ? 'keeping' : 'removing'
+          }`,
+        );
         return shouldKeep;
       });
-      
+
       console.log('Nodes after filter:', filteredNodes);
-  
+
       // Update trigger nodes
       const updatedNodes = filteredNodes.map((node) => {
         if (node.type === 'trigger') {
@@ -124,11 +130,11 @@ const TriggerComponent: React.FC<{
         }
         return node;
       });
-  
+
       console.log('Final nodes:', updatedNodes);
       return updatedNodes;
     });
-  
+
     // Reset other states
     setIsDeleteModalOpen(false);
     setNextNodeStep(false);
@@ -146,7 +152,7 @@ const TriggerComponent: React.FC<{
   };
 
   const handleVideoSelect = (video: VideoItem) => {
-    console.log(video)
+    console.log(video);
     setSelectedVideo(video);
   };
 
@@ -193,8 +199,7 @@ const TriggerComponent: React.FC<{
   };
 
   useEffect(() => {
-    let token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6OTY0NTkyNDUzMjE2MzExOCwiaWF0IjoxNzQ2MDk3NTU0LCJleHAiOjE3NDY3MDIzNTR9.FXup-L6g8P3b0L94St7F0OOZiDX5yw4sCu4FICc7Sns';
+    const token = '';
     async function fetchPosts() {
       fetch('https://instautomate.it-waves.com/service/instagram/media', {
         method: 'GET',

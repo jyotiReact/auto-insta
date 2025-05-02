@@ -24,9 +24,9 @@ const AppRouter = () => {
         <Route path={`/automations-new`} element={<AutomationEditor />} />
       </Route>
       <Route element={<PublicLayout />}>
-        <Route index element={<Navigate replace to={'/auth/signin'} />} />
-        <Route path="/auth/signin" element={<SignIn />} />
-        <Route path="/auth/signup" element={<SignUp />} />
+        <Route index element={<Navigate replace to={'/auth/connect-insta'} />} />
+        {/* <Route path="/auth/signin" element={<SignIn />} />
+        <Route path="/auth/signup" element={<SignUp />} /> */}
         <Route path="/auth/connect-insta" element={<ConnectInstagram />} />
         <Route path="/auth/allow-insta" element={<InstagramConsent />} />
         <Route path="/auth/profile" element={<ProfileSelector />} />

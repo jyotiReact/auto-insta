@@ -58,7 +58,7 @@ const ProfileSelector: React.FC = () => {
         dispatch(setAuthority(data.authority));
         dispatch(setRole(data.role));
         dispatch(setToken(data.jwttoken));
-        navigate('/dashboard');
+        navigate('/');
       });
   }
 
@@ -99,7 +99,7 @@ const ProfileSelector: React.FC = () => {
               {selected.length === 1 ? 'category' : 'categories'} selected
             </span>
             <button
-              onClick={() => sendData()}
+              onClick={sendData}
               disabled={selected.length === 0 || isSubmitting}
               className={`px-8 py-3 rounded-lg font-medium transition-all ${
                 selected.length === 0

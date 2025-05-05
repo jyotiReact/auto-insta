@@ -15,7 +15,7 @@ interface ButtonData {
 
 interface FollowMessage {
   openingMessage: string;
-  openingButton: ButtonData;
+  openingButton: ButtonData[]; // Changed from ButtonData to ButtonData[]
   followingMessage: string;
   followingButtons: [ButtonData, ButtonData];
 }
@@ -29,7 +29,7 @@ interface NextStepComponentProps {
 interface CustomMessageModalProps {
   onClose: () => void;
   message: string;
-  buttonData: ButtonData | [ButtonData, ButtonData];
+  buttonData: ButtonData[] | [ButtonData, ButtonData]; // Updated to reflect array for opening button
   setFollowMessage: (data: Partial<FollowMessage>) => void;
   title: string;
   isFollowingMessage: boolean;
@@ -45,7 +45,9 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
 }) => {
   const [text, setText] = useState(message);
   const [button1, setButton1] = useState<ButtonData>(
-    Array.isArray(buttonData) ? buttonData[0] : buttonData,
+    Array.isArray(buttonData) && !isFollowingMessage
+      ? buttonData[0]
+      : buttonData[0], // Updated condition
   );
   const [button2, setButton2] = useState<ButtonData>(
     Array.isArray(buttonData) ? buttonData[1] : { title: '', url: '' },
@@ -60,7 +62,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
     } else {
       setFollowMessage({
         openingMessage: text,
-        openingButton: button1,
+        openingButton: [button1], // Changed to array
       });
     }
     onClose();
@@ -177,11 +179,38 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
 
   const [followMesssage, setFollowMesssage] = useState<FollowMessage>({
     openingMessage: '',
-    openingButton: { title: 'Send me a link' },
+    openingButton: [{ title: 'Send me a link' }], // Changed to array
     followingMessage: '',
     followingButtons: [{ title: 'Visit Profile' }, { title: 'I am following' }],
   });
   const [error, setError] = useState<string | null>(null);
+
+  // useEffect(() => {
+  //   console.log(messages, followMesssage);
+  //   const withButtonTypes = (button: ButtonData) => ({
+  //     ...button,
+  //     type: button.url ? 'web_url' : 'postback',
+  //   });
+  //   console.log({buttons: ...(withButtonTypes(followMesssage.openingButton))});
+  //   setNodesData({
+  //     ...nodesData,
+  //     checkFollowing: isDraft,
+  //     openingMessage: {
+  //       type: 'button',
+  //       text: followMesssage?.openingMessage,
+  //       ...(followMesssage?.openingButton && {
+  //         buttons: withButtonTypes(followMesssage.openingButton),
+  //       }),
+  //     },
+  //     followingMessage: {
+  //       type: 'button',
+  //       text: followMesssage?.followingMessage,
+  //       ...(followMesssage?.followingButtons?.length > 0 && {
+  //         buttons: followMesssage.followingButtons.map(withButtonTypes),
+  //       }),
+  //     },
+  //   });
+  // }, [isDraft, messages, followMesssage]);
 
   useEffect(() => {
     console.log(messages, followMesssage);
@@ -196,8 +225,8 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
       openingMessage: {
         type: 'button',
         text: followMesssage?.openingMessage,
-        ...(followMesssage?.openingButton && {
-          buttons: withButtonTypes(followMesssage.openingButton),
+        ...(followMesssage?.openingButton?.length > 0 && {
+          buttons: followMesssage.openingButton.map(withButtonTypes), // Updated to map over array
         }),
       },
       followingMessage: {
@@ -209,7 +238,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
       },
     });
   }, [isDraft, messages, followMesssage]);
-
   const handleOpenCustomModal = (index: 1 | 2) => {
     setCustomMessageIndex(index);
     setOpenCustomMessageModal(true);
@@ -292,15 +320,18 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                   <span className="font-medium text-gray-800 block mb-3">
                     {followMesssage.openingMessage}
                   </span>
-                  <div className="flex">
-                    <a
-                      href={followMesssage?.openingButton?.url || '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
-                    >
-                      {followMesssage.openingButton.title}
-                    </a>
+                  <div className="flex flex-col gap-2">
+                    {followMesssage.openingButton.map((button, index) => (
+                      <a
+                        key={index}
+                        href={button.url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
+                      >
+                        {button.title}
+                      </a>
+                    ))}
                   </div>
                 </div>
               ) : (

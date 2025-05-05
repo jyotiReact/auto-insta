@@ -64,6 +64,9 @@ const WorkflowEditor: React.FC = () => {
   const token = useSelector((state: any) => state.user.userData.token);
   const [nodesData, setNodesData] = useState(nodesDataFormat);
 
+  // useEffect(() => {
+  //   showTriggerNode({ label: 'Your Label' });
+  // }, [tempKeywords]);
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
     const newActionNode = {
@@ -158,11 +161,11 @@ const WorkflowEditor: React.FC = () => {
             onAddActionNode: handleAddNode,
           },
         };
-
+        console.log({newTriggerNode});
         return [...filteredNodes, newTriggerNode];
       });
     },
-    [setNodes, setEdges, tempKeywords], // Add tempKeywords to dependencies
+    [setNodes, setEdges, tempKeywords], 
   );
 
   const handleActionNode = useCallback(
@@ -204,6 +207,8 @@ const WorkflowEditor: React.FC = () => {
   );
 
   useEffect(() => {
+    // const token =
+    // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
     async function Publish() {
       fetch('https://instautomate.it-waves.com/user/add-automation', {
         method: 'POST',

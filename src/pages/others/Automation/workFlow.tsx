@@ -19,6 +19,7 @@ import { DefaultNode } from './DefaultNode';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { json } from 'react-router-dom';
+import { nodesDataFormat } from './settings';
 
 // Define node types
 const nodeTypes = {
@@ -60,8 +61,8 @@ const WorkflowEditor: React.FC = () => {
   const [tempKeywords, setTempKeywords] = useState<string[]>([]);
   const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
   const [nextNodeStep, setNextNodeStep] = useState(false);
-  const nodesData = useSelector((state: any) => state.user.userData.nodes);
   const token = useSelector((state: any) => state.user.userData.token);
+  const [nodesData, setNodesData] = useState(nodesDataFormat);
 
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
@@ -224,7 +225,6 @@ const WorkflowEditor: React.FC = () => {
       console.log(nodesData);
     }
   }, [isDraft]);
-  console.log({ nodesData });
 
   return (
     <div className="flex flex-col h-screen">
@@ -305,6 +305,8 @@ const WorkflowEditor: React.FC = () => {
           nextNodeStep={nextNodeStep}
           setNextNodeStep={setNextNodeStep}
           nodes={nodes}
+          nodesData={nodesData}
+          setNodesData={setNodesData}
         />
       </div>
     </div>

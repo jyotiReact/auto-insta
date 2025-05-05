@@ -6,6 +6,7 @@ import {
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 import SetupMessagesModal from './SetupMessageModal';
+import { useSelector } from 'react-redux';
 
 interface ButtonData {
   title: string;
@@ -172,6 +173,8 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   const [openCustomMessageModal, setOpenCustomMessageModal] = useState(false);
   const [customMessageIndex, setCustomMessageIndex] = useState<0 | 1 | 2>(0);
   const [messages, setMessages] = useState('');
+  const token = useSelector((state: any) => state.user.userData.token);
+
   const [followMesssage, setFollowMesssage] = useState<FollowMessage>({
     openingMessage: '',
     openingButton: { title: 'Send me a link', url: '' },
@@ -201,8 +204,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
       followingMessage: {
         type: 'button',
         text: followMesssage.followingMessage,
-        buttons:followMesssage.followingButtons.map(withButtonTypes)
-        ,
+        buttons: followMesssage.followingButtons.map(withButtonTypes),
       },
     });
   }, [isDraft, messages, followMesssage]);

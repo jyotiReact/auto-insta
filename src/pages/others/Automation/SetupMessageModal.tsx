@@ -12,8 +12,7 @@ import {
   faTrash,
   faEdit,
 } from '@fortawesome/free-solid-svg-icons';
-import { useDispatch } from 'react-redux';
-import { setAutomationData } from '../../../store/slices/userSlice';
+
 
 interface ButtonData {
   title: string;

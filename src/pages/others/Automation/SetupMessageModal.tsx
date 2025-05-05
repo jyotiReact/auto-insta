@@ -39,6 +39,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   onClose,
   nodesData,
   setNodesData,
+  setMessages,
+  messages,
 }) => {
   const [showTextContent, setShowTextContent] = useState(false);
   const [showCardContent, setShowCardContent] = useState(false);
@@ -49,7 +51,6 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     url: '',
   });
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [messages, setMessages] = useState('');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);

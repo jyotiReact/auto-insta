@@ -15,21 +15,21 @@ export const nodesDataFormat = {
     measured: { width: 300, height: 488 },
   },
   checkFollowing: true,
-  // followingMessage: {
-  //   type: 'button',
-  //   text: 'Please follow me to get the link.',
-  //   buttons: [
-  //     {
-  //       type: 'web_url',
-  //       url: 'https://www.instagram.com/your_profile/',
-  //       title: 'Visit Profile',
-  //     },
-  //     {
-  //       type: 'postback',
-  //       title: "I'm following :white_tick:",
-  //     },
-  //   ],
-  // },
+  followingMessage: {
+    type: 'button',
+    text: 'Please follow me to get the link.',
+    buttons: [
+      {
+        type: 'web_url',
+        url: 'https://www.instagram.com/your_profile/',
+        title: 'Visit Profile',
+      },
+      {
+        type: 'postback',
+        title: "I'm following :white_tick:",
+      },
+    ],
+  },
   instagramCardMessage: {
     type: 'generic',
     title: 'Here is your link!',
@@ -60,20 +60,20 @@ export const nodesDataFormat = {
       },
     ],
   },
-  // openingMessage: {
-  //   type: 'button',
-  //   text: 'Please follow me to get the link.',
-  //   buttons: [
-  //     {
-  //       type: 'web_url',
-  //       url: 'https://www.instagram.com/your_profile/',
-  //       title: 'Visit Profile',
-  //     },
-  //     {
-  //       type: 'postback',
-  //       title: "I'm following :white_tick:",
-  //     },
-  //   ],
-  // },
+  openingMessage: {
+    type: 'button',
+    text: 'Please follow me to get the link.',
+    buttons: [
+      {
+        type: 'web_url',
+        url: 'https://www.instagram.com/your_profile/',
+        title: 'Visit Profile',
+      },
+      {
+        type: 'postback',
+        title: "I'm following :white_tick:",
+      },
+    ],
+  },
   actionPosition: { x: 0, y: 0 },
 };

@@ -433,7 +433,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
           isFollowingMessage={customMessageIndex === 2}
         />
       )}
-      {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+      {/* {error && <p className="text-red-500 text-sm mt-4">{error}</p>} */}
     </div>
   );
 };

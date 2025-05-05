@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 const PrivateLayout = () => {
   const token = useSelector((state: any) => state.user.userData.token);
-  return token ? (
+  return !token ? (
     <DefaultLayout>
       <Outlet />
     </DefaultLayout>

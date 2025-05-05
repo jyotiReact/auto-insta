@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { useDispatch } from 'react-redux';
-import { setAutomationData } from '../../../store/slices/userSlice';
 
 interface Keyword {
   id: string;
@@ -13,6 +11,7 @@ interface Keyword {
 interface SetupKeywordsModalProps {
   tempKeywords: Keyword[];
   setTempKeywords: (keywords: Keyword[]) => void;
+  setNodesData: (nodes: any[]) => void;
   setSelectedKeywords: (keywords: Keyword[]) => void;
   selectedKeywords: Keyword[];
   nodesData: any[];
@@ -29,7 +28,6 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
   setNodesData,
 }) => {
   const [keywordInput, setKeywordInput] = useState('');
-  const dispatch = useDispatch();
 
   const handleAddKeyword = () => {
     if (keywordInput.trim()) {
@@ -37,13 +35,31 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
         .split(',')
         .map((text) => text.trim())
         .filter((text) => text.length > 0)
+        .filter((text) => {
+          // Check for duplicates (case-insensitive)
+          const lowerText = text.toLowerCase();
+          return (
+            !tempKeywords.some((kw) => kw.text.toLowerCase() === lowerText) &&
+            !selectedKeywords.some((kw) => kw.text.toLowerCase() === lowerText)
+          );
+        })
         .map((text, index) => ({
           id: `kw-${Date.now()}-${index}`,
           text,
           isActive: true,
         }));
-      setTempKeywords([...tempKeywords, ...newKeywords]);
+
+      if (newKeywords.length > 0) {
+        setTempKeywords([...tempKeywords, ...newKeywords]);
+      }
       setKeywordInput('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddKeyword();
     }
   };
 
@@ -52,15 +68,27 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
   };
 
   const handleSaveKeywords = () => {
-    setSelectedKeywords([...selectedKeywords, ...tempKeywords]);
+    // Combine tempKeywords with selectedKeywords, avoiding duplicates
+    const updatedKeywords = [
+      ...selectedKeywords,
+      ...tempKeywords.filter(
+        (tempKw) =>
+          !selectedKeywords.some(
+            (selKw) => selKw.text.toLowerCase() === tempKw.text.toLowerCase(),
+          ),
+      ),
+    ];
 
+    setSelectedKeywords(updatedKeywords);
+
+    // Update nodesData with the combined keywords
     setNodesData({
       ...nodesData,
       trigger: {
         ...nodesData.trigger,
-        anyContent: tempKeywords.length === 0,
-        anyKeyword: tempKeywords.length === 0,
-        includeKeywords: tempKeywords.map((kw) => kw.text.toLowerCase()),
+        anyContent: updatedKeywords.length === 0,
+        anyKeyword: updatedKeywords.length === 0,
+        includeKeywords: updatedKeywords.map((kw) => kw.text.toLowerCase()),
       },
     });
 
@@ -86,6 +114,7 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
           <textarea
             value={keywordInput}
             onChange={(e) => setKeywordInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Type keywords separated by commas (e.g., discount, promo, sale)"
             className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
             rows={3}

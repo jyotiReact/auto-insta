@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setAutomationData } from '../../../store/slices/userSlice';
 
 interface Reply {
   id: string;
   text: string;
   emoji: string;
+}
+
+interface DefaultMessage {
+  id: string;
+  text: string;
 }
 
 interface CommentRepliesModalProps {
@@ -22,10 +27,12 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   replies,
   setReplies,
   nodesData,
-  setNodesData,
 }) => {
   const [newReply, setNewReply] = useState('');
+  const [defaultMessages, setDefaultMessages] = useState<DefaultMessage[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const token = useSelector((state: any) => state.user.userData.token);
 
   const handleAddReply = () => {
     if (newReply.trim() && !replies.some((r) => r.text === newReply.trim())) {
@@ -46,16 +53,52 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   };
 
   const handleConfirm = () => {
-    setNodesData({
-      ...nodesData,
-      trigger: {
-        ...nodesData.trigger,
-        commentReplies: replies.length > 0 ? replies.map((r) => r.text) : [],
-      },
-    });
+    setNodesData(
+      nodesData.map((node) => ({
+        ...node,
+        trigger: {
+          ...node.trigger,
+          commentReplies: replies.length > 0 ? replies.map((r) => r.text) : [],
+        },
+      })),
+    );
 
     onClose();
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddReply();
+    }
+  };
+
+  useEffect(() => {
+    async function fetchDefaultMessages() {
+      try {
+        const response = await fetch(
+          'https://instautomate.it-waves.com/user/get-default-data',
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch default messages');
+        }
+        const data = await response.json();
+        // Assuming data is an array of { id: string, text: string }
+        setDefaultMessages(data);
+      } catch (err) {
+        setError('Error fetching default messages');
+        console.error(err);
+      }
+    }
+    fetchDefaultMessages();
+  }, [token]);
 
   return (
     <div className="fixed inset-0 bg-white bg-opacity-30 flex items-center justify-center z-50 backdrop-blur-sm">
@@ -73,6 +116,24 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
 
         <div className="space-y-4 mb-6">
           <p className="text-sm text-gray-600">Add Random Comment Replies</p>
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Default Messages
+            </h3>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {/* {defaultMessages.length > 0 ? (
+              <div className="space-y-2">
+                {defaultMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className="p-3 bg-gray-50 rounded-xl text-gray-800 text-sm"
+                  >
+                    {message.text}
+                  </div>
+                ))}
+              </div>
+            ) : null} */}
+          </div>
           {replies.map((reply) => (
             <div
               key={reply.id}
@@ -97,6 +158,7 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
             type="text"
             value={newReply}
             onChange={(e) => setNewReply(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Add New Reply..."
             className="flex-1 px-4 py-2 bg-pink-50 border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
           />

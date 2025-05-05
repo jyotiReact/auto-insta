@@ -61,7 +61,13 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleAddKeyword();
+      if (selectedOption) {
+        // Add to selected options list
+        setReplies(prev => [...prev, selectedOption]);
+        // Clear current selection
+        setSelectedOption(null);
+      }
+  
     }
   };
   const handleConfirm = () => {
@@ -192,7 +198,7 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
                   padding: '0.5rem',
                 }),
               }}
-              onKeyDown={handleKeyDown}
+              // onKeyDown={handleKeyDown}
             />
           </div>
           <button
@@ -208,7 +214,7 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
           </button>
         </div>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {/* {error && <p className="text-red-500 text-sm mb-4">{error}</p>} */}
 
         <div className="flex justify-end">
           <button

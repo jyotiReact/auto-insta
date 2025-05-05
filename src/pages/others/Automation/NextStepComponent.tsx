@@ -106,7 +106,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
           </label>
           <input
             type="url"
-            value={button1.url}
+            value={button1?.url}
             onChange={(e) => setButton1({ ...button1, url: e.target.value })}
             placeholder="Enter button link..."
             className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
@@ -177,12 +177,9 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
 
   const [followMesssage, setFollowMesssage] = useState<FollowMessage>({
     openingMessage: '',
-    openingButton: { title: 'Send me a link', url: '' },
+    openingButton: { title: 'Send me a link' },
     followingMessage: '',
-    followingButtons: [
-      { title: 'Visit Profile', url: '' },
-      { title: 'I am following', url: '' },
-    ],
+    followingButtons: [{ title: 'Visit Profile' }, { title: 'I am following' }],
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -198,13 +195,17 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
       checkFollowing: isDraft,
       openingMessage: {
         type: 'button',
-        text: followMesssage.openingMessage,
-        buttons: withButtonTypes(followMesssage.openingButton),
+        text: followMesssage?.openingMessage,
+        ...(followMesssage?.openingButton && {
+          buttons: withButtonTypes(followMesssage.openingButton),
+        }),
       },
       followingMessage: {
         type: 'button',
-        text: followMesssage.followingMessage,
-        buttons: followMesssage.followingButtons.map(withButtonTypes),
+        text: followMesssage?.followingMessage,
+        ...(followMesssage?.followingButtons?.length > 0 && {
+          buttons: followMesssage.followingButtons.map(withButtonTypes),
+        }),
       },
     });
   }, [isDraft, messages, followMesssage]);
@@ -293,7 +294,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                   </span>
                   <div className="flex">
                     <a
-                      href={followMesssage.openingButton.url || '#'}
+                      href={followMesssage?.openingButton?.url || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
@@ -336,7 +337,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                   </span>
                   <div className="flex gap-2 flex-col">
                     <a
-                      href={followMesssage.followingButtons[0].url || '#'}
+                      href={followMesssage?.followingButtons[0]?.url || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50 mb-2"
@@ -344,7 +345,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                       {followMesssage.followingButtons[0].title}
                     </a>
                     <a
-                      href={followMesssage.followingButtons[1].url || '#'}
+                      href={followMesssage.followingButtons[1]?.url || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"

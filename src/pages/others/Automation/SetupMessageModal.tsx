@@ -47,7 +47,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   const [buttons, setButtons] = useState<ButtonData[]>([]);
   const [currentButton, setCurrentButton] = useState<ButtonData>({
     title: '',
-    url: '',
+    // url: '',
   });
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [title, setTitle] = useState('');
@@ -56,7 +56,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
 
   const handleAddButtonClick = () => {
     setShowButtonInputs(true);
-    setCurrentButton({ title: '', url: '' });
+    setCurrentButton({ title: '' });
     setEditIndex(null);
   };
 
@@ -64,7 +64,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     if (currentButton.title) {
       const btnData = {
         ...currentButton,
-        type: currentButton.url ? 'web_url' : 'postback',
+        type: currentButton?.url ? 'web_url' : 'postback',
       };
       if (editIndex !== null) {
         const updatedButtons = [...buttons];
@@ -74,14 +74,14 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
         setButtons([...buttons, btnData]);
       }
       setShowButtonInputs(false);
-      setCurrentButton({ title: '', url: '' });
+      setCurrentButton({ title: '' });
       setEditIndex(null);
     }
   };
 
   const handleCancelButton = () => {
     setShowButtonInputs(false);
-    setCurrentButton({ title: '', url: '' });
+    setCurrentButton({ title: '' });
     setEditIndex(null);
   };
 
@@ -103,6 +103,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     }
   };
   const handleConfirm = () => {
+    console.log(buttons)
     setNodesData({
       ...nodesData,
       instagramCardMessage: showCardContent
@@ -383,7 +384,7 @@ const ButtonInputs: React.FC<ButtonInputsProps> = ({
             </label>
             <input
               type="text"
-              value={currentButton.url}
+              value={currentButton?.url}
               onChange={(e) =>
                 setCurrentButton({ ...currentButton, url: e.target.value })
               }
@@ -411,7 +412,7 @@ const ButtonInputs: React.FC<ButtonInputsProps> = ({
                       {button.title}
                     </span>
                     <p className="text-xs text-gray-500">
-                      {button.url || 'No link provided'}
+                      {button?.url || 'No link provided'}
                     </p>
                   </div>
                   <div className="flex space-x-2">

@@ -212,7 +212,7 @@ const WorkflowEditor: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          automation: { nodesData },
+          automation: nodesData,
         }),
       })
         .then((res) => res.json())

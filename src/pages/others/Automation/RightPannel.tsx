@@ -118,6 +118,8 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
   const token = useSelector((state: any) => state.user.userData.token);
 
   useEffect(() => {
+    // const token =
+    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
     if (modalContent === 'post') {
       fetch('https://instautomate.it-waves.com/service/instagram/media', {
         method: 'GET',
@@ -189,12 +191,16 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
       ...nodesData,
       trigger: {
         ...nodesData.trigger,
+        caption: video.caption,
         contentIds: [video?.id],
         mediaLink: [
           video?.media_type === 'VIDEO'
             ? video?.thumbnail_url
             : video?.media_url,
         ],
+        contentThumbnail: video.thumbnail_url
+          ? [video.thumbnail_url]
+          : [video?.media_url],
       },
     });
 

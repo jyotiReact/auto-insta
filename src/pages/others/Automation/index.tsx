@@ -10,6 +10,7 @@ import {
 import Select from 'react-select';
 import { formatDate } from '../../../utils';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const AutomationList: React.FC = () => {
   const [automations, setAutomations] = useState([
@@ -41,6 +42,8 @@ const AutomationList: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
 
   const [searchTerm, setSearchTerm] = useState('');
+  const token = useSelector((state: any) => state.user.userData.token);
+
 
   useEffect(() => {
     // const token =

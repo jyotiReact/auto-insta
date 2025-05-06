@@ -44,7 +44,6 @@ const AutomationList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const token = useSelector((state: any) => state.user.userData.token);
 
-
   useEffect(() => {
     // const token =
     //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
@@ -240,7 +239,8 @@ const AutomationList: React.FC = () => {
               </div>
 
               <div className="col-span-2 text-sm text-gray-600">
-                {formatDate(automation?.lastRunAt, { format: 'full' }) ||
+                {(automation?.lastRunAt &&
+                  formatDate(automation?.lastRunAt, { format: 'full' })) ||
                   'Not Published'}
               </div>
 

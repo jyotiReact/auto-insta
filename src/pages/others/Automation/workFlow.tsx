@@ -63,10 +63,25 @@ const WorkflowEditor: React.FC = () => {
   const [nextNodeStep, setNextNodeStep] = useState(false);
   const token = useSelector((state: any) => state.user.userData.token);
   const [nodesData, setNodesData] = useState(nodesDataFormat);
+  const [title, setTitle] = useState('');
+  const [buttons, setButtons] = useState([]);
+  const [subtitle, setSubtitle] = useState('');
+  const [preview, setPreview] = useState(null);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
+  const [showNextStepInputs, setShowNextStepInputs] = useState(false);
+  const [publishedData, setPublishedData] = useState(null);
+  const [isInitialRender, setIsInitialRender] = useState(true);
 
+  useEffect(() => {
+    if (tempKeywords.length > 0) {
+      showTriggerNode({ label: 'Post or Reel Comments' });
+    }
+  }, [tempKeywords]);
   // useEffect(() => {
-  //   showTriggerNode({ label: 'Your Label' });
-  // }, [tempKeywords]);
+  //   handleActionNode({ label: 'Send instagram message' });
+  // }, [title]);
+
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
     const newActionNode = {
@@ -137,6 +152,7 @@ const WorkflowEditor: React.FC = () => {
               data: {
                 ...node.data,
                 isFirstTrigger: false,
+                handleClickNode: handleAddNode,
               },
             };
           }
@@ -161,11 +177,11 @@ const WorkflowEditor: React.FC = () => {
             onAddActionNode: handleAddNode,
           },
         };
-        console.log({newTriggerNode});
+        console.log({ newTriggerNode });
         return [...filteredNodes, newTriggerNode];
       });
     },
-    [setNodes, setEdges, tempKeywords], 
+    [setNodes, setEdges, tempKeywords],
   );
 
   const handleActionNode = useCallback(
@@ -179,6 +195,10 @@ const WorkflowEditor: React.FC = () => {
               data: {
                 ...node.data,
                 label: nodeData.label,
+                title,
+                subtitle,
+                buttons,
+                preview,
               },
             };
           }
@@ -207,8 +227,13 @@ const WorkflowEditor: React.FC = () => {
   );
 
   useEffect(() => {
+    if (isInitialRender) {
+      setIsInitialRender(false);
+      return;
+    }
+
     // const token =
-    // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
+    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
     async function Publish() {
       fetch('https://instautomate.it-waves.com/user/add-automation', {
         method: 'POST',
@@ -217,23 +242,60 @@ const WorkflowEditor: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          automation: nodesData,
+          automation: {
+            ...nodesData,
+            status: isDraft ? 'LIVE' : 'DRAFT',
+            ...(!isDraft && { automationId: publishedData }),
+          },
         }),
       })
         .then((res) => res.json())
         .then((data) => {
+          setPublishedData(data.automation.automationId);
           console.log(data);
         });
     }
-    if (isDraft) {
-      Publish();
-      console.log(nodesData);
-    }
+
+    Publish();
   }, [isDraft]);
+
+  const onNodeClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      if (!event || event.type !== 'click') return;
+      console.log('click');
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          selected: n.id === node.id,
+        })),
+      );
+
+      setSelectedNode(node);
+
+      // Only proceed if this was a user-initiated click
+      if (event.isTrusted) {
+        switch (node.type) {
+          case 'trigger':
+            setSelectedTrigger('Post or reel comments');
+            setNextNodeStep(false);
+            setShowNextStepInputs(false);
+
+            break;
+          case 'action':
+            setNextNodeStep(true);
+
+            break;
+          default:
+            break;
+        }
+      }
+    },
+    [setNodes, setNextNodeStep],
+  );
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex items-center justify-between sticky right-0 top-0 p-4 left-[240px]  bg-white">
+      <div className="flex items-center border-b border-pink-200 justify-between sticky right-0 top-0 p-4 left-[240px]  bg-white">
         <div className="flex space-x-6">
           <button
             onClick={() => setActiveTab('Editor')}
@@ -296,6 +358,11 @@ const WorkflowEditor: React.FC = () => {
           nodeTypes={nodeTypes}
           defaultViewport={{ zoom: 1.0, x: 0, y: 0 }}
           minZoom={0.5}
+          onNodeClick={onNodeClick}
+          // onPaneClick={() => {
+          //   setNodes((nds) => nds.map((n) => ({ ...n, selected: false })));
+          //   setSelectedNode(null);
+          // }}
         >
           <Background variant="dots" gap={16} size={1} color="pink" />
           <Controls />
@@ -312,6 +379,18 @@ const WorkflowEditor: React.FC = () => {
           nodes={nodes}
           nodesData={nodesData}
           setNodesData={setNodesData}
+          title={title}
+          setTitle={setTitle}
+          subtitle={subtitle}
+          setSubtitle={setSubtitle}
+          preview={preview}
+          setPreview={setPreview}
+          buttons={buttons}
+          setButtons={setButtons}
+          setSelectedTrigger={setSelectedTrigger}
+          selectedTrigger={selectedTrigger}
+          showNextStepInputs={showNextStepInputs}
+          setShowNextStepInputs={setShowNextStepInputs}
         />
       </div>
     </div>

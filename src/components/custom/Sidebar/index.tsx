@@ -13,7 +13,7 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
   const { pathname } = location;
-  const role = useSelector((state: any) => state.user.userData.role);
+  const userData = useSelector((state: any) => state.user.userData.info);
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
   const [filteredMenu, setFilteredMenu] = useState<any[]>([]);
@@ -72,18 +72,34 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
     setFilteredMenu(filteredMenuItems || []);
   }, []);
+  // useEffect(() => {
+  //   const filteredMenuItems = menuItems
+  //     .filter((item) => item.roles.includes(userData.role))
+  //     .map((item) => {
+  //       if (item.submenu) {
+  //         return {
+  //           ...item,
+  //           submenu: item.submenu.filter((subItem) =>
+  //             subItem.roles.includes(userData.role),
+  //           ),
+  //         };
+  //       }
+  //       return item;
+  //     });
+
+  //   // setFilteredMenu(filteredMenuItems || []);
+  // }, [userData.role]);
 
   return (
     <aside
       ref={sidebar}
-      className={`fixed left-0 top-0  flex h-screen w-60 flex-col overflow-y-hidden bg-white duration-300 ease-linear lg:static lg:translate-x-0  ${
+      className={`fixed left-0 top-0 flex h-screen w-60 flex-col overflow-y-hidden bg-white duration-300 ease-linear lg:static lg:translate-x-0  border-r border-pink-100 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex items-center justify-between gap-2 ">
+      <div className="flex items-center justify-between gap-2 pb-3">
         <NavLink to="/">
-          {/* <img src={Logo} alt="Logo" className="h-8" /> */}
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent px-6 py-3 inline-block drop-shadow-lg hover:scale-105 transition transform duration-300 ease-in-out">
+          <h1 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent px-6 py-3 inline-block drop-shadow-lg hover:scale-105 transition transform duration-300 ease-in-out">
             Insta Automate
           </h1>
         </NavLink>
@@ -110,6 +126,63 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </svg>
         </button>
       </div>
+
+      {/* User Profile Section */}
+      <div className="flex flex-col items-center gap-4 px-6 py-4 border-b border-pink-200 bg-gradient-to-b from-pink-50 to-white">
+        {/* Profile Info */}
+        <div className="flex items-center gap-4 w-full">
+          <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-pink-500 shadow-sm hover:shadow-md transition-shadow duration-200">
+            {userData?.profile_picture_url ? (
+              <img
+                src={userData.profile_picture_url}
+                alt="Profile"
+                className="h-full w-full object-cover hover:scale-105 transition-transform duration-200"
+              />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center text-pink-600 font-bold text-xl">
+                {userData?.username?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="font-semibold text-gray-800 text-lg">
+              {userData?.username || 'User'}
+            </p>
+            <p className="text-xs text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full inline-block capitalize">
+              {userData?.account_type || 'User'}
+            </p>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="flex justify-between w-full px-2">
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-bold text-gray-800 text-lg">
+              {userData?.followers_count?.toLocaleString() || '0'}
+            </span>
+            <span className="text-xs text-gray-500 tracking-wider ">
+              Followers
+            </span>
+          </div>
+          <div className="h-8 w-px bg-pink-200"></div>
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-bold text-gray-800 text-lg">
+              {userData?.follows_count?.toLocaleString() || '0'}
+            </span>
+            <span className="text-xs text-gray-500 tracking-wider">
+              Following
+            </span>
+          </div>
+          <div className="h-8 w-px bg-pink-200"></div>
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-bold text-gray-800 text-lg">
+              {userData?.media_count?.toLocaleString() || '0'}
+            </span>
+            <span className="text-xs text-gray-500 tracking-wider">Posts</span>
+          </div>
+        </div>
+      </div>
+
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           <div>

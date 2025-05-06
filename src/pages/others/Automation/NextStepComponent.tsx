@@ -4,9 +4,11 @@ import {
   faArrowLeft,
   faMessage,
   faTimes,
+  faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
 import SetupMessagesModal from './SetupMessageModal';
 import { useSelector } from 'react-redux';
+import DeleteModal from '../../../components/custom/Modals/DeleteModal';
 
 interface ButtonData {
   title: string;
@@ -90,19 +92,8 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
             rows={4}
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Button 1 Label
-          </label>
-          <input
-            type="text"
-            value={button1.title}
-            onChange={(e) => setButton1({ ...button1, title: e.target.value })}
-            placeholder="Enter button label..."
-            className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
-          />
-        </div>
-        <div className="mb-4">
+
+        {/* <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Button 1 Link
           </label>
@@ -113,12 +104,12 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
             placeholder="Enter button link..."
             className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
           />
-        </div>
+        </div> */}
         {isFollowingMessage && (
           <>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Button 2 Label
+                Button title
               </label>
               <input
                 type="text"
@@ -132,7 +123,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Button 2 Link
+                Button link
               </label>
               <input
                 type="url"
@@ -146,6 +137,18 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
             </div>
           </>
         )}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Button title
+          </label>
+          <input
+            type="text"
+            value={button1.title}
+            onChange={(e) => setButton1({ ...button1, title: e.target.value })}
+            placeholder="Enter button label..."
+            className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
+          />
+        </div>
         <div className="flex justify-end space-x-3 mt-4">
           <button
             onClick={onClose}
@@ -166,15 +169,26 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
 };
 
 const NextStepComponent: React.FC<NextStepComponentProps> = ({
-  handleBack,
   nodesData,
   setNodesData,
+  buttons,
+  setButtons,
+  title,
+  subtitle,
+  setSubtitle,
+  preview,
+  setPreview,
+  setTitle,
+  setShowNextStepInputs,
+  setNextNodeStep,
+  setNodes,
 }) => {
   const [isDraft, setIsDraft] = useState(false);
   const [openMessageModal, setOpenMessageModal] = useState(false);
   const [openCustomMessageModal, setOpenCustomMessageModal] = useState(false);
   const [customMessageIndex, setCustomMessageIndex] = useState<0 | 1 | 2>(0);
-  const [messages, setMessages] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const token = useSelector((state: any) => state.user.userData.token);
 
   const [followMesssage, setFollowMesssage] = useState<FollowMessage>({
@@ -183,61 +197,51 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     followingMessage: '',
     followingButtons: [{ title: 'Visit Profile' }, { title: 'I am following' }],
   });
+
   const [error, setError] = useState<string | null>(null);
-
-  // useEffect(() => {
-  //   console.log(messages, followMesssage);
-  //   const withButtonTypes = (button: ButtonData) => ({
-  //     ...button,
-  //     type: button.url ? 'web_url' : 'postback',
-  //   });
-  //   console.log({buttons: ...(withButtonTypes(followMesssage.openingButton))});
-  //   setNodesData({
-  //     ...nodesData,
-  //     checkFollowing: isDraft,
-  //     openingMessage: {
-  //       type: 'button',
-  //       text: followMesssage?.openingMessage,
-  //       ...(followMesssage?.openingButton && {
-  //         buttons: withButtonTypes(followMesssage.openingButton),
-  //       }),
-  //     },
-  //     followingMessage: {
-  //       type: 'button',
-  //       text: followMesssage?.followingMessage,
-  //       ...(followMesssage?.followingButtons?.length > 0 && {
-  //         buttons: followMesssage.followingButtons.map(withButtonTypes),
-  //       }),
-  //     },
-  //   });
-  // }, [isDraft, messages, followMesssage]);
-
+  const confirmDelete = () => {
+    setNodes((prevNodes) =>
+      prevNodes
+        .filter((node) => node.type !== 'action')
+        .map((node) =>
+          node.type === 'trigger'
+            ? { ...node, data: { ...node.data, isFirstTrigger: true } }
+            : node,
+        ),
+    );
+    setIsDeleteModalOpen(false);
+    setNextNodeStep(false);
+    setShowNextStepInputs(false);
+  };
   useEffect(() => {
-    console.log(messages, followMesssage);
-    const withButtonTypes = (button: ButtonData) => ({
-      ...button,
-      type: button.url ? 'web_url' : 'postback',
-    });
+    console.log(isDraft,{nodesData});
 
-    setNodesData({
-      ...nodesData,
-      checkFollowing: isDraft,
-      openingMessage: {
-        type: 'button',
-        text: followMesssage?.openingMessage,
-        ...(followMesssage?.openingButton?.length > 0 && {
-          buttons: followMesssage.openingButton.map(withButtonTypes), // Updated to map over array
-        }),
-      },
-      followingMessage: {
-        type: 'button',
-        text: followMesssage?.followingMessage,
-        ...(followMesssage?.followingButtons?.length > 0 && {
-          buttons: followMesssage.followingButtons.map(withButtonTypes),
-        }),
-      },
-    });
-  }, [isDraft, messages, followMesssage]);
+    if (isDraft) {
+      const withButtonTypes = (button: ButtonData) => ({
+        ...button,
+        type: button.url ? 'web_url' : 'postback',
+      });
+
+      setNodesData({
+        ...nodesData,
+        checkFollowing: isDraft,
+        openingMessage: {
+          type: 'button',
+          text: followMesssage?.openingMessage,
+          ...(followMesssage?.openingButton?.length > 0 && {
+            buttons: followMesssage.openingButton.map(withButtonTypes), // Updated to map over array
+          }),
+        },
+        followingMessage: {
+          type: 'button',
+          text: followMesssage?.followingMessage,
+          ...(followMesssage?.followingButtons?.length > 0 && {
+            buttons: followMesssage.followingButtons.map(withButtonTypes),
+          }),
+        },
+      });
+    }
+  }, [isDraft]);
   const handleOpenCustomModal = (index: 1 | 2) => {
     setCustomMessageIndex(index);
     setOpenCustomMessageModal(true);
@@ -279,19 +283,27 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   return (
     <div className="pb-40">
       <div className="flex items-center justify-between mb-6 border-b pb-4 border-pink-600">
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={handleBack}
-            className="p-2 w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-600 transition-colors duration-200"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
-          </button>
+        <div className="flex items-center justify-between w-full">
           <div>
             <p className="text-sm text-gray-500 mt-1">Instagram</p>
             <h2 className="text-md font-bold text-gray-900">
               Send Instagram Message
             </h2>
           </div>
+
+          <FontAwesomeIcon
+            icon={faTrashCan}
+            className="text-pink-600 cursor-pointer"
+            onClick={() => setIsDeleteModalOpen(true)}
+          />
+
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={confirmDelete}
+            title="Delete Node?"
+            description="Are you sure you want to delete this node?"
+          />
         </div>
       </div>
       <div className="flex justify-between items-center mb-4">
@@ -301,7 +313,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
             type="checkbox"
             className="sr-only peer"
             checked={isDraft}
-            onChange={() => setIsDraft(!isDraft)}
+            onChange={() => setIsDraft(true)}
           />
           <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300" />
           <div className="absolute left-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-5" />
@@ -348,12 +360,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 </div>
               )}
             </div>
-            {/* <button
-              onClick={() => handleOpenCustomModal(1)}
-              className="mt-2 px-4 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-            >
-              {followMesssage.openingMessage ? 'Edit Message' : 'Setup Message'}
-            </button> */}
           </div>
           <div>
             <p className="mb-2">Follow check message</p>
@@ -399,14 +405,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 </div>
               )}
             </div>
-            {/* <button
-              onClick={() => handleOpenCustomModal(2)}
-              className="mt-2 px-4 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
-            >
-              {followMesssage.followingMessage
-                ? 'Edit Message'
-                : 'Setup Message'}
-            </button> */}
           </div>
         </div>
       )}
@@ -416,8 +414,38 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
           className="border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
           onClick={() => setOpenMessageModal(true)}
         >
-          {messages?.length > 0 ? (
-            <div className="p-4 w-full text-left">{messages}</div>
+          {title ? (
+            <div className="w-full ">
+              {preview && (
+                <div className="p-2">
+                  <img
+                    src={preview}
+                    alt="Uploaded preview"
+                    className="max-w-full h-auto max-h-64 object-contain rounded"
+                  />
+                </div>
+              )}
+
+              <div className="p-4 w-full text-left">
+                <span className="font-medium text-gray-800 block mb-3">
+                  {title}
+                </span>
+                <span className="font-medium text-gray-800 block mb-3">
+                  {subtitle}
+                </span>
+              </div>
+
+              {/* <div className="p-4 w-full text-left">{messages}</div> */}
+              {buttons.map((btn, index) => (
+                <div key={index} className="w-full flex gap-2 p-2">
+                  <a href={btn.url} target="_blank" className="w-full">
+                    <button className="border-dashed border p-1 border-pink-500 rounded-lg w-full">
+                      {btn.title}
+                    </button>
+                  </a>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="p-4">
               <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-pink-200 transition-colors duration-200">
@@ -434,10 +462,18 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
       {openMessageModal && (
         <SetupMessagesModal
           onClose={() => setOpenMessageModal(false)}
-          setMessages={setMessages}
-          messages={messages}
+          // setMessages={setMessages}
+          // messages={messages}
           nodesData={nodesData}
           setNodesData={setNodesData}
+          setButtons={setButtons}
+          buttons={buttons}
+          setTitle={setTitle}
+          setSubtitle={setSubtitle}
+          title={title}
+          subtitle={subtitle}
+          setPreview={setPreview}
+          preview={preview}
         />
       )}
       {openCustomMessageModal && customMessageIndex !== 0 && (

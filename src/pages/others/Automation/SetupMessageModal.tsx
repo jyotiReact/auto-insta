@@ -13,19 +13,10 @@ import {
   faEdit,
 } from '@fortawesome/free-solid-svg-icons';
 
-
 interface ButtonData {
   title: string;
   url: string;
   type?: 'web_url' | 'postback';
-}
-
-interface MessageData {
-  text?: string;
-  attachment?: string | null;
-  buttons?: ButtonData[];
-  title?: string;
-  subtitle?: string;
 }
 
 interface SetupMessagesModalProps {
@@ -38,21 +29,27 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   onClose,
   nodesData,
   setNodesData,
-  setMessages,
-  messages,
+  // setMessages,
+  // messages,
+  buttons,
+  setButtons,
+  // setUploadedFileName,
+  // uploadedFileName,
+  setTitle,
+  setSubtitle,
+  title,
+  subtitle,
+  setPreview,
+  preview,
 }) => {
   const [showTextContent, setShowTextContent] = useState(false);
   const [showCardContent, setShowCardContent] = useState(false);
   const [showButtonInputs, setShowButtonInputs] = useState(false);
-  const [buttons, setButtons] = useState<ButtonData[]>([]);
   const [currentButton, setCurrentButton] = useState<ButtonData>({
     title: '',
     // url: '',
   });
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
   const handleAddButtonClick = () => {
     setShowButtonInputs(true);
@@ -97,13 +94,19 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setUploadedFileName(file.name);
-      console.log('Selected file:', file);
-    }
+    // if (file) {
+    //   setUploadedFileName(file.name);
+    //   console.log('Selected file:', file);
+    // }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
   const handleConfirm = () => {
-    console.log(buttons)
     setNodesData({
       ...nodesData,
       instagramCardMessage: showCardContent
@@ -111,13 +114,15 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
             ...nodesData?.instagramCardMessage,
             title,
             subTitle: subtitle,
+            imageUrl:
+              'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pexels.com%2Fsearch%2Felephant%2F&psig=AOvVaw2a7EgRRNyMd9Kq2V5z3gWe&ust=1746515407570000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCKj30oXji40DFQAAAAAdAAAAABAQ',
             ...(buttons.length > 0 && { buttons }),
           }
         : null,
       instagramTextBtnMessage: showTextContent
         ? {
             type: buttons.length > 0 ? 'button' : 'text',
-            text: messages,
+            text: title,
             ...(buttons.length > 0 && { buttons }),
           }
         : null,
@@ -188,7 +193,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                 onClick={() => {
                   setShowTextContent(false);
                   setShowCardContent(false);
-                  setUploadedFileName(null);
+                  // setUploadedFileName(null);
                   setTitle('');
                   setSubtitle('');
                 }}
@@ -208,40 +213,61 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                   <p className="text-xs text-gray-500 mb-2">
                     JPG, PNG up to 2MB
                   </p>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-pink-200 rounded-lg bg-pink-50 hover:bg-pink-100 transition-all duration-200 focus-within:ring-2 focus-within:ring-pink-400">
-                    <div className="space-y-1 text-center">
-                      <FontAwesomeIcon
-                        icon={faCloudUploadAlt}
-                        className="mx-auto h-12 w-12 text-pink-400"
-                      />
-                      <div className="flex text-sm text-gray-600">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer rounded-md font-medium text-pink-600 hover:text-pink-500 focus-within:outline-none"
-                        >
-                          <span>Upload a file</span>
-                          <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            className="sr-only"
-                            accept="image/jpeg,image/png"
-                            onChange={handleFileUpload}
+                  <div className="mt-1 flex justify-center border-2 border-dashed border-pink-200 rounded-lg bg-pink-50 hover:bg-pink-100 transition-all duration-200 focus-within:ring-2 focus-within:ring-pink-400">
+                    {/* Always keep the file input available but hidden */}
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      className="sr-only"
+                      accept="image/jpeg,image/png"
+                      onChange={handleFileUpload}
+                    />
+
+                    {/* Make the entire preview area clickable to change image */}
+                    <label
+                      htmlFor="file-upload"
+                      className="w-full cursor-pointer"
+                    >
+                      {preview ? (
+                        <div className="relative w-full group">
+                          <img
+                            src={preview}
+                            alt="Uploaded preview"
+                            className="max-w-full h-auto max-h-64 object-contain mx-auto rounded"
                           />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG up to 2MB
-                      </p>
-                    </div>
+                          {/* Optional: Show change image hint on hover */}
+                          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center transition-all duration-200">
+                            <span className="border-dashed border border-pink-600  opacity-0 group-hover:opacity-100 text-sm font-bold text-pink-600 px-2 py-1 rounded">
+                              Change Image
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1 text-center px-6 pt-5 pb-6 w-full">
+                          <FontAwesomeIcon
+                            icon={faCloudUploadAlt}
+                            className="mx-auto h-12 w-12 text-pink-400"
+                          />
+                          <div className="flex text-sm text-gray-600 justify-center">
+                            <span className="relative rounded-md font-medium text-pink-600 hover:text-pink-500">
+                              Upload a file
+                            </span>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG up to 2MB
+                          </p>
+                        </div>
+                      )}
+                    </label>
                   </div>
-                  {uploadedFileName && (
+                  {/* {uploadedFileName && (
                     <div className="mt-2 text-sm text-pink-600">
                       <span className="font-medium">Uploaded:</span>{' '}
                       {uploadedFileName}
                     </div>
-                  )}
+                  )} */}
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-pink-700 mb-1">
                       Title
@@ -272,8 +298,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                   <input
                     className="w-full px-4 py-3 border-none rounded-lg bg-pink-50 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="Type your message here..."
-                    value={messages}
-                    onChange={(e) => setMessages(e.target.value)}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
                   <button className="absolute bottom-3 right-3 text-pink-500 hover:text-pink-600 transition-all duration-200">
                     <FontAwesomeIcon icon={faPen} size="sm" />

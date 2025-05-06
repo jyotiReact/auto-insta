@@ -63,12 +63,12 @@ const triggers: Trigger[] = [
       <FontAwesomeIcon icon={faComments} className="text-xl text-pink-600" />
     ),
   },
-  {
-    label: 'Story Replies',
-    icon: (
-      <FontAwesomeIcon icon={faEnvelope} className="text-xl text-pink-600" />
-    ),
-  },
+  // {
+  //   label: 'Story Replies',
+  //   icon: (
+  //     <FontAwesomeIcon icon={faEnvelope} className="text-xl text-pink-600" />
+  //   ),
+  // },
   {
     label: 'Live Comments',
     icon: <FontAwesomeIcon icon={faVideo} className="text-xl text-gray-400" />,
@@ -103,8 +103,19 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
   setNextNodeStep,
   nodesData,
   setNodesData,
+  title,
+  setTitle,
+  preview,
+  setPreview,
+  subtitle,
+  setSubtitle,
+  buttons,
+  setButtons,
+  selectedTrigger,
+  setSelectedTrigger,
+  showNextStepInputs,
+  setShowNextStepInputs,
 }) => {
-  const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<'post' | 'keywords' | null>(
     null,
   );
@@ -113,13 +124,12 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
   const [showCommentRepliesModal, setShowCommentRepliesModal] = useState(false);
   const [availableReplies, setAvailableReplies] = useState<string[]>([]);
   const [postData, setPostData] = useState<VideoItem[]>([]);
-  const [showNextStepInputs, setShowNextStepInputs] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const token = useSelector((state: any) => state.user.userData.token);
 
   useEffect(() => {
     // const token =
-    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
+    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NTI2MDE1LCJleHAiOjE3NDcxMzA4MTV9.Z3ZdY4gVF4v3u1MAIsKqT1lTxgregWgTcZZkZYCge58';
     if (modalContent === 'post') {
       fetch('https://instautomate.it-waves.com/service/instagram/media', {
         method: 'GET',
@@ -149,7 +159,9 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
     if (!disabled) {
       setSelectedTrigger(label);
       if (nextNodeStep) {
-        handleActionNode({ label });
+        handleActionNode({
+          label,
+        });
         setShowNextStepInputs(true);
       } else {
         handleClick({ label });
@@ -208,7 +220,7 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
   };
 
   return (
-    <div className="w-[360px] fixed top-[70px] right-0 bg-white overflow-y-auto h-screen">
+    <div className="w-[340px] fixed top-[72px] right-0 bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
         {!selectedTrigger || (nextNodeStep && !showNextStepInputs) ? (
           <>
@@ -269,7 +281,18 @@ const TriggerComponent: React.FC<TriggerComponentProps> = ({
             setNextNodeStep={setNextNodeStep}
             setShowNextStepInputs={setShowNextStepInputs}
             nodesData={nodesData}
+            nextNodestep={nextNodeStep}
             setNodesData={setNodesData}
+            title={title}
+            subtitle={subtitle}
+            setSubtitle={setSubtitle}
+            preview={preview}
+            setPreview={setPreview}
+            setTitle={setTitle}
+            buttons={buttons}
+            setButtons={setButtons}
+            setNodes={setNodes}
+            showNextStepInputs={showNextStepInputs}
           />
         )}
 
@@ -396,6 +419,7 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
     <div className="space-y-8 pb-40">
       <div>
         <h3 className="text-base font-semibold text-gray-800 mb-4">Inputs</h3>
+        <p className="text-pink-600 mb-2 text-sm">Step 1</p>
         <p className="mb-2 text-sm text-gray-600">
           Which Post or Reel do you want to use?
         </p>
@@ -444,6 +468,8 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
         </div>
       </div>
       <div>
+        <p className="text-pink-600 mb-2 text-sm">Step 2</p>
+
         <p className="mb-2 text-sm text-gray-600">
           What keywords will start your automation?
         </p>
@@ -488,6 +514,8 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
         </div>
       </div>
       <div>
+        <p className="text-pink-600 mb-2 text-sm">Step 3</p>
+
         <p className="mb-2 text-sm text-gray-600">
           What do you want to reply to those comments?
         </p>
@@ -548,8 +576,8 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-9999 backdrop-blur-sm">
-      <div className="bg-white p-8 rounded-2xl w-[600px] max-h-[80vh] overflow-y-auto shadow-2xl animate-fade-in">
-        <div className="flex justify-between items-center mb-6">
+      <div className="bg-white p-8 rounded-2xl w-[600px]  h-[550px] shadow-2xl animate-fade-in">
+        <div className="flex justify-between items-center mb-2">
           <h3 className="text-xl font-bold text-gray-900">
             Select Post or Reel
           </h3>
@@ -563,8 +591,8 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
         <p className="text-sm text-gray-600 mb-6">
           Choose a post or reel from your connected account.
         </p>
-        <div className="flex flex-wrap gap-4 mb-6">
-          <div className="p-3 w-40 h-40 flex flex-col rounded-xl border border-pink-200 bg-gradient-to-br from-pink-50 to-pink-300 shadow-md cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:bg-pink-50">
+        <div className="flex flex-wrap gap-4 mb-6 overflow-y-auto h-[350px] ">
+          {/* <div className="p-3 w-40 h-40 flex flex-col rounded-xl border border-pink-200 bg-gradient-to-br from-pink-50 to-pink-300 shadow-md cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:bg-pink-50">
             <div className="relative w-full aspect-square rounded-md overflow-hidden flex items-center justify-center">
               <div className="text-pink-600">
                 <FaPlus className="w-12 h-12" />
@@ -575,8 +603,8 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
                 Add New Media
               </h4>
             </div>
-          </div>
-          {postData.map((post) => (
+          </div> */}
+          {postData?.map((post) => (
             <div
               key={post.id}
               onClick={() => onSelect(post)}
@@ -590,14 +618,14 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
                 <img
                   src={
                     post.media_type === 'VIDEO'
-                      ? post.thumbnail_url
-                      : post.media_url
+                      ? post?.thumbnail_url
+                      : post?.media_url
                   }
                   alt={post.caption}
                   className="w-full h-full object-cover"
                   onError={(e) => (e.currentTarget.src = '/fallback-image.jpg')}
                 />
-                {post.media_type === 'VIDEO' && (
+                {post?.media_type === 'VIDEO' && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-10 h-10 bg-pink-600 bg-opacity-70 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110">
                       <FontAwesomeIcon

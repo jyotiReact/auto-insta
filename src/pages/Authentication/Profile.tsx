@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { setAuthority, setRole, setToken } from '../../store/slices/userSlice';
+import {
+  setAuthority,
+  setRole,
+  setToken,
+  setUserInfo,
+} from '../../store/slices/userSlice';
 
 const options = [
   { label: 'Creator', emoji: '🎨' },
@@ -55,14 +60,14 @@ const ProfileSelector: React.FC = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        dispatch(setAuthority(data.authority));
-        dispatch(setRole(data.role));
+        // dispatch(setAuthority(data.authority));
+        // dispatch(setRole(data.userName));
+        dispatch(setUserInfo(data.userInfo));
         dispatch(setToken(data.jwtToken));
         navigate('/');
       });
   }
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="max-w-6xl w-full bg-white rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">

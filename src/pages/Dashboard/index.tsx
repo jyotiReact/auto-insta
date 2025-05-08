@@ -23,7 +23,6 @@ const Dashboard: React.FC = () => {
     async function fetchStatsData() {
       try {
         const data = await getApi('user/get-statistics');
-        console.log(data, '===');
         setStatsData(data.data);
       } catch (error) {
         console.error('Error fetching automations:', error);

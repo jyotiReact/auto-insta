@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom';
 
 import DropdownUser from './DropdownUser';
 import LogoIcon from '../../../images/logo/logo-icon.svg';
+import { useSelector } from 'react-redux';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
+  const userData = useSelector((state: any) => state.user.userData.info);
   return (
     <header className="sticky top-0 z-10 flex w-full bg-white dark:bg-boxdark border-b border-pink-200 ">
       <div className="flex flex-grow items-center justify-between px-4 py-2 md:px-6 2xl:px-11">
@@ -111,7 +113,7 @@ const Header = (props: {
           </ul>
 
           {/* <!-- User Area --> */}
-          <DropdownUser />
+          <DropdownUser user={userData} />
           {/* <!-- User Area --> */}
         </div>
       </div>

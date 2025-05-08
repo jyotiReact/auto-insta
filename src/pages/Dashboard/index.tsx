@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 p-4">
         <CardDataStats
           title="Message Count"
-          total={statsData?.messageCount}
+          total={statsData?.messagesCount}
           levelUp
         >
           <FontAwesomeIcon icon={faEye} className="text-xl text-white" />

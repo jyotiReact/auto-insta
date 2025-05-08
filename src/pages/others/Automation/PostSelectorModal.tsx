@@ -1,6 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { PostSelectorModalProps } from "../../../types/triggerForm";
-import { faCheck, faPlay, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PostSelectorModalProps } from '../../../types/triggerForm';
+import { faCheck, faPlay, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
   isOpen,
@@ -9,14 +9,16 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
   onClose,
   onSelect,
   onConfirm,
+  triggerType,
 }) => {
-  console.log(postData)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-9999 backdrop-blur-sm">
       <div className="bg-white p-8 rounded-2xl w-[600px]  h-[550px] shadow-2xl animate-fade-in">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-xl font-bold text-gray-900">
-            Select Post or Reel
+            {triggerType === 'INSTAGRAM_STORY_REPLIES'
+              ? ' Select Story'
+              : ' Select Post or Reel'}
           </h3>
           <button
             onClick={onClose}
@@ -26,7 +28,9 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
           </button>
         </div>
         <p className="text-sm text-gray-600 mb-6">
-          Choose a post or reel from your connected account.
+          {triggerType === 'INSTAGRAM_STORY_REPLIES'
+            ? 'Choose a story from your connected account.'
+            : 'Choose a post or reel from your connected account.'}
         </p>
         <div className="flex flex-wrap gap-4 mb-6 overflow-y-auto h-[350px] ">
           {/* <div className="p-3 w-40 h-40 flex flex-col rounded-xl border border-pink-200 bg-gradient-to-br from-pink-50 to-pink-300 shadow-md cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:bg-pink-50">

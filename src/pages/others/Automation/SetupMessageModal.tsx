@@ -120,6 +120,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
           }
         : null,
       uploadedFile,
+      preview,
     });
 
     onClose();

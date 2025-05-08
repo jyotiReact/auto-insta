@@ -173,7 +173,7 @@ const AutomationList: React.FC = () => {
           automations?.automations?.map((automation) => (
             <div
               key={automation._id}
-              // onClick={() => navigate(`/automations/${automation._id}`)}
+              onClick={() => navigate(`/automations/${automation._id}`)}
               className="grid grid-cols-12 p-4 border-b border-pink-100 last:border-b-0 hover:bg-pink-50 transition-all duration-150 cursor-pointer"
             >
               <div className="col-span-5 font-semibold text-gray-800">
@@ -233,9 +233,9 @@ const AutomationList: React.FC = () => {
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
-        <div className="text-sm text-gray-600">
+        {/* <div className="text-sm text-gray-600">
           Showing 1 to {automations.length} of {automations.length} automations
-        </div>
+        </div> */}
         <div className="flex gap-2">
           <button className="px-3 py-1 border border-pink-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600 transition-all duration-200">
             Previous

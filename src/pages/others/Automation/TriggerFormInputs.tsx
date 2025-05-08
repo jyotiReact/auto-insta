@@ -78,6 +78,7 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
   triggerType,
   setIsLike,
   islike,
+  nodesData,
 }) => (
   <>
     <div className="flex items-center justify-between mb-6"></div>
@@ -94,26 +95,19 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
           className="border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
           onClick={() => setModalType('post')}
         >
-          {selectedVideo ? (
+          {nodesData?.mediaLink ? (
             <div className="w-[300px] rounded-xl p-4">
               <div className="flex gap-2">
                 <div className="w-[500px] h-20 bg-gray-200 rounded-md overflow-hidden shadow-sm">
                   <img
-                    src={
-                      selectedVideo.media_type === 'VIDEO'
-                        ? selectedVideo.thumbnail_url
-                        : selectedVideo.media_url
-                    }
-                    alt={selectedVideo.caption}
+                    src={nodesData?.mediaLink}
+                    alt={nodesData?.caption}
                     className="w-20 h-20 object-cover"
-                    onError={(e) =>
-                      (e.currentTarget.src = '/fallback-image.jpg')
-                    }
                   />
                 </div>
                 <div className="text-left">
                   <h4 className="text-sm font-medium w-[180px] text-gray-900 line-clamp-1">
-                    {selectedVideo.caption}
+                    {nodesData?.caption}
                   </h4>
 
                   <p className="text-xs text-gray-500">
@@ -152,9 +146,9 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
           className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
           onClick={() => setModalType('keywords')}
         >
-          {selectedKeywords?.length > 0 ? (
+          {nodesData?.includeKeywords?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {selectedKeywords?.map((keyword,index) => (
+              {nodesData?.includeKeywords?.map((keyword, index) => (
                 <div
                   key={index}
                   className="inline-flex items-center bg-pink-100 rounded-full px-3 py-1 text-sm"
@@ -199,11 +193,11 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
             className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
             onClick={() => setModalType('replies')}
           >
-            {availableReplies?.length > 0 ? (
+            {nodesData?.commentReplies?.length > 0  ? (
               <div className="flex items-center justify-between">
                 <span className="text-pink-600 font-medium">
-                  {availableReplies?.length}{' '}
-                  {availableReplies?.length === 1 ? 'Reply' : 'Replies'} Added
+                  {nodesData?.commentReplies?.length}{' '}
+                  {nodesData?.commentReplies?.length === 1 ? 'Reply' : 'Replies'} Added
                 </span>
                 <FontAwesomeIcon icon={faComment} className="text-gray-400" />
               </div>
@@ -229,7 +223,7 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={islike}
+              checked={nodesData?.likeComment}
               onChange={() => setIsLike(!islike)}
             />
             <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300" />
@@ -398,6 +392,7 @@ function TriggerFormInputs({
             triggerType={triggerType}
             setIsLike={setIsLike}
             islike={islike}
+            nodesData={nodesData.trigger}
           />
         ) : (
           <TriggerList
@@ -418,6 +413,7 @@ function TriggerFormInputs({
           onClose={() => setModalType('')}
           onSelect={handleVideoSelect}
           onConfirm={() => setModalType('')}
+          triggerType={triggerType} 
         />
       )}
 

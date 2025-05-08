@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
+import { getApi } from '../../../services/commonServices';
 
 interface Reply {
   id: string;
@@ -36,7 +37,6 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   } | null>(null);
   const [defaultMessages, setDefaultMessages] = useState<DefaultMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const token = useSelector((state: any) => state.user.userData.token);
 
   const handleAddReply = () => {
     if (
@@ -72,35 +72,16 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   };
 
   useEffect(() => {
-    // let token =
-    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
     async function fetchDefaultMessages() {
       try {
-        const response = await fetch(
-          'https://instautomate.it-waves.com/user/get-default-data',
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch default messages');
-        }
-
-        const data = await response.json();
-        console.log(data);
-        // Assuming data is an array of { id: string, text: string }
+        const data = await getApi('user/get-default-data');
         setDefaultMessages(data.automatedReplies);
-      } catch (err) {
-        setError('Error fetching default messages');
-        console.error(err);
+      } catch (error) {
+        console.error('Error fetching automations:', error);
       }
     }
     fetchDefaultMessages();
-  }, [token]);
+  }, []);
 
   // Format default messages for react-select
   const selectOptions = (defaultMessages || []).map((message) => ({

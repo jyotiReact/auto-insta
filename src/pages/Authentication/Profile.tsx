@@ -7,6 +7,7 @@ import {
   setToken,
   setUserInfo,
 } from '../../store/slices/userSlice';
+import { postApi } from '../../services/commonServices';
 
 const options = [
   { label: 'Creator', emoji: '🎨' },
@@ -49,23 +50,18 @@ const ProfileSelector: React.FC = () => {
   // };
 
   async function sendData() {
-    fetch('https://instautomate.it-waves.com/meta/exchange-token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const data = await postApi('meta/exchange-token', {
         code: searchParams.get('code'),
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        // dispatch(setAuthority(data.authority));
-        // dispatch(setRole(data.userName));
-        dispatch(setUserInfo(data.userInfo));
-        dispatch(setToken(data.jwtToken));
-        navigate('/');
       });
+
+      dispatch(setUserInfo(data.userInfo));
+      dispatch(setToken(data.jwtToken));
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to send data:', error);
+      // Optional: Show error to user or handle fallback logic
+    }
   }
 
   return (

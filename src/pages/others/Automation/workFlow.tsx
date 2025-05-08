@@ -197,7 +197,7 @@ const WorkflowEditor: React.FC = () => {
     }
     async function AddAutomations() {
       try {
-        const { uploadedFile, ...rest } = nodesData;
+        const { uploadedFile, preview, ...rest } = nodesData;
 
         const formData = new FormData();
 
@@ -210,6 +210,7 @@ const WorkflowEditor: React.FC = () => {
             ...rest,
             trigger: { ...rest.trigger, triggerType: triggerType },
             status: isDraft ? 'LIVE' : 'DRAFT',
+            ...(automationId && { automationId: automationId }),
             // ...(!isDraft && { automationId: publishedData }),
           }),
         );
@@ -247,7 +248,6 @@ const WorkflowEditor: React.FC = () => {
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       if (!event || event.type !== 'click') return;
-      console.log('click');
       setNodes((nds) =>
         nds.map((n) => ({
           ...n,

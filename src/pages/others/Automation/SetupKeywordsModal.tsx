@@ -1,22 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-
-interface Keyword {
-  id: string;
-  text: string;
-  isActive: boolean;
-}
-
-interface SetupKeywordsModalProps {
-  tempKeywords: Keyword[];
-  setTempKeywords: (keywords: Keyword[]) => void;
-  setNodesData: (nodes: any[]) => void;
-  setSelectedKeywords: (keywords: Keyword[]) => void;
-  selectedKeywords: Keyword[];
-  nodesData: any[];
-  closeModal: () => void;
-}
+import { SetupKeywordsModalProps } from '../../../types/triggerForm';
 
 const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
   tempKeywords,
@@ -39,18 +24,13 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
           // Check for duplicates (case-insensitive)
           const lowerText = text.toLowerCase();
           return (
-            !tempKeywords.some((kw) => kw.text.toLowerCase() === lowerText) &&
-            !selectedKeywords.some((kw) => kw.text.toLowerCase() === lowerText)
+            !tempKeywords.some((kw) => kw.toLowerCase() === lowerText) &&
+            !selectedKeywords.some((kw) => kw.toLowerCase() === lowerText)
           );
-        })
-        .map((text, index) => ({
-          id: `kw-${Date.now()}-${index}`,
-          text,
-          isActive: true,
-        }));
+        });
 
       if (newKeywords.length > 0) {
-        setTempKeywords([...tempKeywords, ...newKeywords]);
+        setTempKeywords([...new Set([...tempKeywords, ...newKeywords])]); // Using Set to ensure uniqueness
       }
       setKeywordInput('');
     }
@@ -63,32 +43,31 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
     }
   };
 
-  const handleRemoveKeyword = (id: string) => {
-    setTempKeywords(tempKeywords.filter((kw) => kw.id !== id));
+  const handleRemoveKeyword = (keywordToRemove: string) => {
+    setTempKeywords(tempKeywords.filter((kw) => kw !== keywordToRemove));
   };
 
   const handleSaveKeywords = () => {
-    // Combine tempKeywords with selectedKeywords, avoiding duplicates
-    const updatedKeywords = [
-      ...selectedKeywords,
-      ...tempKeywords.filter(
-        (tempKw) =>
-          !selectedKeywords.some(
-            (selKw) => selKw.text.toLowerCase() === tempKw.text.toLowerCase(),
-          ),
-      ),
-    ];
+    // Combine selectedKeywords with tempKeywords, ensuring no duplicates (case-insensitive)
+    const combinedKeywords = [...selectedKeywords];
+    
+    tempKeywords.forEach((tempKw) => {
+      const lowerTempKw = tempKw.toLowerCase();
+      if (!combinedKeywords.some(selKw => selKw.toLowerCase() === lowerTempKw)) {
+        combinedKeywords.push(tempKw);
+      }
+    });
 
-    setSelectedKeywords(updatedKeywords);
+    setSelectedKeywords(combinedKeywords);
 
-    // Update nodesData with the combined keywords
+    // Update nodesData
     setNodesData({
       ...nodesData,
       trigger: {
         ...nodesData.trigger,
-        anyContent: updatedKeywords.length === 0,
-        anyKeyword: updatedKeywords.length === 0,
-        includeKeywords: updatedKeywords.map((kw) => kw.text.toLowerCase()),
+        anyContent: combinedKeywords.length === 0,
+        anyKeyword: combinedKeywords.length === 0,
+        includeKeywords: combinedKeywords.map((kw) => kw.toLowerCase()),
       },
     });
 
@@ -128,18 +107,18 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
         </div>
         <div className="border-t border-pink-200 pt-4">
           <h4 className="text-sm font-medium text-gray-700 mb-2">
-            Selected Keywords
+            Selected Keywords ({tempKeywords.length})
           </h4>
           {tempKeywords.length > 0 ? (
             <div className="flex flex-wrap gap-2 mb-4">
-              {tempKeywords.map((keyword) => (
+              {tempKeywords.map((keyword, index) => (
                 <div
-                  key={keyword.id}
+                  key={`${keyword}-${index}`} // Using index as part of key to ensure uniqueness
                   className="inline-flex items-center bg-pink-50 rounded-full px-3 py-1 text-sm text-gray-800 shadow-sm hover:bg-pink-100 transition-all duration-200"
                 >
-                  {keyword.text}
+                  {keyword}
                   <button
-                    onClick={() => handleRemoveKeyword(keyword.id)}
+                    onClick={() => handleRemoveKeyword(keyword)}
                     className="ml-2 text-pink-600 hover:text-pink-800 hover:scale-110 transition-all duration-200"
                   >
                     <FontAwesomeIcon icon={faTimes} className="h-3 w-3" />

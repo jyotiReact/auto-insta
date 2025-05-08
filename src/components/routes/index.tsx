@@ -21,10 +21,20 @@ const AppRouter = () => {
         <Route path={`/others/profile`} element={<Profile />} />
         <Route path={`/others/setting`} element={<Settings />} />
         <Route path={`/automations`} element={<AutomationList />} />
-        <Route path={`/automations-new`} element={<AutomationEditor />} />
+        <Route
+          path={`/automations/new-automation`}
+          element={<AutomationEditor />}
+        />
+        <Route
+          path={`/automations/:automationId`}
+          element={<AutomationEditor />}
+        />
       </Route>
       <Route element={<PublicLayout />}>
-        <Route index element={<Navigate replace to={'/auth/connect-insta'} />} />
+        <Route
+          index
+          element={<Navigate replace to={'/auth/connect-insta'} />}
+        />
         {/* <Route path="/auth/signin" element={<SignIn />} />
         <Route path="/auth/signup" element={<SignUp />} /> */}
         <Route path="/auth/connect-insta" element={<ConnectInstagram />} />

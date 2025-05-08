@@ -8,7 +8,7 @@ import { resetRole } from '../../../store/slices/userSlice';
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
-  const navigate =useNavigate();
+  const navigate = useNavigate();
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -123,7 +123,13 @@ const DropdownUser = () => {
               </Link>
             </li>
           </ul>
-          <button onClick={() =>{dispatch(resetRole()); navigate('/auth/signin') } } className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+          <button
+            onClick={() => {
+              dispatch(resetRole());
+              navigate('/auth/connect-insta');
+            }}
+            className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+          >
             <svg
               className="fill-current"
               width="22"

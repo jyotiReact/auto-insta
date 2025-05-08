@@ -29,16 +29,10 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   onClose,
   nodesData,
   setNodesData,
-  // setMessages,
-  // messages,
   buttons,
   setButtons,
-  // setUploadedFileName,
-  // uploadedFileName,
-  setTitle,
-  setSubtitle,
-  title,
-  subtitle,
+  setMessageData,
+  messageData,
   setPreview,
   preview,
 }) => {
@@ -50,6 +44,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     // url: '',
   });
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
   const handleAddButtonClick = () => {
     setShowButtonInputs(true);
@@ -94,10 +89,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    // if (file) {
-    //   setUploadedFileName(file.name);
-    //   console.log('Selected file:', file);
-    // }
+    setUploadedFile(file);
+
     if (!file) return;
 
     const reader = new FileReader();
@@ -107,28 +100,28 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     reader.readAsDataURL(file);
   };
   const handleConfirm = () => {
+    
     setNodesData({
       ...nodesData,
       instagramCardMessage: showCardContent
         ? {
             ...nodesData?.instagramCardMessage,
-            title,
-            subTitle: subtitle,
-            imageUrl:
-              'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pexels.com%2Fsearch%2Felephant%2F&psig=AOvVaw2a7EgRRNyMd9Kq2V5z3gWe&ust=1746515407570000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCKj30oXji40DFQAAAAAdAAAAABAQ',
+            title: messageData?.title,
+            subTitle: messageData?.subtitle,
+
             ...(buttons.length > 0 && { buttons }),
           }
         : null,
       instagramTextBtnMessage: showTextContent
         ? {
             type: buttons.length > 0 ? 'button' : 'text',
-            text: title,
+            text: messageData?.title,
             ...(buttons.length > 0 && { buttons }),
           }
         : null,
+      uploadedFile,
     });
 
-    // dispatch(setAutomationData(updatedNodes));
     onClose();
   };
 
@@ -193,9 +186,6 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                 onClick={() => {
                   setShowTextContent(false);
                   setShowCardContent(false);
-                  // setUploadedFileName(null);
-                  setTitle('');
-                  setSubtitle('');
                 }}
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
@@ -262,20 +252,20 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                       )}
                     </label>
                   </div>
-                  {/* {uploadedFileName && (
-                    <div className="mt-2 text-sm text-pink-600">
-                      <span className="font-medium">Uploaded:</span>{' '}
-                      {uploadedFileName}
-                    </div>
-                  )} */}
+
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-pink-700 mb-1">
                       Title
                     </label>
                     <input
                       type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      value={messageData?.title}
+                      onChange={(e) =>
+                        setMessageData({
+                          ...messageData,
+                          title: e.target.value,
+                        })
+                      }
                       className="w-full px-4 py-2 border border-pink-200 rounded-lg bg-white focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all duration-200"
                       placeholder="Enter card title"
                     />
@@ -286,8 +276,13 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                     </label>
                     <input
                       type="text"
-                      value={subtitle}
-                      onChange={(e) => setSubtitle(e.target.value)}
+                      value={messageData?.subtitle}
+                      onChange={(e) =>
+                        setMessageData({
+                          ...messageData,
+                          subtitle: e.target.value,
+                        })
+                      }
                       className="w-full px-4 py-2 border border-pink-200 rounded-lg bg-white focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all duration-200"
                       placeholder="Enter card subtitle"
                     />
@@ -298,8 +293,10 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                   <input
                     className="w-full px-4 py-3 border-none rounded-lg bg-pink-50 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="Type your message here..."
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={messageData?.title}
+                    onChange={(e) =>
+                      setMessageData({ ...messageData, title: e.target.value })
+                    }
                   />
                   <button className="absolute bottom-3 right-3 text-pink-500 hover:text-pink-600 transition-all duration-200">
                     <FontAwesomeIcon icon={faPen} size="sm" />

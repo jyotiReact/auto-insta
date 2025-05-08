@@ -18,8 +18,12 @@ import { ActionNode } from './ActionNode';
 import { DefaultNode } from './DefaultNode';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
-import { json } from 'react-router-dom';
+import { json, useParams } from 'react-router-dom';
 import { nodesDataFormat } from './settings';
+import TriggerFormInputs from './TriggerFormInputs';
+import NextStepComponent from './NextStepComponent';
+import axios from 'axios';
+import { getApi, postApi } from '../../../services/commonServices';
 
 // Define node types
 const nodeTypes = {
@@ -58,29 +62,18 @@ const WorkflowEditor: React.FC = () => {
   const [edges, setEdges] = useEdgesState(initialEdges);
   const [activeTab, setActiveTab] = useState('Editor');
   const [isDraft, setIsDraft] = useState(false);
-  const [tempKeywords, setTempKeywords] = useState<string[]>([]);
   const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
-  const [nextNodeStep, setNextNodeStep] = useState(false);
-  const token = useSelector((state: any) => state.user.userData.token);
-  const [nodesData, setNodesData] = useState(nodesDataFormat);
-  const [title, setTitle] = useState('');
+
   const [buttons, setButtons] = useState([]);
-  const [subtitle, setSubtitle] = useState('');
   const [preview, setPreview] = useState(null);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
-  const [showNextStepInputs, setShowNextStepInputs] = useState(false);
+  const [selectedTrigger, setSelectedTrigger] = useState<boolean>(false);
+  const [triggerType, setTriggerType] = useState<string | null>(null);
   const [publishedData, setPublishedData] = useState(null);
   const [isInitialRender, setIsInitialRender] = useState(true);
-
-  useEffect(() => {
-    if (tempKeywords.length > 0) {
-      showTriggerNode({ label: 'Post or Reel Comments' });
-    }
-  }, [tempKeywords]);
-  // useEffect(() => {
-  //   handleActionNode({ label: 'Send instagram message' });
-  // }, [title]);
+  const [showNextNode, setShowNextNode] = useState(false);
+  const [showNextForm, setShowNextForm] = useState(false);
+  const { automationId } = useParams();
+  const [nodesData, setNodesData] = useState(nodesDataFormat);
 
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
@@ -137,79 +130,50 @@ const WorkflowEditor: React.FC = () => {
       return addEdge(newEdge, prev);
     });
 
-    setNextNodeStep(true);
+    setShowNextNode(true);
   }
 
-  const showTriggerNode = useCallback(
-    (nodeData: { label: string }) => {
-      setTriggerId(triggerId);
-      setNodes((prevNodes) => {
-        // Step 1: Update existing trigger nodes
-        const triggerUpdatedNodes = prevNodes.map((node) => {
-          if (node.type === 'trigger') {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                isFirstTrigger: false,
-                handleClickNode: handleAddNode,
-              },
-            };
-          }
-          return node;
-        });
-
-        // Step 2: Filter out default nodes
-        const filteredNodes = triggerUpdatedNodes.filter(
-          (node) => node.type !== 'default',
-        );
-
-        // Step 3: Create new trigger node
-        const newTriggerNode: Node = {
-          id: triggerId,
-          type: 'trigger',
-          position: { x: 250, y: 50 },
-          data: {
-            label: nodeData.label,
-            isConfigured: false,
-            isFirstTrigger: true,
-            keywords: tempKeywords,
-            onAddActionNode: handleAddNode,
-          },
-        };
-        console.log({ newTriggerNode });
-        return [...filteredNodes, newTriggerNode];
+  const showTriggerNode = () => {
+    setNodes((prevNodes) => {
+      const triggerUpdatedNodes = prevNodes.map((node) => {
+        if (node.type === 'trigger') {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isFirstTrigger: false,
+              handleClickNode: handleAddNode,
+            },
+          };
+        }
+        return node;
       });
-    },
-    [setNodes, setEdges, tempKeywords],
-  );
 
-  const handleActionNode = useCallback(
-    (nodeData: { label: string }) => {
-      setNodes((prevNodes) => {
-        // Create new action node
-        const actionUpdatedNodes = prevNodes.map((node) => {
-          if (node.type === 'action') {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                label: nodeData.label,
-                title,
-                subtitle,
-                buttons,
-                preview,
-              },
-            };
-          }
-          return node;
-        });
+      const filteredNodes = triggerUpdatedNodes.filter(
+        (node) => node.type !== 'default',
+      );
 
-        return [...actionUpdatedNodes];
-      });
-    },
-    [setNodes],
-  );
+      const newTriggerNode: Node = {
+        id: triggerId,
+        type: 'trigger',
+        position: { x: 250, y: 50 },
+        data: {
+          label: 'Post or Reel Comments',
+          isConfigured: false,
+          isFirstTrigger: true,
+          onAddActionNode: handleAddNode,
+        },
+      };
+
+      return [...filteredNodes, newTriggerNode];
+    });
+  };
+
+  useEffect(() => {
+    if (selectedTrigger) {
+      showTriggerNode();
+    }
+  }, [selectedTrigger]);
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -231,33 +195,50 @@ const WorkflowEditor: React.FC = () => {
       setIsInitialRender(false);
       return;
     }
+    async function AddAutomations() {
+      try {
+        const { uploadedFile, ...rest } = nodesData;
 
-    // const token =
-    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
-    async function Publish() {
-      fetch('https://instautomate.it-waves.com/user/add-automation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          automation: {
-            ...nodesData,
+        const formData = new FormData();
+
+        if (uploadedFile) {
+          formData.append('file', uploadedFile);
+        }
+        formData.append(
+          'automation',
+          JSON.stringify({
+            ...rest,
+            trigger: { ...rest.trigger, triggerType: triggerType },
             status: isDraft ? 'LIVE' : 'DRAFT',
-            ...(!isDraft && { automationId: publishedData }),
-          },
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setPublishedData(data.automation.automationId);
-          console.log(data);
-        });
+            // ...(!isDraft && { automationId: publishedData }),
+          }),
+        );
+
+        await postApi('user/add-automation', formData);
+      } catch (error) {
+        console.error('Error adding automation:', error);
+      }
     }
 
-    Publish();
+    AddAutomations();
   }, [isDraft]);
+
+  useEffect(() => {
+    async function fetchAutomations() {
+      try {
+        const data = await getApi('user/get-automation', {
+          automationId,
+        });
+        setNodesData(data.automations[0]);
+        setSelectedTrigger(true);
+        setTriggerType(data.automations[0].trigger.type);
+      } catch (error) {
+        console.error('Error fetching automations:', error);
+      }
+    }
+
+    automationId && fetchAutomations();
+  }, [automationId]);
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
@@ -270,19 +251,16 @@ const WorkflowEditor: React.FC = () => {
         })),
       );
 
-      setSelectedNode(node);
+      // setSelectedNode(node);
 
-      // Only proceed if this was a user-initiated click
       if (event.isTrusted) {
         switch (node.type) {
           case 'trigger':
-            setSelectedTrigger('Post or reel comments');
-            setNextNodeStep(false);
-            setShowNextStepInputs(false);
+            setShowNextNode(false);
 
             break;
           case 'action':
-            setNextNodeStep(true);
+            setShowNextNode(true);
 
             break;
           default:
@@ -290,9 +268,8 @@ const WorkflowEditor: React.FC = () => {
         }
       }
     },
-    [setNodes, setNextNodeStep],
+    [setNodes],
   );
-
   return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center border-b border-pink-200 justify-between sticky right-0 top-0 p-4 left-[240px]  bg-white">
@@ -359,15 +336,11 @@ const WorkflowEditor: React.FC = () => {
           defaultViewport={{ zoom: 1.0, x: 0, y: 0 }}
           minZoom={0.5}
           onNodeClick={onNodeClick}
-          // onPaneClick={() => {
-          //   setNodes((nds) => nds.map((n) => ({ ...n, selected: false })));
-          //   setSelectedNode(null);
-          // }}
         >
           <Background variant="dots" gap={16} size={1} color="pink" />
           <Controls />
         </ReactFlow>
-        <TriggerComponent
+        {/* <TriggerComponent
           handleClick={showTriggerNode}
           tempKeywords={tempKeywords}
           setTempKeywords={setTempKeywords}
@@ -391,7 +364,34 @@ const WorkflowEditor: React.FC = () => {
           selectedTrigger={selectedTrigger}
           showNextStepInputs={showNextStepInputs}
           setShowNextStepInputs={setShowNextStepInputs}
-        />
+        /> */}
+
+        {showNextNode ? (
+          <NextStepComponent
+            setNodes={setNodes}
+            nodesData={nodesData}
+            setNodesData={setNodesData}
+            setShowNextNode={setShowNextNode}
+            setShowNextForm={setShowNextForm}
+            showNextForm={showNextForm}
+            setButtons={setButtons}
+            buttons={buttons}
+            setPreview={setPreview}
+            preview={preview}
+          />
+        ) : (
+          <TriggerFormInputs
+            setNodesData={setNodesData}
+            nodesData={nodesData}
+            selectedTrigger={selectedTrigger}
+            setSelectedTrigger={setSelectedTrigger}
+            setNodes={setNodes}
+            setShowNextNode={setShowNextNode}
+            handleAddNode={handleAddNode}
+            setTriggerType={setTriggerType}
+            triggerType={triggerType}
+          />
+        )}
       </div>
     </div>
   );

@@ -58,18 +58,7 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   const handleRemoveReply = (id: string) => {
     setReplies(replies.filter((reply) => reply.id !== id));
   };
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (selectedOption) {
-        // Add to selected options list
-        setReplies(prev => [...prev, selectedOption]);
-        // Clear current selection
-        setSelectedOption(null);
-      }
-  
-    }
-  };
+
   const handleConfirm = () => {
     setNodesData({
       ...nodesData,
@@ -135,7 +124,7 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
 
         <div className="space-y-4 mb-6">
           <p className="text-sm text-gray-600">Select Random Comment Replies</p>
-          {replies.map((reply) => (
+          {replies?.map((reply) => (
             <div
               key={reply.id}
               className="flex items-center justify-between p-3 bg-pink-50 rounded-xl hover:-translate-y-1 hover:shadow-md transition-all duration-200"
@@ -198,7 +187,6 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
                   padding: '0.5rem',
                 }),
               }}
-              // onKeyDown={handleKeyDown}
             />
           </div>
           <button
@@ -213,8 +201,6 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
             <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
           </button>
         </div>
-
-        {/* {error && <p className="text-red-500 text-sm mb-4">{error}</p>} */}
 
         <div className="flex justify-end">
           <button

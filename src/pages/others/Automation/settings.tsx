@@ -1,14 +1,16 @@
+import {
+  faComments,
+  faEnvelope,
+  faVideo,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Trigger } from '../../../types/triggerForm';
+
 export const nodesDataFormat = {
   trigger: {
-    anyContent: true,
-    anyKeyword: false,
-    caption: '',
-    contentIds: [],
     contentThumbnail: [''],
-    includeKeywords: ['hello', 'hi', 'hey'],
     excludeKeywords: [],
-    mediaLink: ['https://example.com/media.jpg'],
-    commentReplies: [],
+
     likeComment: false,
     type: 'INSTAGRAM_POST_REEL',
     position: { x: 0, y: 0 },
@@ -77,3 +79,41 @@ export const nodesDataFormat = {
   // },
   actionPosition: { x: 0, y: 0 },
 };
+export const triggers: Trigger[] = [
+  {
+    label: 'Post or Reel Comments',
+    icon: (
+      <FontAwesomeIcon icon={faComments} className="text-xl text-pink-600" />
+    ),
+    type: 'INSTAGRAM_POST_REEL',
+  },
+  {
+    label: 'Story Replies',
+    icon: (
+      <FontAwesomeIcon icon={faEnvelope} className="text-xl text-pink-600" />
+    ),
+    type: 'INSTAGRAM_STORY_REPLIES',
+  },
+  {
+    label: 'Live Comments',
+    icon: <FontAwesomeIcon icon={faVideo} className="text-xl text-gray-400" />,
+    disabled: true,
+    comingSoon: true,
+    type: 'INSTAGRAM_LIVE_COMMENTS',
+  },
+];
+
+export const actions: Trigger[] = [
+  {
+    label: 'Send Instagram Message',
+    icon: (
+      <FontAwesomeIcon icon={faComments} className="text-xl text-pink-600" />
+    ),
+  },
+  {
+    label: 'Collect User Emails',
+    icon: <FontAwesomeIcon icon={faVideo} className="text-xl text-gray-400" />,
+    disabled: true,
+    comingSoon: true,
+  },
+];

@@ -29,6 +29,7 @@ export const userSlice = createSlice({
     resetRole: (state) => {
       state.userData.role = '';
       state.userData.authority = false;
+      state.userData.token = '';
     },
     setAuthority: (state, action: PayloadAction<boolean>) => {
       state.userData.authority = action.payload;

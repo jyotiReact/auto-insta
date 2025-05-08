@@ -1,5 +1,5 @@
 const appConfig = {
-  apiBaseUrl: 'https://newadmin.panel',
+  apiBaseUrl: 'https://instautomate.it-waves.com/',
 };
 
 export default appConfig;

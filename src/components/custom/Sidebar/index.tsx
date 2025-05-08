@@ -4,6 +4,7 @@ import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../../images/logo/logo.svg';
 import { useSelector } from 'react-redux';
 import { menuItems } from '../../../configs/navigation-config';
+import { formatNumber } from '../../../utils';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -72,23 +73,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
     setFilteredMenu(filteredMenuItems || []);
   }, []);
-  // useEffect(() => {
-  //   const filteredMenuItems = menuItems
-  //     .filter((item) => item.roles.includes(userData.role))
-  //     .map((item) => {
-  //       if (item.submenu) {
-  //         return {
-  //           ...item,
-  //           submenu: item.submenu.filter((subItem) =>
-  //             subItem.roles.includes(userData.role),
-  //           ),
-  //         };
-  //       }
-  //       return item;
-  //     });
 
-  //   // setFilteredMenu(filteredMenuItems || []);
-  // }, [userData.role]);
+
 
   return (
     <aside
@@ -128,7 +114,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       </div>
 
       {/* User Profile Section */}
-      <div className="flex flex-col items-center gap-4 px-6 py-4 border-b border-pink-200 bg-gradient-to-b from-pink-50 to-white">
+      <div className="flex flex-col items-center gap-4 px-6 py-4 border-b border-pink-200 ">
         {/* Profile Info */}
         <div className="flex items-center gap-4 w-full">
           <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-pink-500 shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -158,7 +144,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <div className="flex justify-between w-full px-2">
           <div className="flex flex-col items-center gap-1">
             <span className="font-bold text-gray-800 text-lg">
-              {userData?.followers_count?.toLocaleString() || '0'}
+              {formatNumber(userData?.followers_count) || '0'}
             </span>
             <span className="text-xs text-gray-500 tracking-wider ">
               Followers
@@ -167,7 +153,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           <div className="h-8 w-px bg-pink-200"></div>
           <div className="flex flex-col items-center gap-1">
             <span className="font-bold text-gray-800 text-lg">
-              {userData?.follows_count?.toLocaleString() || '0'}
+              {formatNumber(userData?.follows_count) || '0'}
             </span>
             <span className="text-xs text-gray-500 tracking-wider">
               Following
@@ -176,7 +162,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           <div className="h-8 w-px bg-pink-200"></div>
           <div className="flex flex-col items-center gap-1">
             <span className="font-bold text-gray-800 text-lg">
-              {userData?.media_count?.toLocaleString() || '0'}
+              {formatNumber(userData?.media_count )|| '0'}
             </span>
             <span className="text-xs text-gray-500 tracking-wider">Posts</span>
           </div>

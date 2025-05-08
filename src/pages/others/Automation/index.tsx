@@ -10,62 +10,30 @@ import {
 import Select from 'react-select';
 import { formatDate } from '../../../utils';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { FaLiraSign, FaRocket } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { getApi } from '../../../services/commonServices';
 
 const AutomationList: React.FC = () => {
-  const [automations, setAutomations] = useState([
-    {
-      id: 1,
-      name: 'Welcome Email Sequence',
-      runs: 'Live',
-      status: 'Active',
-      lastPublished: '21 minutes ago',
-      lastRun: '5 minutes ago',
-    },
-    {
-      id: 2,
-      name: 'Abandoned Cart Reminder',
-      runs: 'Draft',
-      status: 'Inactive',
-      lastPublished: 'Not Published',
-      lastRun: 'Never run',
-    },
-    {
-      id: 3,
-      name: 'Post-Purchase Follow-up',
-      runs: 'Live',
-      status: 'Active',
-      lastPublished: '2 hours ago',
-      lastRun: '30 minutes ago',
-    },
-  ]);
+  const [automations, setAutomations] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('');
+  const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const token = useSelector((state: any) => state.user.userData.token);
 
   useEffect(() => {
-    // const token =
-    //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NDMzMTg0LCJleHAiOjE3NDcwMzc5ODR9.Mp5Ci1YROqKvbuZ4y1SmgdC0cixtctEISH7TwFHltRU';
+    async function fetchAutomations() {
+      try {
+        const params = selectedStatus
+          ? { statusType: selectedStatus === 'all' ? '' : selectedStatus }
+          : {};
 
-    function fetchAutomations() {
-      axios
-        .get('https://instautomate.it-waves.com/user/get-automation', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          params: selectedStatus
-            ? { statusType: selectedStatus === 'all' ? '' : selectedStatus }
-            : {},
-        })
-        .then((response) => {
-          setAutomations(response.data);
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.error('Error:', error.response?.data || error.message);
-        });
+        const data = await getApi('user/get-automation', params);
+        console.log(data, '==='); // Log the response data
+        setAutomations(data);
+      } catch (error) {
+        console.error('Error fetching automations:', error);
+      }
     }
 
     fetchAutomations();
@@ -142,7 +110,7 @@ const AutomationList: React.FC = () => {
             />
           </div>
 
-          <a href="/automations-new" className="w-full sm:w-auto">
+          <a href="/automations/new-automation" className="w-full sm:w-auto">
             <button className="flex items-center justify-center gap-2 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 w-full sm:w-auto hover:-translate-y-1 hover:shadow-lg">
               <FiPlus className="text-lg" />
               <span>New Automation</span>
@@ -208,7 +176,8 @@ const AutomationList: React.FC = () => {
           automations?.automations?.map((automation) => (
             <div
               key={automation._id}
-              className="grid grid-cols-12 p-4 border-b border-pink-100 last:border-b-0 hover:bg-pink-50 transition-all duration-150"
+              // onClick={() => navigate(`/automations/${automation._id}`)}
+              className="grid grid-cols-12 p-4 border-b border-pink-100 last:border-b-0 hover:bg-pink-50 transition-all duration-150 cursor-pointer"
             >
               <div className="col-span-5 font-semibold text-gray-800">
                 {automation.automationName}
@@ -243,12 +212,11 @@ const AutomationList: React.FC = () => {
                   formatDate(automation?.lastRunAt, { format: 'full' })) ||
                   'Not Published'}
               </div>
-
-              <div className="col-span-1 flex justify-end">
-                <button className="text-pink-600 hover:text-pink-700 p-1 rounded-full hover:bg-pink-100 transition-all duration-200 hover:scale-110">
-                  <FiMoreVertical />
-                </button>
-              </div>
+              {/* 
+              <div className="col-span-1 flex  justify-end text-pink-600 hover:text-pink-700 p-1 w-full rounded-full cursor-pointer transition-all duration-200 hover:scale-110 items-center">
+                <p className="text-sm">Live</p>
+                <FaRocket className="text-sm" />
+              </div> */}
             </div>
           ))
         ) : (

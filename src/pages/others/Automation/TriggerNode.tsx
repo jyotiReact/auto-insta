@@ -37,24 +37,6 @@ export function TriggerNode({ data, selected }) {
           </span>
         </div>
 
-        {data?.keywords?.length > 0 ? (
-          <div className="flex flex-wrap gap-2 mb-4">
-            <p className="text-xs text-gray-500 mt-2">
-              Trigger on comments with keywords
-            </p>
-            {data?.keywords?.map((keyword) => (
-              <div
-                key={keyword.id}
-                className="inline-flex items-center bg-pink-100 rounded-full px-3 py-1 text-xs"
-              >
-                {keyword.text}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-gray-500 mt-2">Not setup yet.</p>
-        )}
-
         <Handle
           type="source"
           position="bottom"

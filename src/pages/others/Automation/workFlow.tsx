@@ -215,7 +215,7 @@ const WorkflowEditor: React.FC = () => {
         );
 
         await postApi('user/add-automation', formData).then((res) => {
-          if(res){
+          if (res) {
             navigate('/automations');
           }
         });
@@ -344,31 +344,6 @@ const WorkflowEditor: React.FC = () => {
           <Background variant="dots" gap={16} size={1} color="pink" />
           <Controls />
         </ReactFlow>
-        {/* <TriggerComponent
-          handleClick={showTriggerNode}
-          tempKeywords={tempKeywords}
-          setTempKeywords={setTempKeywords}
-          handleAddNode={handleAddNode}
-          handleActionNode={handleActionNode}
-          setNodes={setNodes}
-          nextNodeStep={nextNodeStep}
-          setNextNodeStep={setNextNodeStep}
-          nodes={nodes}
-          nodesData={nodesData}
-          setNodesData={setNodesData}
-          title={title}
-          setTitle={setTitle}
-          subtitle={subtitle}
-          setSubtitle={setSubtitle}
-          preview={preview}
-          setPreview={setPreview}
-          buttons={buttons}
-          setButtons={setButtons}
-          setSelectedTrigger={setSelectedTrigger}
-          selectedTrigger={selectedTrigger}
-          showNextStepInputs={showNextStepInputs}
-          setShowNextStepInputs={setShowNextStepInputs}
-        /> */}
 
         {showNextNode ? (
           <NextStepComponent

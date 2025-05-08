@@ -303,7 +303,6 @@ function TriggerFormInputs({
                 ...node,
                 data: {
                   ...node.data,
-                  keywords: tempKeywords,
                 },
               }
             : node,

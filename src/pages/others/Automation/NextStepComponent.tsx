@@ -128,9 +128,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
 
         {/* Button 1 - Combined Title and Link Toggle */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Button 1 Info
-          </label>
+        
           {!showTitleInput1 && !showUrlInput1 ? (
             <button
               onClick={() => {
@@ -139,7 +137,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
               }}
               className="px-4 py-2 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg hover:bg-pink-200 transition-all duration-200"
             >
-              Set Button 1 Info
+              Set Button Title and Link
             </button>
           ) : (
             <div className="space-y-2 mt-2">
@@ -170,14 +168,14 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
           <>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Button 2 Title
+                Button  Title
               </label>
               {!showTitleInput2 ? (
                 <button
                   onClick={() => setShowTitleInput2(true)}
                   className="px-4 py-2 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg hover:bg-pink-200 transition-all duration-200"
                 >
-                  Set Button 2 Title
+                  Set Button  Title
                 </button>
               ) : (
                 <input
@@ -192,29 +190,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
               )}
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Button 2 Link
-              </label>
-              {!showUrlInput2 ? (
-                <button
-                  onClick={() => setShowUrlInput2(true)}
-                  className="px-4 py-2 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg hover:bg-pink-200 transition-all duration-200"
-                >
-                  Set Button 2 Link
-                </button>
-              ) : (
-                <input
-                  type="url"
-                  value={button2.url}
-                  onChange={(e) =>
-                    setButton2({ ...button2, url: e.target.value })
-                  }
-                  placeholder="Enter button link..."
-                  className="w-full mt-2 px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200"
-                />
-              )}
-            </div>
+           
           </>
         )}
 

@@ -277,7 +277,7 @@ const WorkflowEditor: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex items-center border-b border-pink-200 justify-between sticky right-0 top-0 p-4 left-[240px]  bg-white">
-        <div className="flex space-x-6">
+        {/* <div className="flex space-x-6">
           <button
             onClick={() => setActiveTab('Editor')}
             className={`relative px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
@@ -304,7 +304,7 @@ const WorkflowEditor: React.FC = () => {
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500"></span>
             )}
           </button>
-        </div>
+        </div> */}
 
         <div className="flex items-center space-x-4">
           <span

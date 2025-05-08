@@ -59,9 +59,7 @@ const DropdownUser = ({ user }) => {
             <p className="text-sm font-medium text-gray-900 dark:text-white">
               {user?.username || 'Thomas Anree'}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {user?.email || 'user@example.com'}
-            </p>
+          
           </div>
           
           <ul className="py-1">

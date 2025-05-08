@@ -99,7 +99,7 @@ const Profile = () => {
               </p>
             </div> */}
 
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <h4 className="mb-4 text-xl font-semibold text-gray-900">
                 Follow Me
               </h4>
@@ -133,7 +133,7 @@ const Profile = () => {
                   <FaInstagram />
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

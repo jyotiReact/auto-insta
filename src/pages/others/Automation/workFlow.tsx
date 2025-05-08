@@ -306,7 +306,7 @@ const WorkflowEditor: React.FC = () => {
           </button>
         </div> */}
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-end">
           <span
             className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 shadow-sm ${
               isDraft

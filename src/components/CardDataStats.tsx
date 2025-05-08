@@ -14,7 +14,6 @@ interface CardDataStatsProps {
 const CardDataStats: React.FC<CardDataStatsProps> = ({
   title,
   total,
-  rate,
   levelUp,
   levelDown,
   children,
@@ -31,7 +30,7 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
           <span className="text-sm font-medium text-gray-600">{title}</span>
         </div>
 
-        <span
+        {/* <span
           className={`flex items-center gap-1 text-sm font-medium ${
             levelUp ? 'text-pink-600' : levelDown ? 'text-purple-600' : ''
           }`}
@@ -51,7 +50,7 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
               style={{ width: 10, height: 11 }}
             />
           )}
-        </span>
+        </span> */}
       </div>
     </div>
   );

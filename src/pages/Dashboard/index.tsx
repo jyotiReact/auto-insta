@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
       try {
         const data = await getApi('user/get-statistics');
         console.log(data, '===');
-        setStatsData(data.data)
+        setStatsData(data.data);
       } catch (error) {
         console.error('Error fetching automations:', error);
       }
@@ -36,16 +36,28 @@ const Dashboard: React.FC = () => {
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 p-4">
-        <CardDataStats title="Total views" total="$3.456K" rate="0.43%" levelUp>
+        <CardDataStats
+          title="Message Count"
+          total={statsData?.messageCount}
+          levelUp
+        >
           <FontAwesomeIcon icon={faEye} className="text-xl text-white" />
         </CardDataStats>
-        <CardDataStats title="Total Profit" total="$45,2K" rate="4.35%" levelUp>
+        <CardDataStats
+          title="Pressed Count"
+          total={statsData?.pressedCount}
+          levelUp
+        >
           <FontAwesomeIcon
             icon={faShoppingCart}
             className="text-xl text-white"
           />
         </CardDataStats>
-        <CardDataStats title="Total Product" total="2.450" rate="2.59%" levelUp>
+        <CardDataStats
+          title="Seen Count"
+          total={statsData?.seenCount}
+          levelUp
+        >
           <FontAwesomeIcon
             icon={faBagShopping}
             className="text-xl text-white"
@@ -53,7 +65,7 @@ const Dashboard: React.FC = () => {
         </CardDataStats>
       </div>
 
-      <div className="mt-4 p-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+      {/* <div className="mt-4 p-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <ChartOne />
         <ChartTwo />
         <ChartThree />
@@ -63,7 +75,7 @@ const Dashboard: React.FC = () => {
           <TableTwo />
         </div>
         <ChatCard />
-      </div>
+      </div> */}
     </>
   );
 };

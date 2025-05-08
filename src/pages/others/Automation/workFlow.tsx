@@ -18,7 +18,7 @@ import { ActionNode } from './ActionNode';
 import { DefaultNode } from './DefaultNode';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
-import { json, useParams } from 'react-router-dom';
+import { json, useNavigate, useParams } from 'react-router-dom';
 import { nodesDataFormat } from './settings';
 import TriggerFormInputs from './TriggerFormInputs';
 import NextStepComponent from './NextStepComponent';
@@ -74,7 +74,7 @@ const WorkflowEditor: React.FC = () => {
   const [showNextForm, setShowNextForm] = useState(false);
   const { automationId } = useParams();
   const [nodesData, setNodesData] = useState(nodesDataFormat);
-
+  const navigate = useNavigate();
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
     const newActionNode = {
@@ -214,7 +214,11 @@ const WorkflowEditor: React.FC = () => {
           }),
         );
 
-        await postApi('user/add-automation', formData);
+        await postApi('user/add-automation', formData).then((res) => {
+          if(res){
+            navigate('/automations');
+          }
+        });
       } catch (error) {
         console.error('Error adding automation:', error);
       }

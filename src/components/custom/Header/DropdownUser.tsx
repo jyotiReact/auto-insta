@@ -55,24 +55,7 @@ const DropdownUser = ({ user }) => {
                 My Profile
               </Link>
             </li>
-            {/* <li>
-              <Link
-                to="#"
-                className="flex items-center gap-3 text-sm font-medium text-gray-800 hover:bg-pink-50 hover:text-pink-600 rounded-md px-3 py-2 transition-all duration-300"
-              >
-                <FontAwesomeIcon icon={faAddressBook} className="text-pink-600" />
-                My Contacts
-              </Link>
-            </li> */}
-            {/* <li>
-              <Link
-                to="/settings"
-                className="flex items-center gap-3 text-sm font-medium text-gray-800 hover:bg-pink-50 hover:text-pink-600 rounded-md px-3 py-2 transition-all duration-300"
-              >
-                <FontAwesomeIcon icon={faGear} className="text-pink-600" />
-                Account Settings
-              </Link>
-            </li> */}
+            
           </ul>
           <button
             onClick={() => {

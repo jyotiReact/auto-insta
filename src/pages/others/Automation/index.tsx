@@ -9,8 +9,6 @@ import {
 } from 'react-icons/fi';
 import Select from 'react-select';
 import { formatDate } from '../../../utils';
-import axios from 'axios';
-import { FaLiraSign, FaRocket } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getApi } from '../../../services/commonServices';
 
@@ -29,7 +27,6 @@ const AutomationList: React.FC = () => {
           : {};
 
         const data = await getApi('user/get-automation', params);
-        console.log(data, '==='); // Log the response data
         setAutomations(data);
       } catch (error) {
         console.error('Error fetching automations:', error);

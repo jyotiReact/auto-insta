@@ -325,26 +325,42 @@ const WorkflowEditor: React.FC = () => {
     // AddAutomations();
     setIsDraft(!isDraft);
   }
-
+  console.log(nodesData);
   return (
     <div className="  flex flex-col h-screen">
-      <div className="flex items-center border-b border-pink-200 justify-end sticky right-0 top-0 p-2 left-[240px] bg-white gap-4">
+      <div className="flex items-center border-b border-pink-200 justify-end sticky right-0 top-0 p-2 left-[240px] bg-white gap-4 h-[60px]">
         {/* Draft status toggle (existing code) */}
         <div className="flex items-center gap-2">
           <span
             className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 shadow-sm ${
-              isDraft
+              automationId
+                ? nodesData?.status === 'DRAFT'
+                  ? 'bg-pink-100 text-pink-600'
+                  : 'bg-purple-100 text-purple-600'
+                : isDraft
                 ? 'bg-purple-100 text-purple-600'
                 : 'bg-pink-100 text-pink-600'
             }`}
           >
-            {isDraft ? 'Published' : 'Draft'}
+            {automationId
+              ? nodesData?.status === 'LIVE'
+                ? 'Published'
+                : 'Draft'
+              : isDraft
+              ? 'Published'
+              : 'Draft'}
           </span>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={isDraft}
+              checked={
+                automationId
+                  ? nodesData?.status === 'LIVE'
+                    ? true
+                    : false
+                  : isDraft
+              }
               onChange={handlePublishToggle}
               aria-label={isDraft ? 'Switch to Published' : 'Switch to Draft'}
             />
@@ -354,29 +370,31 @@ const WorkflowEditor: React.FC = () => {
         </div>
 
         {/* New Save and Exit button */}
-        <button
-          onClick={() => {
-            // Add your save and exit logic here
-            AddAutomations();
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        {!automationId && (
+          <button
+            onClick={() => {
+              // Add your save and exit logic here
+              AddAutomations();
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          Save and Exit
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Save and Exit
+          </button>
+        )}
       </div>
       <div className="flex gap-4 w-full h-full">
         <ReactFlow

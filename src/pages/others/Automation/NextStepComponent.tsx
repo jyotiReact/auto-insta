@@ -328,7 +328,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   }, []);
   console.log('nodesData', nodesData);
   return (
-    <div className="w-[340px] fixed top-[76px] right-0 bg-white overflow-y-auto h-screen">
+    <div className="w-[340px] fixed top-[59px] right-0 bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
         <div className="flex items-center justify-between mb-6 border-b pb-4 border-pink-600">
           <div className="flex items-center justify-between w-full">

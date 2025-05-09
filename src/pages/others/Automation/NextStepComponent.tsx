@@ -12,6 +12,7 @@ import DeleteModal from '../../../components/custom/Modals/DeleteModal';
 import { TriggerList } from './TriggerList';
 import { actions } from './settings';
 import { getApi } from '../../../services/commonServices';
+import { useParams } from 'react-router-dom';
 
 interface ButtonData {
   title: string;
@@ -47,6 +48,8 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
   setFollowMessage,
   title,
   isFollowingMessage,
+  nodesData,
+  setNodesData,
 }) => {
   const [text, setText] = useState(message);
   const [button1, setButton1] = useState<ButtonData>(
@@ -59,12 +62,41 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
   const [showTitleInput1, setShowTitleInput1] = useState(false);
   const [showUrlInput1, setShowUrlInput1] = useState(false);
   const [showTitleInput2, setShowTitleInput2] = useState(false);
-  const [showUrlInput2, setShowUrlInput2] = useState(false);
 
   const handleSave = () => {
     const instagramUrl = `https://www.instagram.com/${
       user?.username || 'user'
     }`;
+
+    setNodesData({
+      ...nodesData,
+      checkFollowing: true,
+      ...(!isFollowingMessage && {
+        openingMessage: {
+          type: 'button',
+          text: text,
+
+          buttons: [button1],
+        },
+      }),
+      ...(isFollowingMessage && {
+        followingMessage: {
+          type: 'button',
+          text: text,
+          buttons: [
+            {
+              ...button1,
+              url: instagramUrl,
+              type: 'web_url',
+            },
+            {
+              ...button2,
+              type: 'postback',
+            },
+          ],
+        },
+      }),
+    });
 
     if (isFollowingMessage) {
       setFollowMessage({
@@ -240,10 +272,13 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   const [messageData, setMessageData] = useState(null);
   const [followMesssage, setFollowMesssage] = useState<FollowMessage>({
     openingMessage: '',
-    openingButton: [{ title: 'Send me a link' }], // Changed to array
+    openingButton: nodesData?.openingMessage?.buttons || [
+      { title: 'Send me a link' },
+    ], // Changed to array
     followingMessage: '',
-    followingButtons: [{ title: 'Visit Profile' }, { title: 'I am following' }],
+    followingButtons: nodesData?.followingMessage?.buttons || [{ title: 'Visit Profile' }, { title: 'I am following' }],
   });
+  const { automationId } = useParams();
 
   const confirmDelete = () => {
     setNodes((prevNodes) =>
@@ -261,33 +296,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     setShowNextForm(false);
     // setShowNextStepInputs(false);
   };
-  useEffect(() => {
-    if (isDraft) {
-      const withButtonTypes = (button: ButtonData) => ({
-        ...button,
-        type: button.url ? 'web_url' : 'postback',
-      });
 
-      setNodesData({
-        ...nodesData,
-        checkFollowing: isDraft,
-        openingMessage: {
-          type: 'button',
-          text: followMesssage?.openingMessage,
-          ...(followMesssage?.openingButton?.length > 0 && {
-            buttons: followMesssage.openingButton.map(withButtonTypes), // Updated to map over array
-          }),
-        },
-        followingMessage: {
-          type: 'button',
-          text: followMesssage?.followingMessage,
-          ...(followMesssage?.followingButtons?.length > 0 && {
-            buttons: followMesssage.followingButtons.map(withButtonTypes),
-          }),
-        },
-      });
-    }
-  }, [isDraft]);
   const handleOpenCustomModal = (index: 1 | 2) => {
     setCustomMessageIndex(index);
     setOpenCustomMessageModal(true);
@@ -299,8 +308,14 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
         const data = await getApi('user/get-default-data');
         setFollowMesssage((prev) => ({
           ...prev,
-          openingMessage: data.openingMessageText,
-          followingMessage: data.followUpText,
+          openingMessage:
+            automationId && nodesData?.openingMessage
+              ? nodesData?.openingMessage?.text
+              : data.openingMessageText,
+          followingMessage:
+            automationId && nodesData?.followingMessage
+              ? nodesData?.followingMessage?.text
+              : data.followUpText,
         }));
       } catch (error) {
         console.error('Error fetching automations:', error);
@@ -308,7 +323,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     }
     fetchDefaultMessages();
   }, []);
-
+  console.log('nodesData', nodesData);
   return (
     <div className="w-[340px] fixed top-[72px] right-0 bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
@@ -366,13 +381,13 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                     className="border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
                     onClick={() => handleOpenCustomModal(1)}
                   >
-                    {followMesssage.openingMessage ? (
+                    {nodesData?.openingMessage ? (
                       <div className="p-4">
                         <span className="font-medium text-gray-800 block mb-3">
-                          {followMesssage?.openingMessage}
+                          {nodesData?.openingMessage?.text}
                         </span>
                         <div className="flex flex-col gap-2">
-                          {followMesssage?.openingButton?.map(
+                          {nodesData?.openingMessage?.buttons?.map(
                             (button, index) => (
                               <a
                                 key={index}
@@ -407,10 +422,10 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                     className="border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
                     onClick={() => handleOpenCustomModal(2)}
                   >
-                    {followMesssage?.followingMessage ? (
+                    {nodesData?.followingMessage ? (
                       <div className="p-4">
                         <span className="font-medium text-gray-800 block mb-3">
-                          {followMesssage.followingMessage}
+                          {nodesData?.followingMessage?.text}
                         </span>
                         <div className="flex gap-2 flex-col">
                           <a
@@ -418,14 +433,14 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                             rel="noopener noreferrer"
                             className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50 mb-2"
                           >
-                            {followMesssage.followingButtons[0].title}
+                            {nodesData?.followingMessage?.buttons[0].title}
                           </a>
                           <a
                             href={'#'}
                             rel="noopener noreferrer"
                             className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
                           >
-                            {followMesssage.followingButtons[1].title}
+                            {nodesData?.followingMessage?.buttons[1]?.title}
                           </a>
                         </div>
                       </div>
@@ -542,6 +557,8 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                     : 'Edit Follow Check Message'
                 }
                 isFollowingMessage={customMessageIndex === 2}
+                nodesData={nodesData}
+                setNodesData={setNodesData}
               />
             )}
           </div>

@@ -32,6 +32,7 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
       if (newKeywords.length > 0) {
         setTempKeywords([...new Set([...tempKeywords, ...newKeywords])]); // Using Set to ensure uniqueness
       }
+    
       setKeywordInput('');
     }
   };
@@ -59,7 +60,6 @@ const SetupKeywordsModal: React.FC<SetupKeywordsModalProps> = ({
     });
 
     setSelectedKeywords(combinedKeywords);
-
     // Update nodesData
     setNodesData({
       ...nodesData,

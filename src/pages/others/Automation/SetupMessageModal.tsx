@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft,
@@ -86,6 +86,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   const handleRemoveButton = (index: number) => {
     setButtons(buttons.filter((_, i) => i !== index));
   };
+
+ 
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

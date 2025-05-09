@@ -68,10 +68,6 @@ const TriggerList: React.FC<TriggerListProps> = ({ items, onClick }) => {
 };
 
 const TriggerConfig: React.FC<TriggerConfigProps> = ({
-  //   selectedTrigger,
-  selectedVideo,
-  selectedKeywords,
-  availableReplies,
   setShowNextNode,
   clickToAddNode,
   setModalType,
@@ -79,6 +75,7 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
   setIsLike,
   islike,
   nodesData,
+  setPublishData,
 }) => (
   <>
     <div className="flex items-center justify-between mb-6"></div>
@@ -193,11 +190,14 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
             className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 group"
             onClick={() => setModalType('replies')}
           >
-            {nodesData?.commentReplies?.length > 0  ? (
+            {nodesData?.commentReplies?.length > 0 ? (
               <div className="flex items-center justify-between">
                 <span className="text-pink-600 font-medium">
                   {nodesData?.commentReplies?.length}{' '}
-                  {nodesData?.commentReplies?.length === 1 ? 'Reply' : 'Replies'} Added
+                  {nodesData?.commentReplies?.length === 1
+                    ? 'Reply'
+                    : 'Replies'}{' '}
+                  Added
                 </span>
                 <FontAwesomeIcon icon={faComment} className="text-gray-400" />
               </div>
@@ -271,6 +271,8 @@ function TriggerFormInputs({
   handleAddNode,
   setTriggerType,
   triggerType,
+  setPublishData,
+  showTriggerNode,
 }) {
   const [modalType, setModalType] = useState<string>('');
   const [postData, setPostData] = useState<any>([]);
@@ -311,21 +313,7 @@ function TriggerFormInputs({
       },
     });
   }, [modalType, tempKeywords, islike]);
-  // useEffect(() => {
-  //   console.log(nodesData, 'nodesData');
-  //   if (nodesData) {
-  //     console.log(nodesData, 'jjjjjj');
-  //     const data = nodesData?.trigger;
-  //     setSelectedVideo({
-  //       caption: data.caption,
-  //       media_url: data?.mediaLink,
-  //     });
-  //     console.log(data?.includeKeywords);
-  //     setSelectedKeywords(data?.includeKeywords);
-  //     setTempKeywords(data?.includeKeywords);
-  //     setReplies(data?.commentReplies);
-  //   }
-  // }, []);
+
   const handleVideoSelect = (video: VideoItem) => {
     setNodesData({
       ...nodesData,
@@ -393,6 +381,7 @@ function TriggerFormInputs({
             setIsLike={setIsLike}
             islike={islike}
             nodesData={nodesData.trigger}
+            setPublishData={setPublishData}
           />
         ) : (
           <TriggerList
@@ -400,6 +389,7 @@ function TriggerFormInputs({
             onClick={(type) => {
               setSelectedTrigger(true);
               setTriggerType(type);
+              showTriggerNode();
             }}
           />
         )}
@@ -412,8 +402,10 @@ function TriggerFormInputs({
           selectedVideo={selectedVideo}
           onClose={() => setModalType('')}
           onSelect={handleVideoSelect}
-          onConfirm={() => setModalType('')}
-          triggerType={triggerType} 
+          onConfirm={() => {
+            setModalType('');
+          }}
+          triggerType={triggerType}
         />
       )}
 

@@ -21,7 +21,7 @@ import { nodesDataFormat } from './settings';
 import TriggerFormInputs from './TriggerFormInputs';
 import NextStepComponent from './NextStepComponent';
 import { getApi, postApi } from '../../../services/commonServices';
-import CustomToast from '../../../components/uiElements/customToast';
+import CustomToast from '../../../components/uiElements/CustomToast';
 
 // Define node types
 const nodeTypes = {

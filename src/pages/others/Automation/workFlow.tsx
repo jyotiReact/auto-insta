@@ -327,7 +327,7 @@ const WorkflowEditor: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="  flex flex-col h-screen">
       <div className="flex items-center border-b border-pink-200 justify-end sticky right-0 top-0 p-4 left-[240px] bg-white gap-4">
         {/* Draft status toggle (existing code) */}
         <div className="flex items-center gap-2">

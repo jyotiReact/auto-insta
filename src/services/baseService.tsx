@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import appConfig from '../configs/app-config';
-import {store} from '../store'; // Adjust the path to your Redux store
+import { store } from '../store'; // Adjust the path to your Redux store
 
 const unauthorizedCodes = [401];
 
@@ -23,8 +23,7 @@ BaseService.interceptors.request.use(
 
     // Retrieve token from Redux store
     const token = store.getState().user.userData.token;
-    // const token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YVVzZXJJZCI6IjE3ODQxNDcyNjkzMDc5NjAxIiwiaWF0IjoxNzQ2NzAyMDU1LCJleHAiOjE3NDczMDY4NTV9.nyYTsbbP-79Btil2NyBtbBO1IpqerDDHjepMMs4t4E4"
-    
+
     // Add Authorization header if token exists
     if (token) {
       config.headers = config.headers || {};
@@ -59,6 +58,5 @@ BaseService.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
 
 export default BaseService;

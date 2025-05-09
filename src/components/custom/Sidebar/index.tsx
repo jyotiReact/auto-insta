@@ -83,7 +83,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="flex items-center justify-between gap-2 pb-3">
+      <div className="flex items-center justify-between gap-2  border-b border-pink-200">
         <NavLink to="/">
           <h1 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent px-6 py-3 inline-block drop-shadow-lg hover:scale-105 transition transform duration-300 ease-in-out">
             Insta Automate

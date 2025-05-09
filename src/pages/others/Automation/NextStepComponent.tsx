@@ -276,7 +276,10 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
       { title: 'Send me a link' },
     ], // Changed to array
     followingMessage: '',
-    followingButtons: nodesData?.followingMessage?.buttons || [{ title: 'Visit Profile' }, { title: 'I am following' }],
+    followingButtons: nodesData?.followingMessage?.buttons || [
+      { title: 'Visit Profile' },
+      { title: 'I am following' },
+    ],
   });
   const { automationId } = useParams();
 
@@ -325,7 +328,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   }, []);
   console.log('nodesData', nodesData);
   return (
-    <div className="w-[340px] fixed top-[72px] right-0 bg-white overflow-y-auto h-screen">
+    <div className="w-[340px] fixed top-[130px] right-0 bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
         <div className="flex items-center justify-between mb-6 border-b pb-4 border-pink-600">
           <div className="flex items-center justify-between w-full">
@@ -373,7 +376,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 <div className="absolute left-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-5" />
               </label>
             </div>
-            {nodesData?.checkFollowing && (
+            {(nodesData?.checkFollowing || isDraft) && (
               <div className="space-y-6 mb-6">
                 <div>
                   <p className="mb-2">Opening Message</p>

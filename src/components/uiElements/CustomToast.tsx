@@ -1,7 +1,7 @@
 import { toast } from 'react-hot-toast';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
-const CustomToast = (message) => {
+const CustomToast = (message: string): void => {
   toast.custom((t) => (
     <div
       className={`${

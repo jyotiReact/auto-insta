@@ -335,7 +335,7 @@ function TriggerFormInputs({
     setSelectedVideo(video);
   };
   return (
-    <div className="w-[340px] fixed top-[130px] right-0 bg-white overflow-y-auto h-screen">
+    <div className="w-[340px] fixed top-[76px] right-0 bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
         {!selectedTrigger ? (
           <div className="mb-8 flex justify-between items-center">

@@ -4,13 +4,12 @@ import PublicLayout from './publicLayout';
 import Dashboard from '../../pages/Dashboard';
 import Profile from '../../pages/others/profile';
 import Settings from '../../pages/others/setting';
-import SignIn from '../../pages/Authentication/SignIn';
-import SignUp from '../../pages/Authentication/SignUp';
 import ConnectInstagram from '../../pages/Authentication/ConnectInsta';
-import InstagramConsent from '../../pages/Authentication/AllowInsta';
 import ProfileSelector from '../../pages/Authentication/Profile';
 import AutomationList from '../../pages/others/Automation';
-import AutomationEditor from '../../pages/others/Automation/workFlow';
+import WorkflowEditor from '../../pages/others/Automation/workFlow';
+// import AutomationEditor from '../../pages/others/Automation/workFlow';
+
 
 const AppRouter = () => {
   return (
@@ -23,11 +22,11 @@ const AppRouter = () => {
         <Route path={`/automations`} element={<AutomationList />} />
         <Route
           path={`/automations/new-automation`}
-          element={<AutomationEditor />}
+          element={<WorkflowEditor />}
         />
         <Route
           path={`/automations/:automationId`}
-          element={<AutomationEditor />}
+          element={<WorkflowEditor />}
         />
       </Route>
       <Route element={<PublicLayout />}>

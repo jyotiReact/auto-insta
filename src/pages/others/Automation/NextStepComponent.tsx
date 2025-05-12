@@ -74,7 +74,6 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
 
     setNodesData({
       ...nodesData,
-      checkFollowing: true,
       ...(!isFollowingMessage && {
         openingMessage: {
           type: 'button',
@@ -330,6 +329,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   };
 
   useEffect(() => {
+    console.log({nodesData})
     async function fetchDefaultMessages() {
       try {
         const data = await getApi('user/get-default-data');
@@ -342,6 +342,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 automationId && nodesData?.openingMessage?.text
                   ? nodesData?.openingMessage?.text
                   : data.openingMessageText,
+              
               // buttons:
               //   automationId && nodesData?.openingMessage?.buttons
               //     ? nodesData?.openingMessage?.buttons
@@ -364,17 +365,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
           };
         });
 
-        //  setFollowMesssage((prev) => ({
-        //   ...prev,
-        //   openingMessage:
-        //     automationId && nodesData?.openingMessage
-        //       ? nodesData?.openingMessage?.text
-        //       : data.openingMessageText,
-        //   followingMessage:
-        //     automationId && nodesData?.followingMessage
-        //       ? nodesData?.followingMessage?.text
-        //       : data.followUpText,
-        // }));
+        
       } catch (error) {
         console.error('Error fetching automations:', error);
       }

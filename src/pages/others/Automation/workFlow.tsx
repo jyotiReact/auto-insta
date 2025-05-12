@@ -22,6 +22,7 @@ import TriggerFormInputs from './TriggerFormInputs';
 import NextStepComponent from './NextStepComponent';
 import { getApi, postApi } from '../../../services/commonServices';
 import CustomToast from '../../../components/uiElements/CustomToast';
+import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
 // Define node types
@@ -60,7 +61,7 @@ const initialEdges: Edge[] = [];
 const WorkflowEditor: React.FC = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-  const [isDraft, setIsDraft] = useState(false);
+  // const [isDraft, setIsDraft] = useState(false);
   const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
 
   const [buttons, setButtons] = useState([]);
@@ -71,7 +72,8 @@ const WorkflowEditor: React.FC = () => {
   const [showNextForm, setShowNextForm] = useState(false);
   const { automationId } = useParams();
   const [nodesData, setNodesData] = useState(nodesDataFormat);
-  const [restrictToggle, setRestrictToggle] = useState(true);
+  const user = useSelector((state: any) => state.user.userData.info);
+
   const navigate = useNavigate();
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
@@ -171,6 +173,9 @@ const WorkflowEditor: React.FC = () => {
   };
 
   async function AddAutomations(data = nodesData) {
+    const instagramUrl = `https://www.instagram.com/${
+      user?.username || 'user'
+    }`;
     try {
       const {
         uploadedFile,
@@ -179,15 +184,6 @@ const WorkflowEditor: React.FC = () => {
         followingMessage,
         ...rest
       } = data;
-      console.log({
-        ...rest,
-        trigger: { ...rest.trigger, triggerType: triggerType },
-        ...(automationId && { automationId: automationId }),
-        ...(rest.checkFollowing && {
-          openingMessage: openingMessage,
-          followingMessage: followingMessage,
-        }),
-      });
 
       const formData = new FormData();
 
@@ -200,6 +196,21 @@ const WorkflowEditor: React.FC = () => {
           ...rest,
           trigger: { ...rest.trigger, triggerType: triggerType },
           ...(automationId && { automationId: automationId }),
+          ...(rest.checkFollowing && {
+            openingMessage: {
+              ...openingMessage,
+              buttons: openingMessage.buttons || [
+                { title: 'Send me a link', type: 'postback' },
+              ],
+            },
+            followingMessage: {
+              ...followingMessage,
+              buttons: followingMessage.buttons || [
+                { title: 'Visit Profile', url: instagramUrl, type: 'web_url' },
+                { title: 'I am following', type: 'postback' },
+              ],
+            },
+          }),
         }),
       );
 

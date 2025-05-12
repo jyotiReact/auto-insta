@@ -60,6 +60,7 @@ const ProfileSelector: React.FC = () => {
       navigate('/');
     } catch (error) {
       console.error('Failed to send data:', error);
+    
       // Optional: Show error to user or handle fallback logic
     }
   }

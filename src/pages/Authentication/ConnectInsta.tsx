@@ -1,7 +1,5 @@
 import { FaInstagram } from 'react-icons/fa';
-import { SiMeta } from 'react-icons/si';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const ConnectInstagram: React.FC = () => {
   //   const navigate = useNavigate();
@@ -17,12 +15,6 @@ const ConnectInstagram: React.FC = () => {
         {/* Left Section */}
         <div className="flex-1 p-10 flex flex-col justify-center">
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <SiMeta className="text-blue-600 text-2xl" />
-              <span className="text-sm font-medium text-gray-500">
-                META VERIFIED PARTNER
-              </span>
-            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
               Boost Your Instagram Presence
             </h1>

@@ -30,7 +30,7 @@ const Profile = () => {
   return (
     <>
       <div className="overflow-hidden border border-gray-100 bg-white shadow-2xl h-screen">
-        <div className="relative z-20 h-40 md:h-60">
+        <div className="relative h-40 md:h-60">
           <div className="h-full w-full  bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 backdrop-blur-sm"></div>
         </div>
         <div className="px-6 pb-8 text-center font-sans lg:pb-10 xl:pb-12">

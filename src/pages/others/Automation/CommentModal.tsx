@@ -4,6 +4,7 @@ import { faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
 import { getApi } from '../../../services/commonServices';
+import { useParams } from 'react-router-dom';
 
 interface Reply {
   id: string;
@@ -37,39 +38,71 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
   } | null>(null);
   const [defaultMessages, setDefaultMessages] = useState<DefaultMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { automationId } = useParams();
 
-  const handleAddReply = () => {
-    if (
-      selectedOption &&
-      !replies.some((r) => r.text === selectedOption.label)
-    ) {
-      setReplies([
-        ...replies,
-        {
-          id: String(replies.length + 1),
-          text: selectedOption.label,
-          emoji: '😄',
-        },
-      ]);
-      setSelectedOption(null); // Clear selection after adding
-    }
-  };
+  // const handleAddReply = () => {
+  //   if (
+  //     selectedOption &&
+  //     !replies.some((r) => r.text === selectedOption.label)
+  //   ) {
+  //     setReplies([
+  //       ...replies,
+  //       {
+  //         id: String(replies.length + 1),
+  //         text: selectedOption.label,
+  //         emoji: '😄',
+  //       },
+  //     ]);
+  //     setSelectedOption(null); // Clear selection after adding
+  //   }
+  // };
 
-  const handleRemoveReply = (id: string) => {
-    setReplies(replies.filter((reply) => reply.id !== id));
-  };
-
-  const handleConfirm = () => {
+  const handleRemoveReply = (index) => {
     setNodesData({
       ...nodesData,
       trigger: {
         ...nodesData.trigger,
-        commentReplies: replies.length > 0 ? replies.map((r) => r.text) : [],
+        commentReplies: (nodesData.trigger?.commentReplies || []).filter(
+          (_, idx) => idx !== index,
+        ),
       },
     });
-
-    onClose();
   };
+
+  const handleAddReply = () => {
+    if (
+      selectedOption &&
+      !(nodesData.trigger?.commentReplies || []).includes(selectedOption.label)
+    ) {
+      setNodesData({
+        ...nodesData,
+        trigger: {
+          ...nodesData.trigger,
+          commentReplies: [
+            ...(nodesData.trigger?.commentReplies || []),
+            selectedOption.label,
+          ],
+        },
+      });
+      setSelectedOption(null);
+    }
+  };
+
+  const handleConfirm = () => {
+    onClose(); // Just close the modal; data is already updated
+  };
+
+  // const handleConfirm = () => {
+  //   setNodesData({
+  //     ...nodesData,
+  //     trigger: {
+  //       ...nodesData.trigger,
+  //       commentReplies: replies.length > 0 ? replies.map((r) => r.text) : [],
+  //     },
+  //   });
+
+  //   onClose();
+  // };
 
   useEffect(() => {
     async function fetchDefaultMessages() {
@@ -105,17 +138,17 @@ const CommentRepliesModal: React.FC<CommentRepliesModalProps> = ({
 
         <div className="space-y-4 mb-6">
           <p className="text-sm text-gray-600">Select Random Comment Replies</p>
-          {replies?.map((reply) => (
+          {nodesData.trigger.commentReplies?.map((reply, index) => (
             <div
-              key={reply.id}
+              key={index}
               className="flex items-center justify-between p-3 bg-pink-50 rounded-xl hover:-translate-y-1 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center space-x-3 flex-1">
-                <span className="text-gray-800 text-sm">{reply.text}</span>
-                <span className="text-xl">{reply.emoji}</span>
+                <span className="text-gray-800 text-sm">{reply}</span>
+                {/* <span className="text-xl">{reply.emoji}</span> */}
               </div>
               <button
-                onClick={() => handleRemoveReply(reply.id)}
+                onClick={() => handleRemoveReply(index)}
                 className="text-pink-600 hover:text-pink-700 transition-all duration-200 hover:scale-110"
               >
                 <FontAwesomeIcon icon={faTimes} className="h-4 w-4" />

@@ -168,9 +168,14 @@ const WorkflowEditor: React.FC = () => {
     });
   };
 
-  async function AddAutomations() {
+  async function AddAutomations(data = nodesData) {
     try {
-      const { uploadedFile, preview, ...rest } = nodesData;
+      const { uploadedFile, preview, ...rest } = data;
+      console.log({
+        ...rest,
+        trigger: { ...rest.trigger, triggerType: triggerType },
+        ...(automationId && { automationId: automationId }),
+      });
       const formData = new FormData();
 
       if (uploadedFile) {
@@ -181,7 +186,6 @@ const WorkflowEditor: React.FC = () => {
         JSON.stringify({
           ...rest,
           trigger: { ...rest.trigger, triggerType: triggerType },
-          status: isDraft ? 'LIVE' : 'DRAFT',
           ...(automationId && { automationId: automationId }),
         }),
       );
@@ -310,93 +314,91 @@ const WorkflowEditor: React.FC = () => {
     const hasValidCardMessage = nodesData?.instagramCardMessage?.title;
 
     if (!data?.mediaLink?.length) {
-      return CustomToast(' Please select at least one post or reel.');
+      return CustomToast('Please select at least one post or reel.');
     }
 
     if (!data?.includeKeywords?.length) {
-      return CustomToast('Please Select at least one keyword.');
+      return CustomToast('Please select at least one keyword.');
     }
 
     if (!hasValidTextMessage && !hasValidCardMessage) {
-      return CustomToast('Please add instagram DM block to send messages.');
+      return CustomToast('Please add Instagram DM block to send messages.');
     }
 
-    // All checks passed
+    // All checks passed — toggle status in nodesData
+    const updatedStatus =
+      (nodesData?.status || 'DRAFT') === 'LIVE' ? 'DRAFT' : 'LIVE';
+
+    const updatedNodeData = {
+      ...nodesData,
+      status: updatedStatus,
+    };
+
+    setNodesData(updatedNodeData);
+    AddAutomations(updatedNodeData);
+
     // AddAutomations();
-    setIsDraft(!isDraft);
   }
-  console.log(nodesData);
+
   return (
-    <div className="  flex flex-col h-screen">
-      <div className="flex items-center border-b border-pink-200 justify-end sticky right-0 top-0 p-2 left-[240px] bg-white gap-4 h-[60px]">
-        {/* Draft status toggle (existing code) */}
+    <div className="  flex flex-col h-[100%] ">
+      <div className="flex items-center border-b border-pink-200 justify-end right-0 top-0 p-2 left-[240px] bg-white gap-4 h-[60px]">
+        {/* Draft status toggle */}
         <div className="flex items-center gap-2">
           <span
             className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 shadow-sm ${
-              automationId
-                ? nodesData?.status === 'DRAFT'
-                  ? 'bg-pink-100 text-pink-600'
-                  : 'bg-purple-100 text-purple-600'
-                : isDraft
-                ? 'bg-purple-100 text-purple-600'
-                : 'bg-pink-100 text-pink-600'
+              nodesData?.status === 'DRAFT'
+                ? 'bg-pink-100 text-pink-600'
+                : 'bg-purple-100 text-purple-600'
             }`}
           >
-            {automationId
-              ? nodesData?.status === 'LIVE'
-                ? 'Published'
-                : 'Draft'
-              : isDraft
-              ? 'Published'
-              : 'Draft'}
+            {nodesData?.status === 'LIVE' ? 'Published' : 'Draft'}
           </span>
+
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={
-                automationId
-                  ? nodesData?.status === 'LIVE'
-                    ? true
-                    : false
-                  : isDraft
-              }
+              checked={nodesData?.status === 'LIVE'}
               onChange={handlePublishToggle}
-              aria-label={isDraft ? 'Switch to Published' : 'Switch to Draft'}
+              aria-label={
+                nodesData?.status === 'LIVE'
+                  ? 'Switch to Draft'
+                  : 'Switch to Published'
+              }
             />
             <div className="w-12 h-6 bg-gray-200 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300"></div>
             <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-6"></div>
           </label>
         </div>
 
-        {/* New Save and Exit button */}
-        {!automationId && (
-          <button
-            onClick={() => {
-              // Add your save and exit logic here
-              AddAutomations();
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
+        {/* Save and Exit button */}
+        <button
+          onClick={() => {
+            AddAutomations(nodesData);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            Save and Exit
-          </button>
-        )}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          Save and Exit
+        </button>
       </div>
-      <div className="flex gap-4 w-full h-full">
+
+      <div className="flex relative gap-4 w-full ">
+        {/* <div className='w-full h-full'> */}
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -411,6 +413,7 @@ const WorkflowEditor: React.FC = () => {
           <Background variant="dots" gap={16} size={1} color="pink" />
           <Controls />
         </ReactFlow>
+        {/* </div> */}
 
         {showNextNode ? (
           <NextStepComponent

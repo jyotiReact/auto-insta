@@ -10,7 +10,7 @@ const Header = (props: {
 }) => {
   const userData = useSelector((state: any) => state.user.userData.info);
   return (
-    <header className="sticky top-0 z-10 flex w-full bg-white dark:bg-boxdark border-b border-pink-200 ">
+    <header className="fixed top-0 z-10 flex w-full right-0 left-0 bg-white dark:bg-boxdark border-b border-pink-200 ">
       <div className="flex flex-grow items-center justify-between px-4 py-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
           {/* <!-- Hamburger Toggle BTN --> */}

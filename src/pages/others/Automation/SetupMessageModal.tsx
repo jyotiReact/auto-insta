@@ -12,6 +12,8 @@ import {
   faTrash,
   faEdit,
 } from '@fortawesome/free-solid-svg-icons';
+import { IMAGE_BASE_URL } from '../../../components/constants';
+import { useParams } from 'react-router-dom';
 
 interface ButtonData {
   title: string;
@@ -24,15 +26,12 @@ interface SetupMessagesModalProps {
   setNodesData: (nodes: any[]) => void;
   nodesData: any[];
 }
-
 const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   onClose,
   nodesData,
   setNodesData,
   buttons,
   setButtons,
-  setMessageData,
-  messageData,
   setPreview,
   preview,
 }) => {
@@ -45,6 +44,27 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   });
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const { automationId } = useParams();
+
+  // Helper function to update nodesData with text or card content
+  const updateNodesData = (field: string, value: string) => {
+    setNodesData((prev) => ({
+      ...prev,
+      instagramCardMessage: showCardContent
+        ? {
+            ...prev.instagramCardMessage,
+            [field]: value,
+          }
+        : prev.instagramCardMessage,
+      instagramTextBtnMessage: showTextContent
+        ? {
+            ...prev.instagramTextBtnMessage,
+            text:
+              field === 'title' ? value : prev.instagramTextBtnMessage?.text,
+          }
+        : prev.instagramTextBtnMessage,
+    }));
+  };
 
   const handleAddButtonClick = () => {
     setShowButtonInputs(true);
@@ -70,6 +90,17 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
       setEditIndex(null);
     }
   };
+  useEffect(() => {
+    if (automationId) {
+      setButtons(nodesData?.instagramCardMessage?.buttons || []);
+      if (nodesData?.instagramCardMessage) {
+        setShowCardContent(true);
+      }
+      if (nodesData?.instagramTextBtnMessage) {
+        setShowTextContent(true);
+      }
+    }
+  }, [automationId]);
 
   const handleCancelButton = () => {
     setShowButtonInputs(false);
@@ -87,8 +118,6 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     setButtons(buttons.filter((_, i) => i !== index));
   };
 
- 
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setUploadedFile(file);
@@ -101,33 +130,34 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
     };
     reader.readAsDataURL(file);
   };
+
   const handleConfirm = () => {
-    
-    setNodesData({
-      ...nodesData,
+    setNodesData((prev) => ({
+      ...prev,
       instagramCardMessage: showCardContent
         ? {
-            ...nodesData?.instagramCardMessage,
-            title: messageData?.title,
-            subTitle: messageData?.subtitle,
-
+            ...prev.instagramCardMessage,
             ...(buttons.length > 0 && { buttons }),
           }
         : null,
       instagramTextBtnMessage: showTextContent
         ? {
             type: buttons.length > 0 ? 'button' : 'text',
-            text: messageData?.title,
+            text: prev.instagramTextBtnMessage?.text || '',
             ...(buttons.length > 0 && { buttons }),
           }
         : null,
       uploadedFile,
       preview,
-    });
+    }));
 
     onClose();
   };
-
+  // Get current title and subtitle from nodesData
+  const currentTitle = showTextContent
+    ? nodesData?.instagramTextBtnMessage?.text || ''
+    : nodesData?.instagramCardMessage?.title || '';
+  const currentSubtitle = nodesData?.instagramCardMessage?.subTitle || '';
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl border border-pink-200 animate-fade-in">
@@ -207,7 +237,6 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                     JPG, PNG up to 2MB
                   </p>
                   <div className="mt-1 flex justify-center border-2 border-dashed border-pink-200 rounded-lg bg-pink-50 hover:bg-pink-100 transition-all duration-200 focus-within:ring-2 focus-within:ring-pink-400">
-                    {/* Always keep the file input available but hidden */}
                     <input
                       id="file-upload"
                       name="file-upload"
@@ -216,20 +245,25 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                       accept="image/jpeg,image/png"
                       onChange={handleFileUpload}
                     />
-
-                    {/* Make the entire preview area clickable to change image */}
                     <label
                       htmlFor="file-upload"
                       className="w-full cursor-pointer"
                     >
-                      {preview ? (
+                      {(automationId &&
+                        nodesData?.instagramCardMessage?.imageUrl) ||
+                      preview ? (
                         <div className="relative w-full group">
                           <img
-                            src={preview}
+                            src={
+                              automationId &&
+                              nodesData?.instagramCardMessage?.imageUrl
+                                ? IMAGE_BASE_URL +
+                                  nodesData?.instagramCardMessage?.imageUrl
+                                : preview
+                            }
                             alt="Uploaded preview"
                             className="max-w-full h-auto max-h-64 object-contain mx-auto rounded"
                           />
-                          {/* Optional: Show change image hint on hover */}
                           <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 flex items-center justify-center transition-all duration-200">
                             <span className="border-dashed border border-pink-600  opacity-0 group-hover:opacity-100 text-sm font-bold text-pink-600 px-2 py-1 rounded">
                               Change Image
@@ -262,13 +296,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                     </label>
                     <input
                       type="text"
-                      value={messageData?.title}
-                      onChange={(e) =>
-                        setMessageData({
-                          ...messageData,
-                          title: e.target.value,
-                        })
-                      }
+                      value={currentTitle}
+                      onChange={(e) => updateNodesData('title', e.target.value)}
                       className="w-full px-4 py-2 border border-pink-200 rounded-lg bg-white focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all duration-200"
                       placeholder="Enter card title"
                     />
@@ -279,12 +308,9 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                     </label>
                     <input
                       type="text"
-                      value={messageData?.subtitle}
+                      value={currentSubtitle}
                       onChange={(e) =>
-                        setMessageData({
-                          ...messageData,
-                          subtitle: e.target.value,
-                        })
+                        updateNodesData('subTitle', e.target.value)
                       }
                       className="w-full px-4 py-2 border border-pink-200 rounded-lg bg-white focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all duration-200"
                       placeholder="Enter card subtitle"
@@ -296,10 +322,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                   <input
                     className="w-full px-4 py-3 border-none rounded-lg bg-pink-50 outline-none transition-all duration-200 text-gray-900 placeholder-gray-400"
                     placeholder="Type your message here..."
-                    value={messageData?.title}
-                    onChange={(e) =>
-                      setMessageData({ ...messageData, title: e.target.value })
-                    }
+                    value={currentTitle}
+                    onChange={(e) => updateNodesData('title', e.target.value)}
                   />
                   <button className="absolute bottom-3 right-3 text-pink-500 hover:text-pink-600 transition-all duration-200">
                     <FontAwesomeIcon icon={faPen} size="sm" />

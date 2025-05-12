@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft,
+  faHashtag,
+  faHeading,
+  faLink,
   faMessage,
   faTimes,
   faTrashCan,
@@ -13,6 +16,7 @@ import { TriggerList } from './TriggerList';
 import { actions } from './settings';
 import { getApi } from '../../../services/commonServices';
 import { useParams } from 'react-router-dom';
+import { IMAGE_BASE_URL } from '../../../components/constants';
 
 interface ButtonData {
   title: string;
@@ -62,7 +66,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
   const [showTitleInput1, setShowTitleInput1] = useState(false);
   const [showUrlInput1, setShowUrlInput1] = useState(false);
   const [showTitleInput2, setShowTitleInput2] = useState(false);
-
+  console.log({ buttonData });
   const handleSave = () => {
     const instagramUrl = `https://www.instagram.com/${
       user?.username || 'user'
@@ -98,25 +102,25 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
       }),
     });
 
-    if (isFollowingMessage) {
-      setFollowMessage({
-        followingMessage: text,
-        followingButtons: [
-          {
-            ...button1,
-            url: instagramUrl, // Use existing URL if provided, otherwise use Instagram URL
-          },
-          {
-            ...button2,
-          },
-        ],
-      });
-    } else {
-      setFollowMessage({
-        openingMessage: text,
-        openingButton: [button1],
-      });
-    }
+    // if (isFollowingMessage) {
+    //   setFollowMessage({
+    //     followingMessage: text,
+    //     followingButtons: [
+    //       {
+    //         ...button1,
+    //         url: instagramUrl, // Use existing URL if provided, otherwise use Instagram URL
+    //       },
+    //       {
+    //         ...button2,
+    //       },
+    //     ],
+    //   });
+    // } else {
+    //   setFollowMessage({
+    //     openingMessage: text,
+    //     openingButton: [button1],
+    //   });
+    // }
     onClose();
   };
 
@@ -156,56 +160,71 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
                     setShowTitleInput1(true);
                     setShowUrlInput1(true);
                   }}
-                  className="px-4 py-2 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg hover:bg-pink-200 transition-all duration-200"
+                  className="px-4 py-2 w-full  text-blue-700 border border-gray-300 rounded-lg transition-all duration-200"
                 >
-                  Set Button Title
+                  {button1?.title}
                 </button>
               ) : (
                 <div className="space-y-2 mt-2">
-                  <input
-                    type="text"
-                    value={button1.title}
-                    onChange={(e) =>
-                      setButton1({ ...button1, title: e.target.value })
-                    }
-                    placeholder="Enter button title..."
-                    className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200"
-                  />
-                  <input
-                    type="url"
-                    value={`https://www.instagram.com/${
-                      user?.username || 'user'
-                    }`}
-                    onChange={(e) =>
-                      setButton1({ ...button1, url: e.target.value })
-                    }
-                    className="w-full px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200 cursor-not-allowed"
-                    disabled
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={button1?.title}
+                      onChange={(e) =>
+                        setButton1({ ...button1, title: e.target.value })
+                      }
+                      placeholder="Enter button title..."
+                      className="w-full pl-10 pr-4 py-1  border border-gray-200 rounded-lg focus:ring-2  outline-none transition-all duration-200"
+                    />
+                    <FontAwesomeIcon
+                      icon={faHashtag}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={`https://www.instagram.com/${
+                        user?.username || 'user'
+                      }`}
+                      onChange={(e) =>
+                        setButton1({ ...button1, url: e.target.value })
+                      }
+                      className="w-full pl-10 pr-4 py-1  border border-gray-200 rounded-lg focus:ring-2 outline-none transition-all duration-200 cursor-not-allowed"
+                      disabled
+                    />
+                    <FontAwesomeIcon
+                      icon={faLink}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    />
+                  </div>
                 </div>
               )}
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Button Title
-              </label>
               {!showTitleInput2 ? (
                 <button
                   onClick={() => setShowTitleInput2(true)}
-                  className="px-4 py-2 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg hover:bg-pink-200 transition-all duration-200"
+                  className=" w-full px-4 py-2 text-blue-700 border border-gray-300 rounded-lg  transition-all duration-200"
                 >
-                  Set Button Title
+                  {button2?.title}
                 </button>
               ) : (
-                <input
-                  type="text"
-                  value={button2.title}
-                  onChange={(e) =>
-                    setButton2({ ...button2, title: e.target.value })
-                  }
-                  placeholder="Enter button title..."
-                  className="w-full mt-2 px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={button2?.title}
+                    onChange={(e) =>
+                      setButton2({ ...button2, title: e.target.value })
+                    }
+                    placeholder="Enter button title..."
+                    className="w-full pl-10 pr-4 py-1  border border-gray-200 rounded-lg focus:ring-2  outline-none transition-all duration-200"
+                  />
+                  <FontAwesomeIcon
+                    icon={faHashtag}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                  />
+                </div>
               )}
             </div>
           </>
@@ -214,20 +233,26 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
             {!showTitleInput1 ? (
               <button
                 onClick={() => setShowTitleInput1(true)}
-                className="px-4 py-2 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg hover:bg-pink-200 transition-all duration-200"
+                className=" w-full px-4 py-2 text-blue-700 border border-gray-300 rounded-lg  transition-all duration-200"
               >
-                Set Button Title
+                {button1?.title}
               </button>
             ) : (
-              <input
-                type="text"
-                value={button1.title}
-                onChange={(e) =>
-                  setButton1({ ...button1, title: e.target.value })
-                }
-                placeholder="Enter button title..."
-                className="w-full mt-2 px-4 py-2 bg-pink-50 border border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-600 outline-none transition-all duration-200"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={button1?.title}
+                  onChange={(e) =>
+                    setButton1({ ...button1, title: e.target.value })
+                  }
+                  placeholder="Enter button title..."
+                  className="w-full pl-10 pr-4 py-1 border border-gray-200 rounded-lg focus:ring-2 outline-none transition-all duration-200"
+                />
+                <FontAwesomeIcon
+                  icon={faHashtag}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                />
+              </div>
             )}
           </div>
         )}
@@ -309,26 +334,51 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     async function fetchDefaultMessages() {
       try {
         const data = await getApi('user/get-default-data');
-        setFollowMesssage((prev) => ({
+        setNodesData((prev) => ({
           ...prev,
-          openingMessage:
-            automationId && nodesData?.openingMessage
-              ? nodesData?.openingMessage?.text
-              : data.openingMessageText,
-          followingMessage:
-            automationId && nodesData?.followingMessage
-              ? nodesData?.followingMessage?.text
-              : data.followUpText,
+          openingMessage: {
+            ...prev.openingMessage,
+            text:
+              automationId && nodesData?.openingMessage?.text
+                ? nodesData?.openingMessage?.text
+                : data.openingMessageText,
+            buttons:
+              automationId && nodesData?.openingMessage?.buttons
+                ? nodesData?.openingMessage?.buttons
+                : [{ title: 'Send me a link' }],
+          },
+          followingMessage: {
+            ...prev.followingMessage,
+            text:
+              automationId && nodesData?.followingMessage?.text
+                ? nodesData?.followingMessage?.text
+                : data.followUpText,
+            buttons:
+              automationId && nodesData?.followingMessage?.buttons
+                ? nodesData?.followingMessage?.buttons
+                : [{ title: 'Visit Profile' }, { title: 'I am following' }],
+          },
         }));
+        //  setFollowMesssage((prev) => ({
+        //   ...prev,
+        //   openingMessage:
+        //     automationId && nodesData?.openingMessage
+        //       ? nodesData?.openingMessage?.text
+        //       : data.openingMessageText,
+        //   followingMessage:
+        //     automationId && nodesData?.followingMessage
+        //       ? nodesData?.followingMessage?.text
+        //       : data.followUpText,
+        // }));
       } catch (error) {
         console.error('Error fetching automations:', error);
       }
     }
     fetchDefaultMessages();
   }, []);
-  console.log('nodesData', nodesData);
+
   return (
-    <div className="w-[340px] fixed top-[59px] right-0 bg-white overflow-y-auto h-screen">
+    <div className="w-[400px]   bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
         <div className="flex items-center justify-between mb-6 border-b pb-4 border-pink-600">
           <div className="flex items-center justify-between w-full">
@@ -369,14 +419,25 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 <input
                   type="checkbox"
                   className="sr-only peer"
-                  checked={nodesData?.checkFollowing}
-                  onChange={() => setIsDraft(!isDraft)}
+                  checked={
+                    automationId && nodesData?.checkFollowing
+                      ? nodesData?.checkFollowing
+                      : isDraft
+                  }
+                  onChange={() =>
+                    automationId && nodesData?.checkFollowing
+                      ? setNodesData({
+                          ...nodesData,
+                          checkFollowing: !nodesData?.checkFollowing,
+                        })
+                      : setIsDraft(!isDraft)
+                  }
                 />
                 <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300" />
                 <div className="absolute left-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-5" />
               </label>
             </div>
-            {(nodesData?.checkFollowing || isDraft) && (
+            {((automationId && nodesData?.checkFollowing) || isDraft) && (
               <div className="space-y-6 mb-6">
                 <div>
                   <p className="mb-2">Opening Message</p>
@@ -390,18 +451,20 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                           {nodesData?.openingMessage?.text}
                         </span>
                         <div className="flex flex-col gap-2">
-                          {nodesData?.openingMessage?.buttons?.map(
-                            (button, index) => (
-                              <a
-                                key={index}
-                                href={'#'}
-                                rel="noopener noreferrer"
-                                className="w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
-                              >
-                                {button?.title}
-                              </a>
-                            ),
-                          )}
+                          {(automationId &&
+                          nodesData?.openingMessage?.buttons?.length
+                            ? nodesData?.openingMessage?.buttons
+                            : [{ title: 'Send me link' }]
+                          ).map((button, index) => (
+                            <a
+                              key={index}
+                              href={'#'}
+                              rel="noopener noreferrer"
+                              className="w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
+                            >
+                              {button?.title}
+                            </a>
+                          ))}
                         </div>
                       </div>
                     ) : (
@@ -431,20 +494,23 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                           {nodesData?.followingMessage?.text}
                         </span>
                         <div className="flex gap-2 flex-col">
-                          <a
-                            href={'#'}
-                            rel="noopener noreferrer"
-                            className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50 mb-2"
-                          >
-                            {nodesData?.followingMessage?.buttons[0].title}
-                          </a>
-                          <a
-                            href={'#'}
-                            rel="noopener noreferrer"
-                            className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
-                          >
-                            {nodesData?.followingMessage?.buttons[1]?.title}
-                          </a>
+                          {(automationId &&
+                          nodesData?.followingMessage?.buttons?.length
+                            ? nodesData?.followingMessage?.buttons
+                            : [
+                                { title: 'Visit Profile' },
+                                { title: 'I am following' },
+                              ]
+                          ).map((button, index) => (
+                            <a
+                              href={'#'}
+                              key={index}
+                              rel="noopener noreferrer"
+                              className="w-full font-medium py-2 px-1 rounded-lg transition-colors duration-200 border-pink-600 border border-dashed text-pink-600 focus:outline-none focus:ring-2 focus:ring-[#E1306C] focus:ring-opacity-50"
+                            >
+                              {button.title}
+                            </a>
+                          ))}
                         </div>
                       </div>
                     ) : (
@@ -473,10 +539,15 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 {nodesData?.instagramCardMessage ||
                 nodesData?.instagramTextBtnMessage ? (
                   <div className="w-full ">
-                    {nodesData?.preview && (
+                    {automationId && nodesData?.instagramCardMessage && (
                       <div className="p-2">
                         <img
-                          src={nodesData?.preview}
+                          src={
+                            nodesData?.instagramCardMessage?.imageUrl
+                              ? IMAGE_BASE_URL +
+                                nodesData?.instagramCardMessage?.imageUrl
+                              : preview
+                          }
                           alt="Uploaded preview"
                           className="max-w-full h-auto max-h-64 object-contain rounded"
                         />
@@ -543,13 +614,15 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 }}
                 message={
                   customMessageIndex === 1
-                    ? followMesssage.openingMessage
-                    : followMesssage.followingMessage
+                    ? nodesData?.openingMessage?.text
+                    : nodesData?.followingMessage?.text
                 }
                 buttonData={
                   customMessageIndex === 1
-                    ? followMesssage.openingButton
-                    : followMesssage.followingButtons
+                    ? nodesData?.openingMessage?.buttons
+                    : nodesData?.followingMessage?.buttons.length
+                    ? nodesData?.followingMessage?.buttons
+                    : [{ title: 'Visit Profile' }, { title: 'I am following' }]
                 }
                 setFollowMessage={(data) =>
                   setFollowMesssage((prev) => ({ ...prev, ...data }))

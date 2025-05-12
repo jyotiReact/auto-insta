@@ -75,7 +75,6 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
   setIsLike,
   islike,
   nodesData,
-  setPublishData,
 }) => (
   <>
     <div className="flex items-center justify-between mb-6"></div>
@@ -95,18 +94,19 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
           {nodesData?.mediaLink ? (
             <div className="w-[300px] rounded-xl p-4">
               <div className="flex gap-2">
-                <div className="w-[500px] h-20 bg-gray-200 rounded-md overflow-hidden shadow-sm">
+                {/* Image wrapper width updated */}
+                <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden shadow-sm flex-shrink-0">
                   <img
                     src={nodesData?.mediaLink}
                     alt={nodesData?.caption}
-                    className="w-20 h-20 object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="text-left">
-                  <h4 className="text-sm font-medium w-[180px] text-gray-900 line-clamp-1">
+                {/* Text container given a max width and truncation behavior */}
+                <div className="text-left flex-1 overflow-hidden">
+                  <h4 className="text-sm font-medium text-gray-900 truncate w-[100px]">
                     {nodesData?.caption}
                   </h4>
-
                   <p className="text-xs text-gray-500">
                     Selected{' '}
                     {triggerType === 'INSTAGRAM_STORY_REPLIES'
@@ -334,8 +334,9 @@ function TriggerFormInputs({
 
     setSelectedVideo(video);
   };
+
   return (
-    <div className="w-[340px] fixed top-[59px] right-0 bg-white overflow-y-auto h-screen">
+    <div className="w-[400px]   right-0 bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
         {!selectedTrigger ? (
           <div className="mb-8 flex justify-between items-center">

@@ -2,6 +2,7 @@ import React, { useState, ReactNode } from 'react';
 import Header from '../components/custom/Header';
 import Sidebar from '../components/custom/Sidebar/index';
 import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from 'react-toastify';
 
 const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -22,6 +23,7 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
           {/* <!-- ===== Main Content Start ===== --> */}
           <main className='relative mt-14 h-full'>
+            {/* <ToastContainer/> */}
             <Toaster position="top-center" />
             <div className="mx-auto max-w-screen-2xl h-full  ">{children}</div>
           </main>

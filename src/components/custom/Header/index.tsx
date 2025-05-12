@@ -1,19 +1,39 @@
 import { Link } from 'react-router-dom';
-
+import { useState } from 'react';
 import DropdownUser from './DropdownUser';
 import LogoIcon from '../../../images/logo/logo-icon.svg';
 import { useSelector } from 'react-redux';
+import { postApi } from '../../../services/commonServices';
+import toast from 'react-hot-toast';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
   const userData = useSelector((state: any) => state.user.userData.info);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await postApi('user/add-feedback', { feedback }).then((res) => {
+        if (res) {
+          setFeedback('');
+          toast.success('Feedback submitted successfully');
+        }
+      });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+    }
+    setIsFeedbackOpen(false);
+  };
+
   return (
     <header className="fixed top-0 z-10 flex w-full right-0 left-0 bg-white dark:bg-boxdark border-b border-pink-200 ">
       <div className="flex flex-grow items-center justify-between px-4 py-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
-          {/* <!-- Hamburger Toggle BTN --> */}
+          {/* Hamburger Toggle BTN */}
           <button
             aria-controls="sidebar"
             onClick={(e) => {
@@ -54,7 +74,7 @@ const Header = (props: {
               </span>
             </span>
           </button>
-          {/* <!-- Hamburger Toggle BTN --> */}
+          {/* Hamburger Toggle BTN */}
 
           <Link className="block flex-shrink-0 lg:hidden" to="/">
             <img src={LogoIcon} alt="Logo" />
@@ -64,9 +84,21 @@ const Header = (props: {
         <div className="hidden sm:block">
           <form action="https://formbold.com/s/unique_form_id" method="POST">
             <div className="relative">
-              {/* <button className="absolute left-0 top-1/2 -translate-y-1/2">
+              {/* Search button and input (commented out) */}
+            </div>
+          </form>
+        </div>
+
+        <div className="flex items-center gap-3 2xsm:gap-7">
+          <ul className="flex items-center gap-2 2xsm:gap-4">
+            {/* Feedback Button */}
+            <li>
+              <button
+                onClick={() => setIsFeedbackOpen(!isFeedbackOpen)}
+                className="flex items-center gap-2 rounded-lg border border-pink-600  bg-white px-3 py-1.5 text-pink-600 shadow-sm  dark:bg-boxdark dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
                 <svg
-                  className="fill-body hover:fill-primary dark:fill-bodydark dark:hover:fill-primary"
+                  className="fill-[#E1306C] dark:fill-[#F06292]"
                   width="20"
                   height="20"
                   viewBox="0 0 20 20"
@@ -74,47 +106,48 @@ const Header = (props: {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M9.16666 3.33332C5.945 3.33332 3.33332 5.945 3.33332 9.16666C3.33332 12.3883 5.945 15 9.16666 15C12.3883 15 15 12.3883 15 9.16666C15 5.945 12.3883 3.33332 9.16666 3.33332ZM1.66666 9.16666C1.66666 5.02452 5.02452 1.66666 9.16666 1.66666C13.3088 1.66666 16.6667 5.02452 16.6667 9.16666C16.6667 13.3088 13.3088 16.6667 9.16666 16.6667C5.02452 16.6667 1.66666 13.3088 1.66666 9.16666Z"
-                    fill=""
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M13.2857 13.2857C13.6112 12.9603 14.1388 12.9603 14.4642 13.2857L18.0892 16.9107C18.4147 17.2362 18.4147 17.7638 18.0892 18.0892C17.7638 18.4147 17.2362 18.4147 16.9107 18.0892L13.2857 14.4642C12.9603 14.1388 12.9603 13.6112 13.2857 13.2857Z"
+                    d="M10 2C5.58 2 2 5.58 2 10C2 14.42 5.58 18 10 18C14.42 18 18 14.42 18 10C18 5.58 14.42 2 10 2ZM10 16C6.69 16 4 13.31 4 10C4 6.69 6.69 4 10 4C13.31 4 16 6.69 16 10C16 13.31 13.31 16 10 16ZM10 6C8.34 6 7 7.34 7 9H9C9 8.45 9.45 8 10 8C10.55 8 11 8.45 11 9C11 10.1 9.9 10.5 9.4 11.2C9.15 11.55 9 12 9 12.5V13H11V12.5C11 12.1 11.15 11.7 11.4 11.3C12.1 10.3 13 9.9 13 9C13 7.34 11.66 6 10 6Z"
                     fill=""
                   />
                 </svg>
-              </button> */}
-
-              {/* <input
-                type="text"
-                placeholder="Type to search..."
-                className="w-full bg-transparent pl-9 pr-4 text-black focus:outline-none dark:text-white xl:w-125"
-              /> */}
-            </div>
-          </form>
-        </div>
-
-        <div className="flex items-center gap-3 2xsm:gap-7">
-          <ul className="flex items-center gap-2 2xsm:gap-4">
-            {/* <!-- Dark Mode Toggler --> */}
-            {/* <DarkModeSwitcher /> */}
-            {/* <!-- Dark Mode Toggler --> */}
-
-            {/* <!-- Notification Menu Area --> */}
-            {/* <DropdownNotification /> */}
-            {/* <!-- Notification Menu Area --> */}
-
-            {/* <!-- Chat Notification Area --> */}
-            {/* <DropdownMessage /> */}
-            {/* <!-- Chat Notification Area --> */}
+                Feedback
+              </button>
+            </li>
+            {/* Feedback Modal */}
+            {isFeedbackOpen && (
+              <div className="absolute top-16 right-4 z-20 w-80 bg-white dark:bg-boxdark border border-pink-200 rounded-md shadow-lg p-4">
+                <h3 className="text-lg font-semibold text-black dark:text-white mb-3">
+                  Share Your Feedback
+                </h3>
+                <form onSubmit={handleFeedbackSubmit}>
+                  <textarea
+                    className="w-full h-24 p-2 border border-stroke dark:border-strokedark rounded-sm bg-transparent text-black dark:text-white focus:outline-none resize-none"
+                    placeholder="Type your feedback here..."
+                    onChange={(e) => setFeedback(e.target.value)}
+                  ></textarea>
+                  <div className="flex justify-end mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsFeedbackOpen(false)}
+                      className="px-3 py-1.5 mr-2 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-3 py-1.5 bg-pink-200 text-pink-600 dark:text-white hover:bg-pink-300 dark:hover:bg-pink-400 rounded-lg"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
           </ul>
 
-          {/* <!-- User Area --> */}
+          {/* User Area */}
           <DropdownUser user={userData} />
-          {/* <!-- User Area --> */}
+          {/* User Area */}
         </div>
       </div>
     </header>

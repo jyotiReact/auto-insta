@@ -66,7 +66,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
   const [showTitleInput1, setShowTitleInput1] = useState(false);
   const [showUrlInput1, setShowUrlInput1] = useState(false);
   const [showTitleInput2, setShowTitleInput2] = useState(false);
-  console.log({ buttonData });
+  console.log({ button1 });
   const handleSave = () => {
     const instagramUrl = `https://www.instagram.com/${
       user?.username || 'user'
@@ -79,8 +79,7 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
         openingMessage: {
           type: 'button',
           text: text,
-
-          buttons: [button1],
+          buttons: [{ ...button1, type: 'postback' }],
         },
       }),
       ...(isFollowingMessage && {
@@ -334,31 +333,37 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     async function fetchDefaultMessages() {
       try {
         const data = await getApi('user/get-default-data');
-        setNodesData((prev) => ({
-          ...prev,
-          openingMessage: {
-            ...prev.openingMessage,
-            text:
-              automationId && nodesData?.openingMessage?.text
-                ? nodesData?.openingMessage?.text
-                : data.openingMessageText,
-            buttons:
-              automationId && nodesData?.openingMessage?.buttons
-                ? nodesData?.openingMessage?.buttons
-                : [{ title: 'Send me a link' }],
-          },
-          followingMessage: {
-            ...prev.followingMessage,
-            text:
-              automationId && nodesData?.followingMessage?.text
-                ? nodesData?.followingMessage?.text
-                : data.followUpText,
-            buttons:
-              automationId && nodesData?.followingMessage?.buttons
-                ? nodesData?.followingMessage?.buttons
-                : [{ title: 'Visit Profile' }, { title: 'I am following' }],
-          },
-        }));
+        setNodesData((prev) => {
+          return {
+            ...prev,
+            openingMessage: {
+              ...prev.openingMessage,
+              text:
+                automationId && nodesData?.openingMessage?.text
+                  ? nodesData?.openingMessage?.text
+                  : data.openingMessageText,
+              // buttons:
+              //   automationId && nodesData?.openingMessage?.buttons
+              //     ? nodesData?.openingMessage?.buttons
+              //     : [{ title: 'Send me a link' }],
+            },
+            followingMessage: {
+              ...prev.followingMessage,
+              text:
+                automationId && nodesData?.followingMessage?.text
+                  ? nodesData?.followingMessage?.text
+                  : data.followUpText,
+              // buttons:
+              //   automationId && nodesData?.followingMessage?.buttons
+              //     ? nodesData?.followingMessage?.buttons
+              //     : [
+              //         { title: 'Visit Profile' },
+              //         { title: 'I am following' },
+              //       ],
+            },
+          };
+        });
+
         //  setFollowMesssage((prev) => ({
         //   ...prev,
         //   openingMessage:
@@ -376,7 +381,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     }
     fetchDefaultMessages();
   }, []);
-
+  console.log(nodesData);
   return (
     <div className="w-[400px]   bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
@@ -424,14 +429,21 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                       ? nodesData?.checkFollowing
                       : isDraft
                   }
-                  onChange={() =>
-                    automationId && nodesData?.checkFollowing
-                      ? setNodesData({
-                          ...nodesData,
-                          checkFollowing: !nodesData?.checkFollowing,
-                        })
-                      : setIsDraft(!isDraft)
-                  }
+                  onChange={() => {
+                    if (automationId) {
+                      console.log('enter');
+                      setNodesData((prev) => ({
+                        ...prev,
+                        checkFollowing: !prev.checkFollowing,
+                      }));
+                    } else {
+                      setIsDraft(!isDraft);
+                      setNodesData((prev) => ({
+                        ...prev,
+                        checkFollowing: !isDraft,
+                      }));
+                    }
+                  }}
                 />
                 <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300" />
                 <div className="absolute left-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-5" />
@@ -539,20 +551,21 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 {nodesData?.instagramCardMessage ||
                 nodesData?.instagramTextBtnMessage ? (
                   <div className="w-full ">
-                    {automationId && nodesData?.instagramCardMessage && (
+                    {(automationId && nodesData?.instagramCardMessage) ||
+                    preview ? (
                       <div className="p-2">
                         <img
                           src={
                             nodesData?.instagramCardMessage?.imageUrl
                               ? IMAGE_BASE_URL +
-                                nodesData?.instagramCardMessage?.imageUrl
+                                nodesData.instagramCardMessage.imageUrl
                               : preview
                           }
                           alt="Uploaded preview"
                           className="max-w-full h-auto max-h-64 object-contain rounded"
                         />
                       </div>
-                    )}
+                    ) : null}
 
                     <div className="p-4 w-full text-left">
                       <span className="font-medium text-gray-800 block mb-3">
@@ -619,8 +632,10 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 }
                 buttonData={
                   customMessageIndex === 1
-                    ? nodesData?.openingMessage?.buttons
-                    : nodesData?.followingMessage?.buttons.length
+                    ? nodesData?.openingMessage?.buttons?.length
+                      ? nodesData?.openingMessage?.buttons
+                      : [{ title: 'Send me link' }]
+                    : nodesData?.followingMessage?.buttons?.length
                     ? nodesData?.followingMessage?.buttons
                     : [{ title: 'Visit Profile' }, { title: 'I am following' }]
                 }

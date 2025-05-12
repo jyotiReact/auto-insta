@@ -93,6 +93,8 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
   useEffect(() => {
     if (automationId) {
       setButtons(nodesData?.instagramCardMessage?.buttons || []);
+      nodesData?.instagramTextBtnMessage?.buttons?.length &&
+        setButtons(nodesData?.instagramTextBtnMessage?.buttons);
       if (nodesData?.instagramCardMessage) {
         setShowCardContent(true);
       }
@@ -392,6 +394,8 @@ const ButtonInputs: React.FC<ButtonInputsProps> = ({
   onRemoveButton,
 }) => (
   <div className="mb-4 mt-4 mx-4 border border-dashed p-2 border-pink-600 rounded-lg">
+    {console.log(buttons)}
+
     {showButtonInputs ? (
       <>
         <div className="flex items-center justify-between">
@@ -446,20 +450,20 @@ const ButtonInputs: React.FC<ButtonInputsProps> = ({
       </>
     ) : (
       <div>
-        {buttons.length > 0 && (
+        {buttons?.length > 0 && (
           <div className="mb-4">
             <h4 className="text-sm font-medium text-pink-700 mb-2">
               Added Buttons
             </h4>
             <ul className="space-y-2">
-              {buttons.map((button, index) => (
+              {buttons?.map((button, index) => (
                 <li
                   key={index}
                   className="flex items-center justify-between p-2 bg-pink-50 rounded-lg"
                 >
                   <div>
                     <span className="text-sm font-medium text-gray-800">
-                      {button.title}
+                      {button?.title}
                     </span>
                     <p className="text-xs text-gray-500">
                       {button?.url || 'No link provided'}

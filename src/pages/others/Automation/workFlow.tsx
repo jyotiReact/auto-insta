@@ -22,6 +22,7 @@ import TriggerFormInputs from './TriggerFormInputs';
 import NextStepComponent from './NextStepComponent';
 import { getApi, postApi } from '../../../services/commonServices';
 import CustomToast from '../../../components/uiElements/CustomToast';
+import toast from 'react-hot-toast';
 
 // Define node types
 const nodeTypes = {
@@ -70,6 +71,7 @@ const WorkflowEditor: React.FC = () => {
   const [showNextForm, setShowNextForm] = useState(false);
   const { automationId } = useParams();
   const [nodesData, setNodesData] = useState(nodesDataFormat);
+  const [restrictToggle, setRestrictToggle] = useState(true);
   const navigate = useNavigate();
   function handleAddNode() {
     const actionId = `action-${Date.now()}`;
@@ -170,12 +172,23 @@ const WorkflowEditor: React.FC = () => {
 
   async function AddAutomations(data = nodesData) {
     try {
-      const { uploadedFile, preview, ...rest } = data;
+      const {
+        uploadedFile,
+        preview,
+        openingMessage,
+        followingMessage,
+        ...rest
+      } = data;
       console.log({
         ...rest,
         trigger: { ...rest.trigger, triggerType: triggerType },
         ...(automationId && { automationId: automationId }),
+        ...(rest.checkFollowing && {
+          openingMessage: openingMessage,
+          followingMessage: followingMessage,
+        }),
       });
+
       const formData = new FormData();
 
       if (uploadedFile) {
@@ -192,7 +205,15 @@ const WorkflowEditor: React.FC = () => {
 
       await postApi('user/add-automation', formData).then((res) => {
         if (res) {
-          navigate('/automations');
+          data?.status === 'LIVE' &&
+            toast.success(
+              automationId
+                ? 'Automation updated successfully'
+                : 'Automation created successfully',
+            );
+          setTimeout(() => {
+            navigate('/automations');
+          }, [1000]);
         }
       });
     } catch (error) {
@@ -250,7 +271,8 @@ const WorkflowEditor: React.FC = () => {
         // Handle action nodes if they exist
         if (
           data.automations[0]?.instagramTextBtnMessage ||
-          data.automations[0]?.instagramCardMessage
+          data.automations[0]?.instagramCardMessage ||
+          data.automations[0]?.checkFollowing
         ) {
           setShowNextForm(true);
           handleAddNode();
@@ -325,19 +347,22 @@ const WorkflowEditor: React.FC = () => {
       return CustomToast('Please add Instagram DM block to send messages.');
     }
 
-    // All checks passed — toggle status in nodesData
-    const updatedStatus =
-      (nodesData?.status || 'DRAFT') === 'LIVE' ? 'DRAFT' : 'LIVE';
+    // Only proceed if restrictToggle is false
+    if (!restrictToggle) {
+      const updatedStatus =
+        (nodesData?.status || 'DRAFT') === 'LIVE' ? 'DRAFT' : 'LIVE';
 
-    const updatedNodeData = {
+      const updatedNodeData = {
+        ...nodesData,
+        status: updatedStatus,
+      };
+
+      setNodesData(updatedNodeData);
+    }
+    console.log(nodesData.status, restrictToggle);
+    AddAutomations({
       ...nodesData,
-      status: updatedStatus,
-    };
-
-    setNodesData(updatedNodeData);
-    AddAutomations(updatedNodeData);
-
-    // AddAutomations();
+    });
   }
 
   return (
@@ -375,7 +400,9 @@ const WorkflowEditor: React.FC = () => {
         {/* Save and Exit button */}
         <button
           onClick={() => {
-            AddAutomations(nodesData);
+            // AddAutomations(nodesData);
+            setRestrictToggle(true);
+            handlePublishToggle();
           }}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
         >
@@ -397,7 +424,7 @@ const WorkflowEditor: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex relative gap-4 w-full ">
+      <div className="flex relative gap-4 w-full  ">
         {/* <div className='w-full h-full'> */}
         <ReactFlow
           nodes={nodes}
@@ -409,6 +436,7 @@ const WorkflowEditor: React.FC = () => {
           defaultViewport={{ zoom: 1.0, x: 0, y: 0 }}
           minZoom={0.5}
           onNodeClick={onNodeClick}
+          proOptions={{ hideAttribution: true }}
         >
           <Background variant="dots" gap={16} size={1} color="pink" />
           <Controls />

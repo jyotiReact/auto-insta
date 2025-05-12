@@ -330,6 +330,25 @@ const WorkflowEditor: React.FC = () => {
     },
     [setNodes],
   );
+
+  function handleSaveAndExit() {
+    const data = nodesData?.trigger;
+    const hasValidTextMessage = nodesData?.instagramTextBtnMessage?.text;
+    const hasValidCardMessage = nodesData?.instagramCardMessage?.title;
+
+    if (!data?.mediaLink?.length) {
+      return CustomToast('Please select at least one post or reel.');
+    }
+
+    if (!data?.includeKeywords?.length) {
+      return CustomToast('Please select at least one keyword.');
+    }
+
+    if (!hasValidTextMessage && !hasValidCardMessage) {
+      return CustomToast('Please add Instagram DM block to send messages.');
+    }
+    AddAutomations(nodesData);
+  }
   function handlePublishToggle() {
     const data = nodesData?.trigger;
     const hasValidTextMessage = nodesData?.instagramTextBtnMessage?.text;
@@ -348,21 +367,19 @@ const WorkflowEditor: React.FC = () => {
     }
 
     // Only proceed if restrictToggle is false
-    if (!restrictToggle) {
-      const updatedStatus =
-        (nodesData?.status || 'DRAFT') === 'LIVE' ? 'DRAFT' : 'LIVE';
+    // if (!restrictToggle) {
+    const updatedStatus =
+      (nodesData?.status || 'DRAFT') === 'LIVE' ? 'DRAFT' : 'LIVE';
 
-      const updatedNodeData = {
-        ...nodesData,
-        status: updatedStatus,
-      };
-
-      setNodesData(updatedNodeData);
-    }
-    console.log(nodesData.status, restrictToggle);
-    AddAutomations({
+    const updatedNodeData = {
       ...nodesData,
-    });
+      status: updatedStatus,
+    };
+
+    setNodesData(updatedNodeData);
+    // }
+    // console.log(nodesData.status, restrictToggle);
+    AddAutomations(updatedNodeData);
   }
 
   return (
@@ -399,11 +416,7 @@ const WorkflowEditor: React.FC = () => {
 
         {/* Save and Exit button */}
         <button
-          onClick={() => {
-            // AddAutomations(nodesData);
-            setRestrictToggle(true);
-            handlePublishToggle();
-          }}
+          onClick={handleSaveAndExit}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
         >
           <svg

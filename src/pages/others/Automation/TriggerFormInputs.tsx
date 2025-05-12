@@ -75,6 +75,7 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
   setIsLike,
   islike,
   nodesData,
+  setNodesData,
 }) => (
   <>
     <div className="flex items-center justify-between mb-6"></div>
@@ -223,8 +224,13 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={nodesData?.likeComment}
-              onChange={() => setIsLike(!islike)}
+              checked={nodesData?.trigger?.likeComment}
+              onChange={() =>
+                setNodesData((prev) => ({
+                  ...prev,
+                  likeComment: !prev.trigger.likeComment,
+                }))
+              }
             />
             <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-500 transition-all duration-300" />
             <div className="absolute left-1 bg-white w-4 h-4 rounded-full shadow-sm transition-transform duration-300 peer-checked:translate-x-5" />
@@ -383,6 +389,7 @@ function TriggerFormInputs({
             islike={islike}
             nodesData={nodesData.trigger}
             setPublishData={setPublishData}
+            setNodesData={setNodesData}
           />
         ) : (
           <TriggerList

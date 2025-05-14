@@ -101,6 +101,7 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
       if (nodesData?.instagramTextBtnMessage) {
         setShowTextContent(true);
       }
+    
     }
   }, [automationId]);
 
@@ -251,18 +252,10 @@ const SetupMessagesModal: React.FC<SetupMessagesModalProps> = ({
                       htmlFor="file-upload"
                       className="w-full cursor-pointer"
                     >
-                      {(automationId &&
-                        nodesData?.instagramCardMessage?.imageUrl) ||
-                      preview ? (
+                      {preview ? (
                         <div className="relative w-full group">
                           <img
-                            src={
-                              automationId &&
-                              nodesData?.instagramCardMessage?.imageUrl
-                                ? IMAGE_BASE_URL +
-                                  nodesData?.instagramCardMessage?.imageUrl
-                                : preview
-                            }
+                            src={preview}
                             alt="Uploaded preview"
                             className="max-w-full h-auto max-h-64 object-contain mx-auto rounded"
                           />
@@ -394,7 +387,6 @@ const ButtonInputs: React.FC<ButtonInputsProps> = ({
   onRemoveButton,
 }) => (
   <div className="mb-4 mt-4 mx-4 border border-dashed p-2 border-pink-600 rounded-lg">
-
     {showButtonInputs ? (
       <>
         <div className="flex items-center justify-between">

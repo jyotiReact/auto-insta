@@ -321,7 +321,11 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     setShowNextForm(false);
     // setShowNextStepInputs(false);
   };
-
+  useEffect(() => {
+    if (nodesData?.instagramCardMessage?.imageUrl?.length) {
+      setPreview(IMAGE_BASE_URL + nodesData?.instagramCardMessage?.imageUrl);
+    }
+  }, [automationId]);
   const handleOpenCustomModal = (index: 1 | 2) => {
     setCustomMessageIndex(index);
     setOpenCustomMessageModal(true);
@@ -340,7 +344,7 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 automationId && nodesData?.openingMessage?.text
                   ? nodesData?.openingMessage?.text
                   : data.openingMessageText,
-              
+
               // buttons:
               //   automationId && nodesData?.openingMessage?.buttons
               //     ? nodesData?.openingMessage?.buttons
@@ -362,8 +366,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
             },
           };
         });
-
-        
       } catch (error) {
         console.error('Error fetching automations:', error);
       }
@@ -538,16 +540,10 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                 {nodesData?.instagramCardMessage ||
                 nodesData?.instagramTextBtnMessage ? (
                   <div className="w-full ">
-                    {(automationId && nodesData?.instagramCardMessage) ||
-                    preview ? (
+                    {preview ? (
                       <div className="p-2">
                         <img
-                          src={
-                            nodesData?.instagramCardMessage?.imageUrl
-                              ? IMAGE_BASE_URL +
-                                nodesData.instagramCardMessage.imageUrl
-                              : preview
-                          }
+                          src={preview}
                           alt="Uploaded preview"
                           className="max-w-full h-auto max-h-64 object-contain rounded"
                         />

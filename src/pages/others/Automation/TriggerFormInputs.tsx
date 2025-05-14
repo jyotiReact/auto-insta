@@ -282,8 +282,6 @@ function TriggerFormInputs({
   setPublishData,
   showTriggerNode,
   automationId,
-  initialNodes,
-  setNodes,
 }) {
   const [modalType, setModalType] = useState<string>('');
   const [postData, setPostData] = useState<any>([]);
@@ -292,21 +290,33 @@ function TriggerFormInputs({
   const [tempKeywords, setTempKeywords] = useState<any>([]);
   const [replies, setReplies] = useState<any>([]);
   const [islike, setIsLike] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [postPagination, setPostPagination] = useState(0);
+  const [mediaPaginationData, setMediaPaginationData] = useState<any>({});
 
   useEffect(() => {
     if (modalType === 'post') {
-      getApi(
+      const endpoint =
         triggerType === 'INSTAGRAM_POST_REEL'
           ? '/service/instagram/media'
-          : '/service/instagram/stories',
-      ).then((res) => setPostData(res.data));
+          : '/service/instagram/stories';
+
+      const paginationParams =
+        postPagination > 0
+          ? { after: mediaPaginationData?.after }
+          : postPagination === 0
+          ? { before: mediaPaginationData?.before }
+          : {};
+
+      getApi(endpoint, paginationParams).then((res) => {
+        setPostData(res.data);
+        setMediaPaginationData(res);
+      });
     }
+
     if (nodesData && automationId) {
       setTempKeywords(nodesData?.trigger?.includeKeywords);
     }
-  }, [modalType, nodesData, automationId]);
-
+  }, [modalType, nodesData, automationId, postPagination]);
   const handleVideoSelect = (video: VideoItem) => {
     setNodesData({
       ...nodesData,
@@ -422,6 +432,7 @@ function TriggerFormInputs({
             setModalType('');
           }}
           triggerType={triggerType}
+          setPostPagination={setPostPagination}
         />
       )}
 

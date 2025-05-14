@@ -1,15 +1,21 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostSelectorModalProps } from '../../../types/triggerForm';
-import { faCheck, faPlay, faTimes } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAngleLeft,
+  faAngleRight,
+  faCheck,
+  faPlay,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 
 const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
-  isOpen,
   postData,
   selectedVideo,
   onClose,
   onSelect,
   onConfirm,
   triggerType,
+  setPostPagination,
 }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-9999 backdrop-blur-sm">
@@ -33,18 +39,6 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
             : 'Choose a post or reel from your connected account.'}
         </p>
         <div className="flex flex-wrap gap-4 mb-6 overflow-y-auto h-[350px] ">
-          {/* <div className="p-3 w-40 h-40 flex flex-col rounded-xl border border-pink-200 bg-gradient-to-br from-pink-50 to-pink-300 shadow-md cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:bg-pink-50">
-            <div className="relative w-full aspect-square rounded-md overflow-hidden flex items-center justify-center">
-              <div className="text-pink-600">
-                <FaPlus className="w-12 h-12" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-center justify-center">
-              <h4 className="text-xs font-semibold text-gray-900 text-center">
-                Add New Media
-              </h4>
-            </div>
-          </div> */}
           {postData?.map((post) => (
             <div
               key={post.id}
@@ -90,6 +84,24 @@ const PostSelectorModal: React.FC<PostSelectorModalProps> = ({
             </div>
           ))}
         </div>
+        {postData?.length > 40 && (
+          <div className="text-pink-600 font-bold flex  w-full  items-center justify-center gap-20">
+            <button>
+              <FontAwesomeIcon
+                icon={faAngleLeft}
+                className="h-5 w-5"
+                onClick={() => setPostPagination(0)}
+              />
+            </button>
+            <button>
+              <FontAwesomeIcon
+                icon={faAngleRight}
+                className="h-5 w-5"
+                onClick={() => setPostPagination(1)}
+              />
+            </button>
+          </div>
+        )}
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}

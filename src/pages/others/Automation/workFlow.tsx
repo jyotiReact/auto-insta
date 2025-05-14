@@ -24,6 +24,7 @@ import { getApi, postApi } from '../../../services/commonServices';
 import CustomToast from '../../../components/uiElements/CustomToast';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import Loader from '../../../common/Loader';
 
 const nodeTypes = {
   default: DefaultNode,
@@ -67,7 +68,7 @@ const WorkflowEditor: React.FC = () => {
   const [showNextNode, setShowNextNode] = useState(false);
   const [showNextForm, setShowNextForm] = useState(false);
   const [nodesData, setNodesData] = useState(nodesDataFormat);
-
+  const [loading, setLoading] = useState(false);
   const { automationId } = useParams();
   const navigate = useNavigate();
   const user = useSelector((state: any) => state.user.userData.info);
@@ -180,6 +181,7 @@ const WorkflowEditor: React.FC = () => {
         user?.username || 'user'
       }`;
       try {
+        setLoading(true);
         const {
           uploadedFile,
           preview,
@@ -223,12 +225,11 @@ const WorkflowEditor: React.FC = () => {
 
         await postApi('user/add-automation', formData).then((res) => {
           if (res) {
-            data?.status === 'LIVE' &&
-              toast.success(
-                automationId
-                  ? 'Automation updated successfully'
-                  : 'Automation created successfully',
-              );
+            toast.success(
+              automationId
+                ? 'Automation updated successfully'
+                : 'Automation created successfully',
+            );
             setTimeout(() => {
               navigate('/automations');
             }, 1000);
@@ -236,6 +237,8 @@ const WorkflowEditor: React.FC = () => {
         });
       } catch (error) {
         console.error('Error adding automation:', error);
+      } finally {
+        setLoading(false);
       }
     },
     [automationId, navigate, triggerType, user?.username, nodesData],
@@ -409,20 +412,24 @@ const WorkflowEditor: React.FC = () => {
           onClick={handleSaveAndExit}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
+          {loading ? (
+            <Loader />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
           Save and Exit
         </button>
       </div>

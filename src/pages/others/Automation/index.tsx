@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  FiSearch,
-  FiPlus,
-  FiClock,
-  FiActivity,
-  FiPower,
-  FiMoreVertical,
-} from 'react-icons/fi';
+import { FiSearch, FiPlus, FiClock, FiActivity, FiPower } from 'react-icons/fi';
 import Select from 'react-select';
 import { formatDate } from '../../../utils';
 import { useNavigate } from 'react-router-dom';
@@ -14,27 +7,85 @@ import { getApi } from '../../../services/commonServices';
 
 const AutomationList: React.FC = () => {
   const [automations, setAutomations] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const navigate = useNavigate();
-
+  const [totalCount, setTotalCount] = useState(0);
+  const [liveCount, setLiveCount] = useState(0);
+  const [draftCount, setDraftCount] = useState(0);
+  const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Number of items per page
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchAutomations() {
       try {
-        const params = selectedStatus
-          ? { statusType: selectedStatus === 'all' ? '' : selectedStatus }
-          : {};
+        const params = {
+          ...(selectedStatus !== 'all' && { statusType: selectedStatus }),
+          page: currentPage,
+          limit: itemsPerPage,
+        };
+        const response = await getApi('user/get-automation', params);
 
-        const data = await getApi('user/get-automation', params);
+        // Handle different API response structures
+        const data = Array.isArray(response)
+          ? response
+          : response.automations || [];
         setAutomations(data);
+
+        // Set counts
+        setTotalCount(response.totalAutomationCount || data.length);
+        setLiveCount(
+          response.liveAutomationCount ||
+            data.filter((a) => a.status === 'LIVE').length,
+        );
+        setDraftCount(
+          response.draftAutomationCount ||
+            data.filter((a) => a.status === 'DRAFT').length,
+        );
       } catch (error) {
         console.error('Error fetching automations:', error);
+        setAutomations([]);
+        setTotalCount(0);
       }
     }
 
     fetchAutomations();
-  }, [selectedStatus]);
+  }, [selectedStatus, currentPage, itemsPerPage]);
+
+  // Filter automations based on search term (client-side filtering)
+  const filteredAutomations = automations.filter(
+    (automation) =>
+      automation.automationName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()),
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  // Handle page navigation
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // Generate page numbers for display
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    return pageNumbers;
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white min-h-screen">
@@ -51,7 +102,7 @@ const AutomationList: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
           {/* Search Bar */}
-          {/* <div className="relative w-full sm:w-64">
+          <div className="relative w-full sm:w-64">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FiSearch className="text-pink-600" />
             </div>
@@ -62,7 +113,7 @@ const AutomationList: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div> */}
+          </div>
 
           {/* Status Select Dropdown */}
           <div className="w-full sm:w-48">
@@ -72,21 +123,30 @@ const AutomationList: React.FC = () => {
                 { value: 'LIVE', label: 'Live' },
                 { value: 'DRAFT', label: 'Draft' },
               ]}
-              defaultValue={{ value: 'all', label: 'All Statuses' }}
+              value={
+                selectedStatus
+                  ? {
+                      value: selectedStatus,
+                      label:
+                        selectedStatus === 'all'
+                          ? 'All Statuses'
+                          : selectedStatus,
+                    }
+                  : { value: 'all', label: 'All Statuses' }
+              }
               onChange={(selectedOption) => {
-                // Handle status filter change
-                setSelectedStatus(selectedOption.value);
-                console.log('Status changed:', selectedOption);
+                setSelectedStatus(selectedOption?.value || 'all');
+                setCurrentPage(1); // Reset to page 1 on status change
               }}
               styles={{
                 control: (base) => ({
                   ...base,
-                  borderColor: '#f9a8d4', // pink-300
+                  borderColor: '#f9a8d4',
                   borderRadius: '0.5rem',
                   boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                   minHeight: '42px',
                   '&:hover': {
-                    borderColor: '#ec4899', // pink-500
+                    borderColor: '#ec4899',
                   },
                   '&:focus-within': {
                     borderColor: '#ec4899',
@@ -96,9 +156,9 @@ const AutomationList: React.FC = () => {
                 option: (base, { isFocused, isSelected }) => ({
                   ...base,
                   backgroundColor: isSelected
-                    ? '#ec4899' // pink-500
+                    ? '#ec4899'
                     : isFocused
-                    ? '#fce7f3' // pink-100
+                    ? '#fce7f3'
                     : undefined,
                   color: isSelected ? 'white' : undefined,
                 }),
@@ -124,7 +184,7 @@ const AutomationList: React.FC = () => {
               Total Automations
             </h3>
             <span className="text-2xl font-bold text-gray-800">
-              {automations?.totalAutomationCount}
+              {totalCount}
             </span>
           </div>
         </div>
@@ -134,7 +194,7 @@ const AutomationList: React.FC = () => {
               Active Automations
             </h3>
             <span className="text-2xl font-bold text-pink-600">
-              {automations?.liveAutomationCount}
+              {liveCount}
             </span>
           </div>
         </div>
@@ -142,7 +202,7 @@ const AutomationList: React.FC = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-gray-600">In Draft</h3>
             <span className="text-2xl font-bold text-pink-400">
-              {automations?.draftAutomationCount}
+              {draftCount}
             </span>
           </div>
         </div>
@@ -151,13 +211,17 @@ const AutomationList: React.FC = () => {
       {/* Automation Table */}
       <div className="bg-white rounded-xl border border-pink-200 shadow-md overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-12 bg-gradient-to-r from-white to-pink-50 p-4 font-medium text-gray-600 text-sm uppercase tracking-wider border-b border-pink-100">
-          <div className="col-span-5">Automation</div>
+        <div className="grid grid-cols-10 bg-gradient-to-r from-white to-pink-50 p-4 font-medium text-gray-600 text-sm uppercase tracking-wider border-b border-pink-100">
+          <div className="col-span-3">Automation</div>
+          <div className="col-span-2 flex items-center gap-1">
+            <FiClock className="text-pink-600" />
+            <span>Automation Type</span>
+          </div>
           <div className="col-span-2 flex items-center gap-1">
             <FiActivity className="text-pink-600" />
             <span>Status</span>
           </div>
-          <div className="col-span-2 flex items-center gap-1">
+          <div className="col-span-1 flex items-center gap-1">
             <FiPower className="text-pink-600" />
             <span>Runs</span>
           </div>
@@ -165,21 +229,26 @@ const AutomationList: React.FC = () => {
             <FiClock className="text-pink-600" />
             <span>Last Run</span>
           </div>
-          <div className="col-span-1"></div>
         </div>
 
         {/* Table Rows */}
-        {automations?.automations?.length > 0 ? (
-          automations?.automations?.map((automation) => (
+        {filteredAutomations.length > 0 ? (
+          filteredAutomations.map((automation) => (
             <div
               key={automation._id}
               onClick={() => navigate(`/automations/${automation._id}`)}
-              className="grid grid-cols-12 p-4 border-b border-pink-100 last:border-b-0 hover:bg-pink-50 transition-all duration-150 cursor-pointer"
+              className="grid grid-cols-10 p-4 border-b border-pink-100 last:border-b-0 hover:bg-pink-50 transition-all duration-150 cursor-pointer"
             >
-              <div className="col-span-5 font-semibold text-gray-800">
-                {automation.automationName}
+              <div className="col-span-3 font-semibold text-gray-800 truncate">
+                {automation.automationName || 'Unnamed Automation'}
               </div>
-
+              <div className="col-span-2 text-sm text-gray-600">
+                {automation?.trigger?.triggerType === 'INSTAGRAM_POST_REEL'
+                  ? 'Reel'
+                  : automation?.trigger?.triggerType === 'INSTAGRAM_STORY_REPLIES'
+                  ? 'Story'
+                  : 'N/A'}
+              </div>
               <div className="col-span-2">
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
@@ -188,37 +257,26 @@ const AutomationList: React.FC = () => {
                       : 'bg-red-100 text-red-800'
                   }`}
                 >
-                  {automation.status}
+                  {automation.status || 'Unknown'}
                 </span>
               </div>
-
-              <div className="col-span-2">
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                    automation.runs === 'Live'
-                      ? 'bg-pink-100 text-pink-600'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}
-                >
-                  {automation.runs}
-                </span>
+              <div className="col-span-1 text-sm text-gray-600">
+                {automation.runs || 0}
               </div>
-
               <div className="col-span-2 text-sm text-gray-600">
-                {(automation?.lastRunAt &&
-                  formatDate(automation?.lastRunAt, { format: 'full' })) ||
-                  'Not Published'}
+                {automation.lastRunAt
+                  ? formatDate(automation.lastRunAt, { format: 'full' })
+                  : 'Not Published'}
               </div>
-              {/* 
-              <div className="col-span-1 flex  justify-end text-pink-600 hover:text-pink-700 p-1 w-full rounded-full cursor-pointer transition-all duration-200 hover:scale-110 items-center">
-                <p className="text-sm">Live</p>
-                <FaRocket className="text-sm" />
-              </div> */}
             </div>
           ))
         ) : (
           <div className="p-8 text-center">
-            <div className="text-gray-600 mb-2">No automations found</div>
+            <div className="text-gray-600 mb-2">
+              {searchTerm
+                ? 'No automations match your search'
+                : 'No automations found'}
+            </div>
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
@@ -233,17 +291,45 @@ const AutomationList: React.FC = () => {
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
-        {/* <div className="text-sm text-gray-600">
-          Showing 1 to {automations.length} of {automations.length} automations
-        </div> */}
+        <div className="text-sm text-gray-600">
+          Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+          {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount}{' '}
+          automations
+        </div>
         <div className="flex gap-2">
-          <button className="px-3 py-1 border border-pink-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600 transition-all duration-200">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
+              currentPage === 1
+                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
+            }`}
+          >
             Previous
           </button>
-          <button className="px-3 py-1 border border-pink-300 rounded-md text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 transition-all duration-200">
-            1
-          </button>
-          <button className="px-3 py-1 border border-pink-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600 transition-all duration-200">
+          {getPageNumbers().map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
+                currentPage === page
+                  ? 'text-white bg-pink-600 hover:bg-pink-700'
+                  : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
+              currentPage === totalPages
+                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
+            }`}
+          >
             Next
           </button>
         </div>

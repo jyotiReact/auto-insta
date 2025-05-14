@@ -25,7 +25,6 @@ import CustomToast from '../../../components/uiElements/CustomToast';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
-// Define node types
 const nodeTypes = {
   default: DefaultNode,
   trigger: TriggerNode,
@@ -40,7 +39,6 @@ const initialNodes: Node[] = [
     data: { label: 'Set a trigger in the sidebar', isConfigured: false },
     style: {
       background: 'transparent',
-      // border: '2px solid #E1306C',
       border: 'none',
       borderRadius: '12px',
       color: '#E1306C',
@@ -61,21 +59,19 @@ const initialEdges: Edge[] = [];
 const WorkflowEditor: React.FC = () => {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-  // const [isDraft, setIsDraft] = useState(false);
-  const [triggerId, setTriggerId] = useState<string | null>(`trigger-123`);
-
+  const [triggerId] = useState<string>(`trigger-${Date.now()}`);
   const [buttons, setButtons] = useState([]);
   const [preview, setPreview] = useState(null);
   const [selectedTrigger, setSelectedTrigger] = useState<boolean>(false);
-  const [triggerType, setTriggerType] = useState<string | null>(null);
+  const [triggerType, setTriggerType] = useState<string | null>('');
   const [showNextNode, setShowNextNode] = useState(false);
   const [showNextForm, setShowNextForm] = useState(false);
-  const { automationId } = useParams();
   const [nodesData, setNodesData] = useState(nodesDataFormat);
-  const user = useSelector((state: any) => state.user.userData.info);
 
+  const { automationId } = useParams();
   const navigate = useNavigate();
-  function handleAddNode() {
+  const user = useSelector((state: any) => state.user.userData.info);
+  const handleAddNode = useCallback(() => {
     const actionId = `action-${Date.now()}`;
     const newActionNode = {
       id: actionId,
@@ -96,6 +92,7 @@ const WorkflowEditor: React.FC = () => {
       },
       selected: true,
     };
+
     setNodes((prev) =>
       prev
         .map((node) =>
@@ -113,6 +110,7 @@ const WorkflowEditor: React.FC = () => {
         )
         .concat(newActionNode),
     );
+
     setEdges((prev) => {
       const newEdge: Edge = {
         id: `e-${triggerId}-${actionId}`,
@@ -132,105 +130,116 @@ const WorkflowEditor: React.FC = () => {
     });
 
     setShowNextNode(true);
-  }
+  }, [triggerId, setNodes, setEdges]);
 
-  const showTriggerNode = () => {
-    console.log('hittted');
-    setNodes((prevNodes) => {
-      const triggerUpdatedNodes = prevNodes.map((node) => {
-        if (node.type === 'trigger') {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              isFirstTrigger: false,
-              handleClickNode: handleAddNode,
-            },
-          };
-        }
-        return node;
+  const showTriggerNode = useCallback(
+    (type: string) => {
+      setNodes((prevNodes) => {
+        const triggerUpdatedNodes = prevNodes.map((node) => {
+          if (node.type === 'trigger') {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isFirstTrigger: false,
+                handleClickNode: handleAddNode,
+              },
+            };
+          }
+          return node;
+        });
+
+        const filteredNodes = triggerUpdatedNodes.filter(
+          (node) => node.type !== 'default',
+        );
+        const newTriggerNode: Node = {
+          id: triggerId,
+          type: 'trigger',
+          position: { x: 250, y: 50 },
+          data: {
+            label:
+              type === 'INSTAGRAM_POST_REEL'
+                ? 'Post or Reel Comments'
+                : 'story replies',
+            isConfigured: false,
+            isFirstTrigger: true,
+            onAddActionNode: handleAddNode,
+          },
+          selected: true,
+        };
+
+        return [...filteredNodes, newTriggerNode];
       });
+    },
+    [triggerId, handleAddNode, setNodes],
+  );
 
-      const filteredNodes = triggerUpdatedNodes.filter(
-        (node) => node.type !== 'default',
-      );
+  const AddAutomations = useCallback(
+    async (data = nodesData) => {
+      const instagramUrl = `https://www.instagram.com/${
+        user?.username || 'user'
+      }`;
+      try {
+        const {
+          uploadedFile,
+          preview,
+          openingMessage,
+          followingMessage,
+          ...rest
+        } = data;
+        const formData = new FormData();
 
-      const newTriggerNode: Node = {
-        id: triggerId,
-        type: 'trigger',
-        position: { x: 250, y: 50 },
-        data: {
-          label: 'Post or Reel Comments',
-          isConfigured: false,
-          isFirstTrigger: true,
-          onAddActionNode: handleAddNode,
-        },
-        selected: true,
-      };
+        if (uploadedFile) {
+          formData.append('file', uploadedFile);
+        }
 
-      return [...filteredNodes, newTriggerNode];
-    });
-  };
-
-  async function AddAutomations(data = nodesData) {
-    const instagramUrl = `https://www.instagram.com/${
-      user?.username || 'user'
-    }`;
-    try {
-      const {
-        uploadedFile,
-        preview,
-        openingMessage,
-        followingMessage,
-        ...rest
-      } = data;
-
-      const formData = new FormData();
-
-      if (uploadedFile) {
-        formData.append('file', uploadedFile);
-      }
-      formData.append(
-        'automation',
-        JSON.stringify({
-          ...rest,
-          trigger: { ...rest.trigger, triggerType: triggerType },
-          ...(automationId && { automationId: automationId }),
-          ...(rest.checkFollowing && {
-            openingMessage: {
-              ...openingMessage,
-              buttons: openingMessage.buttons || [
-                { title: 'Send me a link', type: 'postback' },
-              ],
-            },
-            followingMessage: {
-              ...followingMessage,
-              buttons: followingMessage.buttons || [
-                { title: 'Visit Profile', url: instagramUrl, type: 'web_url' },
-                { title: 'I am following', type: 'postback' },
-              ],
-            },
+        formData.append(
+          'automation',
+          JSON.stringify({
+            ...rest,
+            trigger: { ...rest.trigger, triggerType },
+            ...(automationId && { automationId }),
+            ...(rest.checkFollowing && {
+              openingMessage: {
+                ...openingMessage,
+                buttons: openingMessage.buttons || [
+                  { title: 'Send me a link', type: 'postback' },
+                ],
+              },
+              followingMessage: {
+                ...followingMessage,
+                buttons: followingMessage.buttons || [
+                  {
+                    title: 'Visit Profile',
+                    url: instagramUrl,
+                    type: 'web_url',
+                  },
+                  { title: 'I am following', type: 'postback' },
+                ],
+              },
+            }),
           }),
-        }),
-      );
+        );
 
-      await postApi('user/add-automation', formData).then((res) => {
-        if (res) {
-          data?.status === 'LIVE' &&
-            toast.success(
-              automationId
-                ? 'Automation updated successfully'
-                : 'Automation created successfully',
-            );
-          setTimeout(() => {
-            navigate('/automations');
-          }, [1000]);
-        }
-      });
-    } catch (error) {
-      console.error('Error adding automation:', error);
-    }
-  }
+        await postApi('user/add-automation', formData).then((res) => {
+          if (res) {
+            data?.status === 'LIVE' &&
+              toast.success(
+                automationId
+                  ? 'Automation updated successfully'
+                  : 'Automation created successfully',
+              );
+            setTimeout(() => {
+              navigate('/automations');
+            }, 1000);
+          }
+        });
+      } catch (error) {
+        console.error('Error adding automation:', error);
+      }
+    },
+    [automationId, navigate, triggerType, user?.username, nodesData],
+  );
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -247,71 +256,6 @@ const WorkflowEditor: React.FC = () => {
     [setEdges],
   );
 
-  useEffect(() => {
-    async function fetchAutomations() {
-      try {
-        const data = await getApi('user/get-automation', {
-          automationId,
-        });
-        setNodesData(data.automations[0]);
-        setSelectedTrigger(true);
-        setTriggerType(data.automations[0].trigger.type);
-
-        // Update nodes with the loaded automation data
-        setNodes((prevNodes) => {
-          const triggerNode = {
-            id: triggerId,
-            type: 'trigger',
-            position: { x: 250, y: 50 },
-            data: {
-              label: 'Post or Reel Comments',
-              isConfigured: true, // Existing automation is already configured
-              isFirstTrigger: false,
-              onAddActionNode: handleAddNode,
-            },
-            selected: true,
-          };
-
-          // Remove default node and add trigger node
-          const filteredNodes = prevNodes.filter(
-            (node) => node.type !== 'default',
-          );
-          return [...filteredNodes, triggerNode];
-        });
-
-        // Handle action nodes if they exist
-        if (
-          data.automations[0]?.instagramTextBtnMessage ||
-          data.automations[0]?.instagramCardMessage ||
-          data.automations[0]?.checkFollowing
-        ) {
-          setShowNextForm(true);
-          handleAddNode();
-          setNodes((prevNodes) => {
-            return prevNodes.map((node) => {
-              if (node.type === 'action') {
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    label: 'Send Instagram Message',
-                    isConfigured: true,
-                  },
-                };
-              }
-              return node;
-            });
-          });
-        }
-        setShowNextNode(false);
-      } catch (error) {
-        console.error('Error fetching automations:', error);
-      }
-    }
-
-    automationId && fetchAutomations();
-  }, [automationId]);
-
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       if (!event || event.type !== 'click') return;
@@ -322,81 +266,117 @@ const WorkflowEditor: React.FC = () => {
         })),
       );
 
-      // setSelectedNode(node);
-
       if (event.isTrusted) {
-        switch (node.type) {
-          case 'trigger':
-            setShowNextNode(false);
-
-            break;
-          case 'action':
-            setShowNextNode(true);
-
-            break;
-          default:
-            break;
-        }
+        setShowNextNode(node.type === 'action');
       }
     },
     [setNodes],
   );
 
-  function handleSaveAndExit() {
+  const validateAutomation = useCallback(() => {
     const data = nodesData?.trigger;
     const hasValidTextMessage = nodesData?.instagramTextBtnMessage?.text;
     const hasValidCardMessage = nodesData?.instagramCardMessage?.title;
 
     if (!data?.mediaLink?.length) {
-      return CustomToast('Please select at least one post or reel.');
+      CustomToast('Please select at least one post or reel.');
+      return false;
     }
 
     if (!data?.includeKeywords?.length) {
-      return CustomToast('Please select at least one keyword.');
+      CustomToast('Please select at least one keyword.');
+      return false;
     }
 
     if (!hasValidTextMessage && !hasValidCardMessage) {
-      return CustomToast('Please add Instagram DM block to send messages.');
-    }
-    AddAutomations(nodesData);
-  }
-  function handlePublishToggle() {
-    const data = nodesData?.trigger;
-    const hasValidTextMessage = nodesData?.instagramTextBtnMessage?.text;
-    const hasValidCardMessage = nodesData?.instagramCardMessage?.title;
-
-    if (!data?.mediaLink?.length) {
-      return CustomToast('Please select at least one post or reel.');
+      CustomToast('Please add Instagram DM block to send messages.');
+      return false;
     }
 
-    if (!data?.includeKeywords?.length) {
-      return CustomToast('Please select at least one keyword.');
+    return true;
+  }, [nodesData]);
+
+  const handleSaveAndExit = useCallback(() => {
+    if (validateAutomation()) {
+      AddAutomations(nodesData);
     }
+  }, [validateAutomation, AddAutomations, nodesData]);
 
-    if (!hasValidTextMessage && !hasValidCardMessage) {
-      return CustomToast('Please add Instagram DM block to send messages.');
+  const handlePublishToggle = useCallback(() => {
+    if (validateAutomation()) {
+      const updatedStatus = nodesData?.status === 'LIVE' ? 'DRAFT' : 'LIVE';
+      const updatedNodeData = { ...nodesData, status: updatedStatus };
+      setNodesData(updatedNodeData);
+      AddAutomations(updatedNodeData);
     }
+  }, [validateAutomation, nodesData, AddAutomations, setNodesData]);
 
-    // Only proceed if restrictToggle is false
-    // if (!restrictToggle) {
-    const updatedStatus =
-      (nodesData?.status || 'DRAFT') === 'LIVE' ? 'DRAFT' : 'LIVE';
+  useEffect(() => {
+    const fetchAutomations = async () => {
+      try {
+        const data = await getApi('user/get-automation', { automationId });
+        setNodesData(data.automations[0]);
+        setSelectedTrigger(true);
+        setTriggerType(data.automations[0].trigger.triggerType);
 
-    const updatedNodeData = {
-      ...nodesData,
-      status: updatedStatus,
+        setNodes((prevNodes) => {
+          const triggerNode = {
+            id: triggerId,
+            type: 'trigger',
+            position: { x: 250, y: 50 },
+            data: {
+              label:
+                data.automations[0].trigger.triggerType ===
+                'INSTAGRAM_POST_REEL'
+                  ? 'Post or Reel Comments'
+                  : 'Story Replies',
+              isConfigured: true,
+              isFirstTrigger: false,
+              onAddActionNode: handleAddNode,
+            },
+            selected: true,
+          };
+
+          const filteredNodes = prevNodes.filter(
+            (node) => node.type !== 'default',
+          );
+          return [...filteredNodes, triggerNode];
+        });
+
+        if (
+          data.automations[0]?.instagramTextBtnMessage ||
+          data.automations[0]?.instagramCardMessage ||
+          data.automations[0]?.checkFollowing
+        ) {
+          setShowNextForm(true);
+          handleAddNode();
+          setNodes((prevNodes) =>
+            prevNodes.map((node) =>
+              node.type === 'action'
+                ? {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      label: 'Send Instagram Message',
+                      isConfigured: true,
+                    },
+                  }
+                : node,
+            ),
+          );
+        }
+        setShowNextNode(false);
+      } catch (error) {
+        console.error('Error fetching automations:', error);
+      }
     };
 
-    setNodesData(updatedNodeData);
-    // }
-    // console.log(nodesData.status, restrictToggle);
-    AddAutomations(updatedNodeData);
-  }
+    automationId && fetchAutomations();
+  }, [automationId]);
 
   return (
-    <div className="  flex flex-col h-[100%] ">
+    <div className="flex flex-col h-[100%]">
       <div className="flex items-center border-b border-pink-200 justify-end right-0 top-0 p-2 left-[240px] bg-white gap-4 h-[60px]">
-        {/* Draft status toggle */}
         <div className="flex items-center gap-2">
           <span
             className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-300 shadow-sm ${
@@ -425,7 +405,6 @@ const WorkflowEditor: React.FC = () => {
           </label>
         </div>
 
-        {/* Save and Exit button */}
         <button
           onClick={handleSaveAndExit}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-pink-300"
@@ -448,8 +427,7 @@ const WorkflowEditor: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex relative gap-4 w-full  ">
-        {/* <div className='w-full h-full'> */}
+      <div className="flex relative gap-4 w-full">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -465,7 +443,6 @@ const WorkflowEditor: React.FC = () => {
           <Background variant="dots" gap={16} size={1} color="pink" />
           <Controls />
         </ReactFlow>
-        {/* </div> */}
 
         {showNextNode ? (
           <NextStepComponent
@@ -492,6 +469,7 @@ const WorkflowEditor: React.FC = () => {
             setTriggerType={setTriggerType}
             triggerType={triggerType}
             showTriggerNode={showTriggerNode}
+            automationId={automationId}
           />
         )}
       </div>

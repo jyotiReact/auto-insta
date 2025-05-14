@@ -14,6 +14,7 @@ import PostSelectorModal from './PostSelectorModal';
 import SetupKeywordsModal from './SetupKeywordsModal';
 import CommentRepliesModal from './CommentModal';
 import { getApi } from '../../../services/commonServices';
+import { useParams } from 'react-router-dom';
 
 interface TriggerItem {
   label: string;
@@ -224,11 +225,14 @@ const TriggerConfig: React.FC<TriggerConfigProps> = ({
             <input
               type="checkbox"
               className="sr-only peer"
-              checked={nodesData?.trigger?.likeComment}
+              checked={nodesData?.likeComment}
               onChange={() =>
                 setNodesData((prev) => ({
                   ...prev,
-                  likeComment: !prev.trigger.likeComment,
+                  trigger: {
+                    ...prev.trigger,
+                    likeComment: !prev.trigger?.likeComment,
+                  },
                 }))
               }
             />
@@ -272,13 +276,13 @@ function TriggerFormInputs({
   nodesData,
   selectedTrigger,
   setSelectedTrigger,
-  setNodes,
   setShowNextNode,
   handleAddNode,
   setTriggerType,
   triggerType,
   setPublishData,
   showTriggerNode,
+  automationId,
 }) {
   const [modalType, setModalType] = useState<string>('');
   const [postData, setPostData] = useState<any>([]);
@@ -296,29 +300,10 @@ function TriggerFormInputs({
           : '/service/instagram/stories',
       ).then((res) => setPostData(res.data));
     }
-
-    if (tempKeywords?.length) {
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          node.type === 'trigger'
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                },
-              }
-            : node,
-        ),
-      );
+    if (nodesData && automationId) {
+      setTempKeywords(nodesData?.trigger?.includeKeywords);
     }
-    setNodesData({
-      ...nodesData,
-      trigger: {
-        ...nodesData.trigger,
-        likeComment: islike,
-      },
-    });
-  }, [modalType, tempKeywords, islike]);
+  }, [modalType, nodesData, automationId]);
 
   const handleVideoSelect = (video: VideoItem) => {
     setNodesData({
@@ -397,7 +382,7 @@ function TriggerFormInputs({
             onClick={(type) => {
               setSelectedTrigger(true);
               setTriggerType(type);
-              showTriggerNode();
+              showTriggerNode(type);
             }}
           />
         )}

@@ -66,7 +66,6 @@ const CustomMessageModal: React.FC<CustomMessageModalProps> = ({
   const [showTitleInput1, setShowTitleInput1] = useState(false);
   const [showUrlInput1, setShowUrlInput1] = useState(false);
   const [showTitleInput2, setShowTitleInput2] = useState(false);
-  console.log({ button1 });
   const handleSave = () => {
     const instagramUrl = `https://www.instagram.com/${
       user?.username || 'user'
@@ -329,7 +328,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
   };
 
   useEffect(() => {
-    console.log({nodesData})
     async function fetchDefaultMessages() {
       try {
         const data = await getApi('user/get-default-data');
@@ -372,7 +370,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
     }
     fetchDefaultMessages();
   }, []);
-  console.log(nodesData);
   return (
     <div className="w-[400px]   bg-white overflow-y-auto h-screen">
       <div className="p-6 h-full">
@@ -422,7 +419,6 @@ const NextStepComponent: React.FC<NextStepComponentProps> = ({
                   }
                   onChange={() => {
                     if (automationId) {
-                      console.log('enter');
                       setNodesData((prev) => ({
                         ...prev,
                         checkFollowing: !prev.checkFollowing,

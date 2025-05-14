@@ -394,7 +394,6 @@ const ButtonInputs: React.FC<ButtonInputsProps> = ({
   onRemoveButton,
 }) => (
   <div className="mb-4 mt-4 mx-4 border border-dashed p-2 border-pink-600 rounded-lg">
-    {console.log(buttons)}
 
     {showButtonInputs ? (
       <>

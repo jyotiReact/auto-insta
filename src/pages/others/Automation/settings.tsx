@@ -10,8 +10,6 @@ export const nodesDataFormat = {
   trigger: {
     contentThumbnail: [''],
     excludeKeywords: [],
-    likeComment: false,
-    type: 'INSTAGRAM_POST_REEL',
     position: { x: 0, y: 0 },
     measured: { width: 300, height: 488 },
   },

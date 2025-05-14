@@ -245,7 +245,8 @@ const AutomationList: React.FC = () => {
               <div className="col-span-2 text-sm text-gray-600">
                 {automation?.trigger?.triggerType === 'INSTAGRAM_POST_REEL'
                   ? 'Reel'
-                  : automation?.trigger?.triggerType === 'INSTAGRAM_STORY_REPLIES'
+                  : automation?.trigger?.triggerType ===
+                    'INSTAGRAM_STORY_REPLIES'
                   ? 'Story'
                   : 'N/A'}
               </div>
@@ -290,50 +291,52 @@ const AutomationList: React.FC = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <div className="text-sm text-gray-600">
-          Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-          {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount}{' '}
-          automations
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
-              currentPage === 1
-                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
-            }`}
-          >
-            Previous
-          </button>
-          {getPageNumbers().map((page) => (
+      {filteredAutomations.length > 0 && (
+        <div className="flex justify-between items-center mt-6">
+          <div className="text-sm text-gray-600">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+            {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount}{' '}
+            automations
+          </div>
+          <div className="flex gap-2">
             <button
-              key={page}
-              onClick={() => handlePageChange(page)}
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
               className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
-                currentPage === page
-                  ? 'text-white bg-pink-600 hover:bg-pink-700'
+                currentPage === 1
+                  ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
                   : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
               }`}
             >
-              {page}
+              Previous
             </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
-              currentPage === totalPages
-                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
-            }`}
-          >
-            Next
-          </button>
+            {getPageNumbers().map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
+                  currentPage === page
+                    ? 'text-white bg-pink-600 hover:bg-pink-700'
+                    : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 border border-pink-300 rounded-md text-sm font-medium transition-all duration-200 ${
+                currentPage === totalPages
+                  ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                  : 'text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-600'
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

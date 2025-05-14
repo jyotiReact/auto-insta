@@ -319,6 +319,29 @@ const WorkflowEditor: React.FC = () => {
         setSelectedTrigger(true);
         setTriggerType(data.automations[0].trigger.triggerType);
 
+        if (
+          data.automations[0]?.instagramTextBtnMessage ||
+          data.automations[0]?.instagramCardMessage ||
+          data.automations[0]?.checkFollowing
+        ) {
+          setShowNextForm(true);
+          handleAddNode();
+          setNodes((prevNodes) =>
+            prevNodes.map((node) =>
+              node.type === 'action'
+                ? {
+                    ...node,
+                    data: {
+                      ...node.data,
+                      label: 'Send Instagram Message',
+                      isConfigured: true,
+                    },
+                    selected: false,
+                  }
+                : node,
+            ),
+          );
+        }
         setNodes((prevNodes) => {
           const triggerNode = {
             id: triggerId,
@@ -342,29 +365,6 @@ const WorkflowEditor: React.FC = () => {
           );
           return [...filteredNodes, triggerNode];
         });
-
-        if (
-          data.automations[0]?.instagramTextBtnMessage ||
-          data.automations[0]?.instagramCardMessage ||
-          data.automations[0]?.checkFollowing
-        ) {
-          setShowNextForm(true);
-          handleAddNode();
-          setNodes((prevNodes) =>
-            prevNodes.map((node) =>
-              node.type === 'action'
-                ? {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      label: 'Send Instagram Message',
-                      isConfigured: true,
-                    },
-                  }
-                : node,
-            ),
-          );
-        }
         setShowNextNode(false);
       } catch (error) {
         console.error('Error fetching automations:', error);
@@ -470,6 +470,7 @@ const WorkflowEditor: React.FC = () => {
             triggerType={triggerType}
             showTriggerNode={showTriggerNode}
             automationId={automationId}
+            initialNodes={initialNodes}
           />
         )}
       </div>

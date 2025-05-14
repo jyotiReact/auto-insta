@@ -14,7 +14,6 @@ import PostSelectorModal from './PostSelectorModal';
 import SetupKeywordsModal from './SetupKeywordsModal';
 import CommentRepliesModal from './CommentModal';
 import { getApi } from '../../../services/commonServices';
-import { useParams } from 'react-router-dom';
 
 interface TriggerItem {
   label: string;
@@ -283,6 +282,8 @@ function TriggerFormInputs({
   setPublishData,
   showTriggerNode,
   automationId,
+  initialNodes,
+  setNodes,
 }) {
   const [modalType, setModalType] = useState<string>('');
   const [postData, setPostData] = useState<any>([]);
@@ -291,6 +292,7 @@ function TriggerFormInputs({
   const [tempKeywords, setTempKeywords] = useState<any>([]);
   const [replies, setReplies] = useState<any>([]);
   const [islike, setIsLike] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (modalType === 'post') {
@@ -325,6 +327,16 @@ function TriggerFormInputs({
 
     setSelectedVideo(video);
   };
+  // const confirmDelete = () => {
+  //   setNodes(initialNodes);
+  //   setIsDeleteModalOpen(false);
+  //   // setNextNodeStep(false);
+  //   setShowNextNode(false);
+  //   setSelectedTrigger(false);
+  //   setNodesData({ status: 'DELETED', trigger: {} });
+  //   // setShowNextForm(false);
+  //   // setShowNextStepInputs(false);
+  // };
 
   return (
     <div className="w-[400px]   right-0 bg-white overflow-y-auto h-screen">
@@ -341,13 +353,16 @@ function TriggerFormInputs({
             </div>
           </div>
         ) : (
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setSelectedTrigger(false)}
-              className="p-2 w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-600 transition-colors duration-200"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
-            </button>
+          <div className="flex items-center justify-between">
+            {!automationId && (
+              <button
+                onClick={() => setSelectedTrigger(false)}
+                className="p-2 w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-600 transition-colors duration-200"
+              >
+                <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
+              </button>
+            )}
+
             <div>
               <h2 className="text-md font-bold text-gray-900">
                 {triggerType === 'INSTAGRAM_POST_REEL'
@@ -358,6 +373,14 @@ function TriggerFormInputs({
                 Configure your trigger settings
               </p>
             </div>
+            {/* <DeleteModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onConfirm={confirmDelete}
+              title="Delete Node?"
+              description="Are you sure you want to delete all node?"
+              setIsDeleteModalOpen={setIsDeleteModalOpen}
+            /> */}
           </div>
         )}
 
